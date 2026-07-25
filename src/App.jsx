@@ -1,107 +1,182 @@
-                                                                                                                                                                                                                                                       <h3>Recorded Settlement Transactions</h3>
-        jsx                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                    <input 
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                          type="text" 
-                      import React, { useState, useEffect, useRef } from 'react';
+                                                                                                     <th style={styles.th}>Txn ID</th>
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                            <th style={styles.th}>Customer Phone</th>
+              jsx                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                              <th style={styles.th}>Amount</th>
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                            <th style={styles.th}>Type</th>
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                            <th style={styles.th}>Monnify Ref</th>
+                           import React, { useState, useEffect, useRef } from 'react';
 import { fetchTransactionLogs, fetchUSSDLogs } from './services/api';
 
-function App() {
-  const [transactions, setTransactions] = useState([]);
+export default function App() {
   const [ussdLogs, setUssdLogs] = useState([]);
+  const [monnifyLogs, setMonnifyLogs] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [lastUpdated, setLastUpdated] = useState(null);
 
-  // Store active timeout ID to clean up cleanly
-  const pollTimerRef = useRef(null);
-
-  const loadData = async (isInitialLoad = false) => {
-    try {
-      const [txData, ussdData] = await Promise.all([
-        fetchTransactionLogs(),
-        fetchUSSDLogs()
-      ]);
-      setTransactions(txData);
-      setUssdLogs(ussdData);
-      setError(null);
-    } catch (err) {
-      console.error("Failed to fetch live logs:", err);
-      setError("Failed to connect to backend server.");
-    } finally {
-      if (isInitialLoad) {
-        setLoading(false);
-      }
-    }
-  };
+  const isFetchingRef = useRef(false);
 
   useEffect(() => {
-    let isMounted = true;
+    let timerId;
 
-    const runPolling = async () => {
-      await loadData(true); // First load updates the main loading indicator
+    const loadData = async () => {
+      if (isFetchingRef.current) return;
+      isFetchingRef.current = true;
 
-      const poll = async () => {
-        if (!isMounted) return;
-        await loadData(false); // Background update without triggering loading state
-        pollTimerRef.current = setTimeout(poll, 5000); // Schedule next fetch AFTER this one finishes
-      };
+      try {
+        const [ussdData, monnifyData] = await Promise.all([
+          fetchUSSDLogs(),
+          fetchTransactionLogs(),
+        ]);
 
-      pollTimerRef.current = setTimeout(poll, 5000);
+        setUssdLogs(Array.isArray(ussdData) ? ussdData : ussdData?.data || []);
+        setMonnifyLogs(Array.isArray(monnifyData) ? monnifyData : monnifyData?.data || []);
+        setError(null);
+        setLastUpdated(new Date().toLocaleTimeString());
+      } catch (err) {
+        console.error('Polling error:', err);
+        setError('Failed to sync live logs from backend.');
+      } finally {
+        setLoading(false);
+        isFetchingRef.current = false;
+        timerId = setTimeout(loadData, 5000); // 5-second interval
+      }
     };
 
-    runPolling();
+    loadData();
 
-    return () => {
-      isMounted = false;
-      if (pollTimerRef.current) clearTimeout(pollTimerRef.current);
-    };
+    return () => clearTimeout(timerId);
   }, []);
 
-  if (loading) {
-    return <div style={{ padding: '20px' }}>Loading operational pipeline...</div>;
-  }
+  const getStatusBadge = (status) => {
+    const s = (status || '').toString().toUpperCase();
+    if (s === 'SUCCESS' || s === 'COMPLETED' || s === '200') {
+      return <span className="px-2 py-0.5 text-xs font-semibold rounded bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">{s}</span>;
+    }
+    if (s === 'FAILED' || s === 'ERROR' || s === '500') {
+      return <span className="px-2 py-0.5 text-xs font-semibold rounded bg-rose-500/10 text-rose-400 border border-rose-500/20">{s}</span>;
+    }
+    return <span className="px-2 py-0.5 text-xs font-semibold rounded bg-amber-500/10 text-amber-400 border border-amber-500/20">{s || 'PENDING'}</span>;
+  };
 
   return (
-    <div style={{ padding: '20px', fontFamily: 'sans-serif' }}>
-      <h1>Adept Processing Nig LTD - Operational Dashboard</h1>
+    <div className="min-h-screen bg-slate-900 text-slate-100 font-sans p-4 sm:p-8">
+      <div className="max-w-7xl mx-auto">
+        
+        {/* Dashboard Header */}
+        <header className="flex flex-col sm:flex-row sm:items-center justify-between pb-6 mb-8 border-b border-slate-800 gap-4">
+          <div>
+            <h1 className="text-2xl font-bold tracking-tight text-white">Adept Processing Nig LTD</h1>
+            <p className="text-sm text-slate-400 mt-1">Real-Time Operations Dashboard</p>
+          </div>
 
-      {error && <p style={{ color: 'red', fontWeight: 'bold' }}>{error}</p>}
+          <div className="flex items-center gap-3">
+            <div className="flex items-center gap-2 px-3 py-1.5 rounded-full bg-slate-800 border border-slate-700 text-xs text-slate-300">
+              <span className="relative flex h-2 w-2">
+                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
+                <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-500"></span>
+              </span>
+              <span>Live Sync Active</span>
+            </div>
+            {lastUpdated && (
+              <span className="text-xs text-slate-500">
+                Updated: {lastUpdated}
+              </span>
+            )}
+          </div>
+        </header>
 
-      <div style={{ display: 'flex', gap: '20px', marginTop: '20px' }}>
-        {/* USSD Logs */}
-        <div style={{ flex: 1, border: '1px solid #ccc', padding: '15px', borderRadius: '8px' }}>
-          <h2>Live USSD Sessions ({ussdLogs.length})</h2>
-          <pre style={{ background: '#f4f4f4', padding: '10px', borderRadius: '4px', maxHeight: '400px', overflowY: 'auto' }}>
-            {JSON.stringify(ussdLogs, null, 2)}
-          </pre>
-        </div>
+        {/* Global Error Banner */}
+        {error && (
+          <div className="mb-6 p-4 rounded-lg bg-rose-500/10 border border-rose-500/20 text-rose-400 text-sm">
+            {error}
+          </div>
+        )}
 
-        {/* Transaction Logs */}
-        <div style={{ flex: 1, border: '1px solid #ccc', padding: '15px', borderRadius: '8px' }}>
-          <h2>Monnify Transactions ({transactions.length})</h2>
-          <pre style={{ background: '#f4f4f4', padding: '10px', borderRadius: '4px', maxHeight: '400px', overflowY: 'auto' }}>
-            {JSON.stringify(transactions, null, 2)}
-          </pre>
-        </div>
+        {/* Initial Loading Skeleton */}
+        {loading && (
+          <div className="text-center py-12 text-slate-500 animate-pulse">
+            Connecting to operational log feeds...
+          </div>
+        )}
+
+        {/* Main Grid Panels */}
+        {!loading && (
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            
+            {/* USSD Sessions Panel */}
+            <div className="bg-slate-800/60 border border-slate-700/60 rounded-xl p-5 flex flex-col">
+              <div className="flex items-center justify-between mb-4">
+                <h2 className="text-lg font-semibold text-slate-200">USSD Sessions</h2>
+                <span className="text-xs font-medium px-2.5 py-1 rounded-full bg-slate-700 text-slate-300">
+                  {ussdLogs.length} Total
+                </span>
+              </div>
+
+              <div className="flex-1 overflow-y-auto max-h-[550px] space-y-3 pr-1">
+                {ussdLogs.length === 0 ? (
+                  <p className="text-sm text-slate-500 py-4 text-center">No active USSD logs</p>
+                ) : (
+                  ussdLogs.map((log, index) => (
+                    <div key={log.id || index} className="p-3.5 rounded-lg bg-slate-900/60 border border-slate-800 text-sm space-y-2">
+                      <div className="flex justify-between items-start">
+                        <span className="font-mono text-xs text-slate-400">{log.sessionId || log.phoneNumber || `Session #${index + 1}`}</span>
+                        {getStatusBadge(log.status)}
+                      </div>
+                      <p className="text-slate-300 text-xs font-mono bg-slate-950 p-2 rounded border border-slate-800/80">
+                        {log.message || log.text || JSON.stringify(log)}
+                      </p>
+                      {log.createdAt && (
+                        <p className="text-[10px] text-slate-500 text-right">{new Date(log.createdAt).toLocaleString()}</p>
+                      )}
+                    </div>
+                  ))
+                )}
+              </div>
+            </div>
+
+            {/* Monnify Transactions Panel */}
+            <div className="bg-slate-800/60 border border-slate-700/60 rounded-xl p-5 flex flex-col">
+              <div className="flex items-center justify-between mb-4">
+                <h2 className="text-lg font-semibold text-slate-200">Monnify Transactions</h2>
+                <span className="text-xs font-medium px-2.5 py-1 rounded-full bg-slate-700 text-slate-300">
+                  {monnifyLogs.length} Total
+                </span>
+              </div>
+
+              <div className="flex-1 overflow-y-auto max-h-[550px] space-y-3 pr-1">
+                {monnifyLogs.length === 0 ? (
+                  <p className="text-sm text-slate-500 py-4 text-center">No active transaction logs</p>
+                ) : (
+                  monnifyLogs.map((tx, index) => (
+                    <div key={tx.id || index} className="p-3.5 rounded-lg bg-slate-900/60 border border-slate-800 text-sm space-y-2">
+                      <div className="flex justify-between items-start">
+                        <div>
+                          <p className="font-semibold text-slate-200">{tx.transactionReference || `TX #${index + 1}`}</p>
+                          {tx.amount && <p className="text-xs text-emerald-400 font-mono mt-0.5">₦{Number(tx.amount).toLocaleString()}</p>}
+                        </div>
+                        {getStatusBadge(tx.status || tx.paymentStatus)}
+                      </div>
+                      {tx.narration && (
+                        <p className="text-xs text-slate-400">{tx.narration}</p>
+                      )}
+                      {tx.createdAt && (
+                        <p className="text-[10px] text-slate-500 text-right">{new Date(tx.createdAt).toLocaleString()}</p>
+                      )}
+                    </div>
+                  ))
+                )}
+              </div>
+
+            </div>
+
+          </div>
+        )}
+
       </div>
     </div>
   );
 }
-
-export default App;
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                  placeholder="Search phone, ID, or reference..." 
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                      value={filterText}
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                    onChange={(e) => setFilterText(e.target.value)}
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                  style={styles.searchInput}
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                              />
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                        </div>
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                  <table style={styles.table}>
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                              <thead>
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                            <tr style={styles.thRow}>
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                            <th style={styles.th}>Txn ID</th>
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                            <th style={styles.th}>Customer Phone</th>
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                            <th style={styles.th}>Amount</th>
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                            <th style={styles.th}>Type</th>
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                            <th style={styles.th}>Monnify Ref</th>
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                            <th style={styles.th}>Status</th>
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                 <th style={styles.th}>Status</th>
                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                             <th style={styles.th}>Timestamp</th>
                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                           </tr>
                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                       </thead>
