@@ -1,6 +1,6 @@
 jsx
 import React, { useState, useEffect, useRef } from 'react';
-import { fetchTransactionLogs, fetchUSSDLogs } from './services/api';
+import { fetchTransactionLogs, fetchUSSDLogs } from '../service/api';
 
 export default function App() {
   const [ussdLogs, setUssdLogs] = useState([]);
