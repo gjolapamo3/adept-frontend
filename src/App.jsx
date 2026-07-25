@@ -1,5 +1,5 @@
-             jsx                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                        tab: { padding: '0.6rem 1.2rem', border: 'none', backgroundColor: '#e2e8f0', borderRadius: '6px', cursor: 'pointer', fontWeight: 600, color: '#475569' },
-                  import React, { useState, useEffect, useRef } from 'react';
+                     jsx                                                                                                                                                                                                                      activeTab: { padding: '0.6rem 1.2rem', border: 'none', backgroundColor: '#2563eb', borderRadius: '6px', cursor: 'pointer', fontWeight: 600, color: '#ffffff' },
+                   import React, { useState, useEffect, useRef } from 'react';
 import { fetchTransactionLogs, fetchUSSDLogs } from './services/api';
 
 export default function App() {
@@ -34,7 +34,7 @@ export default function App() {
       } finally {
         setLoading(false);
         isFetchingRef.current = false;
-        timerId = setTimeout(loadData, 5000); // 5-second interval
+        timerId = setTimeout(loadData, 5000);
       }
     };
 
@@ -70,7 +70,7 @@ export default function App() {
     <div className="min-h-screen bg-slate-900 text-slate-100 font-sans p-4 sm:p-8">
       <div className="max-w-7xl mx-auto">
         
-        {/* Dashboard Header */}
+        {/* Header */}
         <header className="flex flex-col sm:flex-row sm:items-center justify-between pb-6 mb-8 border-b border-slate-800 gap-4">
           <div>
             <h1 className="text-2xl font-bold tracking-tight text-white">Adept Processing Nig LTD</h1>
@@ -100,18 +100,18 @@ export default function App() {
           </div>
         )}
 
-        {/* Initial Loading Skeleton */}
+        {/* Loading Indicator */}
         {loading && (
           <div className="text-center py-12 text-slate-500 animate-pulse">
             Connecting to operational log feeds...
           </div>
         )}
 
-        {/* Main Grid Panels */}
+        {/* Dashboard Content */}
         {!loading && (
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
             
-            {/* USSD Sessions Panel */}
+            {/* USSD Sessions */}
             <div className="bg-slate-800/60 border border-slate-700/60 rounded-xl p-5 flex flex-col">
               <div className="flex items-center justify-between mb-4">
                 <h2 className="text-lg font-semibold text-slate-200">USSD Sessions</h2>
@@ -142,7 +142,7 @@ export default function App() {
               </div>
             </div>
 
-            {/* Monnify Transactions Panel */}
+            {/* Monnify Transactions */}
             <div className="bg-slate-800/60 border border-slate-700/60 rounded-xl p-5 flex flex-col">
               <div className="flex items-center justify-between mb-4">
                 <h2 className="text-lg font-semibold text-slate-200">Monnify Transactions</h2>
@@ -184,8 +184,7 @@ export default function App() {
     </div>
   );
 }
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                    activeTab: { padding: '0.6rem 1.2rem', border: 'none', backgroundColor: '#2563eb', borderRadius: '6px', cursor: 'pointer', fontWeight: 600, color: '#ffffff' },
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                        tableCard: { backgroundColor: '#ffffff', borderRadius: '8px', padding: '1.5rem', boxShadow: '0 1px 3px rgba(0,0,0,0.05)' },
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                     tableCard: { backgroundColor: '#ffffff', borderRadius: '8px', padding: '1.5rem', boxShadow: '0 1px 3px rgba(0,0,0,0.05)' },
                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                           tableHeader: { display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1rem' },
                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                             searchInput: { padding: '0.5rem 0.8rem', borderRadius: '6px', border: '1px solid #cbd5e1', width: '260px' },
                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                               table: { width: '100%', borderCollapse: 'collapse', textAlign: 'left' },
