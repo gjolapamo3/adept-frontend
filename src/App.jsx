@@ -1,6 +1,4 @@
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                       }),
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                        logContainer: { display: 'flex', flexDirection: 'column', gap: '0.75rem' },
-                cat << 'EOF' > src/App.jsx
+jsx
 import React, { useState, useEffect, useRef } from 'react';
 import { fetchTransactionLogs, fetchUSSDLogs } from './services/api';
 
@@ -21,10 +19,8 @@ export default function App() {
       isFetchingRef.current = true;
 
       try {
-        const [ussdData, monnifyData] = await Promise.all([
-          fetchUSSDLogs(),
-          fetchTransactionLogs(),
-        ]);
+        const ussdData = await fetchUSSDLogs();
+        const monnifyData = await fetchTransactionLogs();
 
         setUssdLogs(Array.isArray(ussdData) ? ussdData : ussdData?.data || []);
         setMonnifyLogs(Array.isArray(monnifyData) ? monnifyData : monnifyData?.data || []);
@@ -42,7 +38,9 @@ export default function App() {
 
     loadData();
 
-    return () => clearTimeout(timerId);
+    return () => {
+      if (timerId) clearTimeout(timerId);
+    };
   }, []);
 
   const getStatusBadge = (status) => {
@@ -71,8 +69,6 @@ export default function App() {
   return (
     <div className="min-h-screen bg-slate-900 text-slate-100 font-sans p-4 sm:p-8">
       <div className="max-w-7xl mx-auto">
-        
-        {/* Header */}
         <header className="flex flex-col sm:flex-row sm:items-center justify-between pb-6 mb-8 border-b border-slate-800 gap-4">
           <div>
             <h1 className="text-2xl font-bold tracking-tight text-white">Adept Processing Nig LTD</h1>
@@ -95,25 +91,20 @@ export default function App() {
           </div>
         </header>
 
-        {/* Global Error Banner */}
         {error && (
           <div className="mb-6 p-4 rounded-lg bg-rose-500/10 border border-rose-500/20 text-rose-400 text-sm">
             {error}
           </div>
         )}
 
-        {/* Loading Indicator */}
         {loading && (
           <div className="text-center py-12 text-slate-500 animate-pulse">
             Connecting to operational log feeds...
           </div>
         )}
 
-        {/* Dashboard Content */}
         {!loading && (
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-            
-            {/* USSD Sessions */}
             <div className="bg-slate-800/60 border border-slate-700/60 rounded-xl p-5 flex flex-col">
               <div className="flex items-center justify-between mb-4">
                 <h2 className="text-lg font-semibold text-slate-200">USSD Sessions</h2>
@@ -144,7 +135,6 @@ export default function App() {
               </div>
             </div>
 
-            {/* Monnify Transactions */}
             <div className="bg-slate-800/60 border border-slate-700/60 rounded-xl p-5 flex flex-col">
               <div className="flex items-center justify-between mb-4">
                 <h2 className="text-lg font-semibold text-slate-200">Monnify Transactions</h2>
@@ -176,20 +166,10 @@ export default function App() {
                   ))
                 )}
               </div>
-
             </div>
-
           </div>
         )}
-
       </div>
     </div>
   );
 }
-EOF
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                          logEntry: { backgroundColor: '#0f172a', color: '#f8fafc', padding: '1rem', borderRadius: '6px', fontFamily: 'monospace', fontSize: '0.85rem' },
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                            logMeta: { color: '#94a3b8', marginBottom: '0.5rem', display: 'flex', gap: '0.75rem' },
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                              logBody: { backgroundColor: '#1e293b', padding: '0.75rem', borderRadius: '4px' }
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                              };
-
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                              export default App;
