@@ -1,4 +1,5 @@
-> src/App.jsx && cat << 'EOF' > src/App.jsx
+> src/App.jsx
+cat << 'EOF' > src/App.jsx
 import React, { useState, useEffect, useRef } from 'react';
 import { fetchTransactionLogs, fetchUSSDLogs } from './services/api';
 
