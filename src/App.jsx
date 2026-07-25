@@ -1,5 +1,4 @@
-jsx
-import React, { useState, useEffect, useRef } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { fetchTransactionLogs, fetchUSSDLogs } from '../service/api';
 
 export default function App() {
@@ -8,7 +7,6 @@ export default function App() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [lastUpdated, setLastUpdated] = useState(null);
-
   const isFetchingRef = useRef(false);
 
   useEffect(() => {
@@ -32,14 +30,14 @@ export default function App() {
       } finally {
         setLoading(false);
         isFetchingRef.current = false;
-        timerId = setTimeout(loadData, 5000);
+        timerId = window.setTimeout(loadData, 5000);
       }
     };
 
     loadData();
 
     return () => {
-      if (timerId) clearTimeout(timerId);
+      if (timerId) window.clearTimeout(timerId);
     };
   }, []);
 
@@ -74,7 +72,9 @@ export default function App() {
                 ) : (
                   ussdLogs.map((log, i) => (
                     <div key={log.id || i} className="p-3 bg-slate-900 rounded border border-slate-800 text-sm">
-                      <p className="font-mono text-xs text-slate-400">{log.sessionId || log.phoneNumber || `Session #${i + 1}`}</p>
+                      <p className="font-mono text-xs text-slate-400">
+                        {log.sessionId || log.phoneNumber || `Session #${i + 1}`}
+                      </p>
                       <p className="text-slate-200 mt-1">{log.message || log.text || JSON.stringify(log)}</p>
                     </div>
                   ))
@@ -90,8 +90,14 @@ export default function App() {
                 ) : (
                   monnifyLogs.map((tx, i) => (
                     <div key={tx.id || i} className="p-3 bg-slate-900 rounded border border-slate-800 text-sm">
-                      <p className="font-semibold text-slate-200">{tx.transactionReference || `TX #${i + 1}`}</p>
-                      {tx.amount && <p className="text-xs text-emerald-400 font-mono mt-0.5">₦{Number(tx.amount).toLocaleString()}</p>}
+                      <p className="font-semibold text-slate-200">
+                        {tx.transactionReference || `TX #${i + 1}`}
+                      </p>
+                      {tx.amount && (
+                        <p className="text-xs text-emerald-400 font-mono mt-0.5">
+                          ₦{Number(tx.amount).toLocaleString()}
+                        </p>
+                      )}
                     </div>
                   ))
                 )}
