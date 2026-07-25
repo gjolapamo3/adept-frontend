@@ -1,75 +1,74 @@
 
 jsx
-import React, { useState, useEffect } from 'react';
-import { jsx } from 'react/jsx-runtime';
+
+         import React, { useState, useEffect } from 'react';
+import { fetchTransactionLogs, fetchUSSDLogs } from './services/api';
 
 function App() {
-  const [status, setStatus] = useState('Connecting...');
-    const [activeTab, setActiveTab] = useState('transactions');
-      const [filterText, setFilterText] = useState('');
+  const [transactions, setTransactions] = useState([]);
+  const [ussdLogs, setUssdLogs] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
 
-        const API_BASE = import.meta.env.VITE_API_BASE_URL || 'https://adept-backend-fojr.onrender.com';
+  const loadData = async () => {
+    try {
+      const [txData, ussdData] = await Promise.all([
+        fetchTransactionLogs(),
+        fetchUSSDLogs()
+      ]);
+      setTransactions(txData);
+      setUssdLogs(ussdData);
+      setError(null);
+    } catch (err) {
+      console.error("Failed to fetch live logs:", err);
+      setError("Failed to connect to backend server.");
+    } finally {
+      setLoading(false);
+    }
+  };
 
-          // Sample production transactions (Replace endpoint URL once backend route is live)
-            const [transactions, setTransactions] = useState([
-                { id: 'TXN-98231', user: '08031234567', amount: '₦15,000.00', type: 'Collection', status: 'SUCCESS', reference: 'MNF-88410293', date: '2026-07-24 14:22' },
-                    { id: 'TXN-98232', user: '08129876543', amount: '₦4,500.00', type: 'USSD Session', status: 'SUCCESS', reference: 'MNF-88410294', date: '2026-07-24 14:25' },
-                        { id: 'TXN-98233', user: '07055554433', amount: '₦50,000.00', type: 'Payout', status: 'PENDING', reference: 'MNF-88410295', date: '2026-07-24 14:28' },
-                            { id: 'TXN-98234', user: '08091112233', amount: '₦2,000.00', type: 'USSD Session', status: 'FAILED', reference: 'MNF-88410296', date: '2026-07-24 14:30' },
-                              ]);
+  useEffect(() => {
+    loadData();
 
-                                // Sample live USSD stream
-                                  const [ussdLogs, setUssdLogs] = useState([
-                                      { id: 1, msisdn: '2348031234567', sessionId: 'sess_9921', serviceCode: '*384*', text: '1', response: 'CON Enter Pin to Confirm ₦4,500', timestamp: '14:25:01' },
-                                          { id: 2, msisdn: '2348031234567', sessionId: 'sess_9921', serviceCode: '*384*', text: '1*1234', response: 'END Transaction successful. Ref: MNF-88410294', timestamp: '14:25:12' },
-                                              { id: 3, msisdn: '2348091112233', sessionId: 'sess_9922', serviceCode: '*384*', text: '2', response: 'END Invalid Option Selected', timestamp: '14:30:45' },
-                                                ]);
+    // Poll backend every 5 seconds for live log updates
+    const interval = setInterval(() => {
+      loadData();
+    }, 5000);
 
-                                                  useEffect(() => {
-                                                      fetch(`${API_BASE}/health`)
-                                                            .then((res) => res.json())
-                                                                  .then((data) => setStatus(data.status || 'Active (Live)'))
-                                                                        .catch(() => setStatus('Warming Up / Reconnecting...'));
-                                                                          }, [API_BASE]);
+    return () => clearInterval(interval);
+  }, []);
 
-                                                                            const filteredTxns = transactions.filter(t => 
-                                                                                t.id.toLowerCase().includes(filterText.toLowerCase()) ||
-                                                                                    t.user.includes(filterText) ||
-                                                                                        t.reference.toLowerCase().includes(filterText.toLowerCase())
-                                                                                          );
+  if (loading) return <div style={{ padding: '20px' }}>Loading operational pipeline...</div>;
 
-                                                                                            return (
-                                                                                                <div style={styles.container}>
-                                                                                                      {/* Header Bar */}
-                                                                                                            <header style={styles.header}>
-                                                                                                                    <div>
-                                                                                                                              <h1 style={styles.title}>Adept Processing Nig LTD</h1>
-                                                                                                                                        <p style={styles.subtitle}>Payment Processing & USSD Gateway Operations</p>
-                                                                                                                                                </div>
-                                                                                                                                                        <div style={styles.statusBadge}>
-                                                                                                                                                                  <span style={styles.statusDot(status.includes('Active'))}></span>
-                                                                                                                                                                            Backend: {status}
-                                                                                                                                                                                    </div>
-                                                                                                                                                                                          </header>
+  return (
+    <div style={{ padding: '20px', fontFamily: 'sans-serif' }}>
+      <h1>Adept Processing Nig LTD - Operational Dashboard</h1>
 
-                                                                                                                                                                                                {/* Operations Quick Overview */}
-                                                                                                                                                                                                      <div style={styles.statsGrid}>
-                                                                                                                                                                                                              <div style={styles.card}>
-                                                                                                                                                                                                                        <p style={styles.cardLabel}>Processed Volume</p>
-                                                                                                                                                                                                                                  <h2 style={styles.cardVal}>₦71,500.00</h2>
-                                                                                                                                                                                                                                          </div>
-                                                                                                                                                                                                                                                  <div style={styles.card}>
-                                                                                                                                                                                                                                                            <p style={styles.cardLabel}>Monnify Webhooks</p>
-                                                                                                                                                                                                                                                                      <h2 style={styles.cardVal}>99.4% Verified</h2>
-                                                                                                                                                                                                                                                                              </div>
-                                                                                                                                                                                                                                                                                      <div style={styles.card}>
-                                                                                                                                                                                                                                                                                                <p style={styles.cardLabel}>Active USSD Sessions</p>
-                                                                                                                                                                                                                                                                                                          <h2 style={styles.cardVal}>14 Active</h2>
-                                                                                                                                                                                                                                                                                                                  </div>
-                                                                                                                                                                                                                                                                                                                        </div>
+      {error && <p style={{ color: 'red' }}>{error}</p>}
 
-                                                                                                                                                                                                                                                                                                                              {/* Navigation Tabs */}
-                                                                                                                                                                                                                                                                                                                                    <div style={styles.tabContainer}>
+      <div style={{ display: 'flex', gap: '20px', marginTop: '20px' }}>
+        {/* USSD Logs */}
+        <div style={{ flex: 1, border: '1px solid #ccc', padding: '15px', borderRadius: '8px' }}>
+          <h2>Live USSD Sessions ({ussdLogs.length})</h2>
+          <pre style={{ background: '#f4f4f4', padding: '10px', borderRadius: '4px' }}>
+            {JSON.stringify(ussdLogs, null, 2)}
+          </pre>
+        </div>
+
+        {/* Transaction Logs */}
+        <div style={{ flex: 1, border: '1px solid #ccc', padding: '15px', borderRadius: '8px' }}>
+          <h2>Monnify Transactions ({transactions.length})</h2>
+          <pre style={{ background: '#f4f4f4', padding: '10px', borderRadius: '4px' }}>
+            {JSON.stringify(transactions, null, 2)}
+          </pre>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+export default App;
+                                                                                                                                                                                                                                                                                                                           <div style={styles.tabContainer}>
                                                                                                                                                                                                                                                                                                                                             <button 
                                                                                                                                                                                                                                                                                                                                                       style={activeTab === 'transactions' ? styles.activeTab : styles.tab} 
                                                                                                                                                                                                                                                                                                                                                                 onClick={() => setActiveTab('transactions')}
