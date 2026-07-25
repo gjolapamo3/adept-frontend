@@ -1,7 +1,7 @@
-
-jsx
-
-         import React, { useState, useEffect } from 'react';
+                                                                                                                                                                                                                                                       <h3>Recorded Settlement Transactions</h3>
+        jsx                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                    <input 
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                          type="text" 
+                      import React, { useState, useEffect, useRef } from 'react';
 import { fetchTransactionLogs, fetchUSSDLogs } from './services/api';
 
 function App() {
@@ -10,7 +10,10 @@ function App() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
-  const loadData = async () => {
+  // Store active timeout ID to clean up cleanly
+  const pollTimerRef = useRef(null);
+
+  const loadData = async (isInitialLoad = false) => {
     try {
       const [txData, ussdData] = await Promise.all([
         fetchTransactionLogs(),
@@ -23,34 +26,50 @@ function App() {
       console.error("Failed to fetch live logs:", err);
       setError("Failed to connect to backend server.");
     } finally {
-      setLoading(false);
+      if (isInitialLoad) {
+        setLoading(false);
+      }
     }
   };
 
   useEffect(() => {
-    loadData();
+    let isMounted = true;
 
-    // Poll backend every 5 seconds for live log updates
-    const interval = setInterval(() => {
-      loadData();
-    }, 5000);
+    const runPolling = async () => {
+      await loadData(true); // First load updates the main loading indicator
 
-    return () => clearInterval(interval);
+      const poll = async () => {
+        if (!isMounted) return;
+        await loadData(false); // Background update without triggering loading state
+        pollTimerRef.current = setTimeout(poll, 5000); // Schedule next fetch AFTER this one finishes
+      };
+
+      pollTimerRef.current = setTimeout(poll, 5000);
+    };
+
+    runPolling();
+
+    return () => {
+      isMounted = false;
+      if (pollTimerRef.current) clearTimeout(pollTimerRef.current);
+    };
   }, []);
 
-  if (loading) return <div style={{ padding: '20px' }}>Loading operational pipeline...</div>;
+  if (loading) {
+    return <div style={{ padding: '20px' }}>Loading operational pipeline...</div>;
+  }
 
   return (
     <div style={{ padding: '20px', fontFamily: 'sans-serif' }}>
       <h1>Adept Processing Nig LTD - Operational Dashboard</h1>
 
-      {error && <p style={{ color: 'red' }}>{error}</p>}
+      {error && <p style={{ color: 'red', fontWeight: 'bold' }}>{error}</p>}
 
       <div style={{ display: 'flex', gap: '20px', marginTop: '20px' }}>
         {/* USSD Logs */}
         <div style={{ flex: 1, border: '1px solid #ccc', padding: '15px', borderRadius: '8px' }}>
           <h2>Live USSD Sessions ({ussdLogs.length})</h2>
-          <pre style={{ background: '#f4f4f4', padding: '10px', borderRadius: '4px' }}>
+          <pre style={{ background: '#f4f4f4', padding: '10px', borderRadius: '4px', maxHeight: '400px', overflowY: 'auto' }}>
             {JSON.stringify(ussdLogs, null, 2)}
           </pre>
         </div>
@@ -58,7 +77,7 @@ function App() {
         {/* Transaction Logs */}
         <div style={{ flex: 1, border: '1px solid #ccc', padding: '15px', borderRadius: '8px' }}>
           <h2>Monnify Transactions ({transactions.length})</h2>
-          <pre style={{ background: '#f4f4f4', padding: '10px', borderRadius: '4px' }}>
+          <pre style={{ background: '#f4f4f4', padding: '10px', borderRadius: '4px', maxHeight: '400px', overflowY: 'auto' }}>
             {JSON.stringify(transactions, null, 2)}
           </pre>
         </div>
@@ -68,29 +87,7 @@ function App() {
 }
 
 export default App;
-                                                                                                                                                                                                                                                                                                                           <div style={styles.tabContainer}>
-                                                                                                                                                                                                                                                                                                                                            <button 
-                                                                                                                                                                                                                                                                                                                                                      style={activeTab === 'transactions' ? styles.activeTab : styles.tab} 
-                                                                                                                                                                                                                                                                                                                                                                onClick={() => setActiveTab('transactions')}
-                                                                                                                                                                                                                                                                                                                                                                        >
-                                                                                                                                                                                                                                                                                                                                                                                  Transaction Ledger
-                                                                                                                                                                                                                                                                                                                                                                                          </button>
-                                                                                                                                                                                                                                                                                                                                                                                                  <button 
-                                                                                                                                                                                                                                                                                                                                                                                                            style={activeTab === 'ussd' ? styles.activeTab : styles.tab} 
-                                                                                                                                                                                                                                                                                                                                                                                                                      onClick={() => setActiveTab('ussd')}
-                                                                                                                                                                                                                                                                                                                                                                                                                              >
-                                                                                                                                                                                                                                                                                                                                                                                                                                        Live USSD Logs
-                                                                                                                                                                                                                                                                                                                                                                                                                                                </button>
-                                                                                                                                                                                                                                                                                                                                                                                                                                                      </div>
-
-                                                                                                                                                                                                                                                                                                                                                                                                                                                            {/* TAB 1: Transactions Table */}
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                  {activeTab === 'transactions' && (
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                          <div style={styles.tableCard}>
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                    <div style={styles.tableHeader}>
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                <h3>Recorded Settlement Transactions</h3>
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                            <input 
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                          type="text" 
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                        placeholder="Search phone, ID, or reference..." 
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                  placeholder="Search phone, ID, or reference..." 
                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                       value={filterText}
                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                     onChange={(e) => setFilterText(e.target.value)}
                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                   style={styles.searchInput}
