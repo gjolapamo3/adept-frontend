@@ -57,4 +57,32 @@ const BASE_URL =
           }
       };
 
+      export const fetchProducts = async (filters = {}) => {
+          try {
+                const query = new URLSearchParams(filters).toString();
+                const response = await api.get(`/products?${query}`);
+                const rawData = response.data;
+                const list = Array.isArray(rawData) ? rawData : rawData?.data || rawData?.products || [];
+                
+                return list.map((product, index) => ({
+                      id: product.id || product._id || product.sku || `product-${index}`,
+                      name: product.name || product.title || 'Unnamed Product',
+                      description: product.description || product.summary || '',
+                      category: product.category || product.type || 'General',
+                      image: product.image || product.imageUrl || product.thumbnail || '',
+                      price: Number(product.price || product.amount || product.cost || 0),
+                      pricePerTon: Number(product.pricePerTon || product.price || 0),
+                      currency: product.currency || 'NGN',
+                      rating: Number(product.rating || product.averageRating || 0),
+                      reviews: Number(product.reviews || product.reviewCount || 0),
+                      stock: Number(product.stock || product.quantity || product.inventory || 0),
+                      featured: Boolean(product.featured || product.isFeatured),
+                      raw: product,
+                }));
+          } catch (error) {
+                console.error('Failed to fetch products:', error?.response?.data || error.message);
+                return [];
+          }
+      };
+
       export default api;

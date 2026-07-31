@@ -11,6 +11,41 @@ const getAuthHeaders = () => {
   };
 };
 
+const buildUrl = (path) => {
+  const normalizedBase = API_BASE_URL.endsWith('/') ? API_BASE_URL.slice(0, -1) : API_BASE_URL;
+  const normalizedPath = path.startsWith('/') ? path : `/${path}`;
+
+  if (normalizedPath.startsWith('/api/')) {
+    return normalizedPath;
+  }
+
+  return `${normalizedBase}${normalizedPath}`;
+};
+
+const request = async (path, options = {}) => {
+  const response = await fetch(buildUrl(path), {
+    ...options,
+    headers: {
+      ...getAuthHeaders(),
+      ...(options.headers || {}),
+    },
+  });
+
+  return response.json();
+};
+
+const api = {
+  get: (path) => request(path, { method: 'GET' }),
+  post: (path, data) => request(path, {
+    method: 'POST',
+    body: JSON.stringify(data),
+  }),
+  patch: (path, data) => request(path, {
+    method: 'PATCH',
+    body: JSON.stringify(data),
+  }),
+};
+
 // --- AUTHENTICATION ---
 export const loginUser = async (credentials) => {
   const res = await fetch(`${API_BASE_URL}/auth/login`, {
@@ -46,3 +81,5 @@ export const placeOrder = async (orderData) => {
   });
   return res.json();
 };
+
+export default api;

@@ -1,0 +1,109 @@
+.escrow-poller-wrap {
+  margin-top: 1rem;
+  text-align: left;
+}
+
+.escrow-poller-badge {
+  --poller-bg: #fffbeb;
+  --poller-border: #fde68a;
+  --poller-text: #92400e;
+  --poller-dot: #f59e0b;
+  --poller-pulse: rgba(245, 158, 11, 0.32);
+
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  border: 1px solid var(--poller-border);
+  background: var(--poller-bg);
+  color: var(--poller-text);
+  border-radius: 9999px;
+  padding: 0.4rem 0.7rem;
+  font-size: 0.75rem;
+  line-height: 1;
+  font-weight: 600;
+  letter-spacing: 0.01em;
+}
+
+.escrow-poller-badge--waiting {
+  --poller-bg: #f8fafc;
+  --poller-border: #cbd5e1;
+  --poller-text: #334155;
+  --poller-dot: #0f766e;
+  --poller-pulse: rgba(15, 118, 110, 0.18);
+}
+
+.escrow-poller-badge--success {
+  --poller-bg: #ecfdf5;
+  --poller-border: #a7f3d0;
+  --poller-text: #166534;
+  --poller-dot: #10b981;
+  --poller-pulse: rgba(16, 185, 129, 0.2);
+}
+
+.escrow-poller-badge--error {
+  --poller-bg: #fff1f2;
+  --poller-border: #fecdd3;
+  --poller-text: #be123c;
+  --poller-dot: #f43f5e;
+  --poller-pulse: rgba(244, 63, 94, 0.2);
+}
+
+.escrow-poller-dot-shell {
+  position: relative;
+  width: 0.625rem;
+  height: 0.625rem;
+  display: inline-flex;
+}
+
+.escrow-poller-dot-core {
+  position: relative;
+  width: 0.625rem;
+  height: 0.625rem;
+  border-radius: 9999px;
+  background: var(--poller-dot);
+}
+
+.escrow-poller-dot-core--waiting,
+.escrow-poller-dot-core--success,
+.escrow-poller-dot-core--error {
+  background: var(--poller-dot);
+}
+
+.escrow-poller-dot-pulse {
+  position: absolute;
+  inset: 0;
+  border-radius: 9999px;
+  background: var(--poller-pulse);
+  animation: escrowPollerPulse 1.8s ease-out infinite;
+}
+
+.escrow-poller-meta {
+  margin-top: 0.35rem;
+  font-size: 0.7rem;
+  color: #64748b;
+  letter-spacing: 0.01em;
+}
+
+@keyframes escrowPollerPulse {
+  0% {
+    transform: scale(1);
+    opacity: 0.45;
+  }
+
+  70% {
+    transform: scale(1.85);
+    opacity: 0;
+  }
+
+  100% {
+    transform: scale(1.85);
+    opacity: 0;
+  }
+}
+
+@media (max-width: 640px) {
+  .escrow-poller-badge {
+    font-size: 0.72rem;
+    line-height: 1.1;
+  }
+}
