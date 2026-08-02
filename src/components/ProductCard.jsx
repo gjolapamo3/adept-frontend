@@ -11,7 +11,11 @@ export default function ProductCard({ product }) {
     image,
     currency = 'NGN',
     pricePerTon,
+    price,
+    unitPrice,
   } = product || {};
+
+  const displayPrice = pricePerTon ?? price ?? unitPrice ?? 0;
 
   return (
     <>
@@ -42,7 +46,7 @@ export default function ProductCard({ product }) {
           <div>
             <p className="text-xs text-gray-500">Price per Ton</p>
             <p className="text-xl font-extrabold text-emerald-800">
-              {currency} {Number(pricePerTon || 0).toLocaleString()}
+              {currency} {Number(displayPrice).toLocaleString()}
             </p>
           </div>
           <button
