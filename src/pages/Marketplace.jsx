@@ -1,5 +1,6 @@
 import React from 'react';
 import LiveStreamBadge from '../components/common/LiveStreamBadge';
+import ProductCard from '../components/ProductCard';
 import useMarketplaceEvents from '../hooks/useMarketplaceEvents';
 
 const sampleProducts = [
@@ -74,47 +75,12 @@ export default function Marketplace() {
         </div>
       </div>
 
-      <div className="grid gap-6 md:grid-cols-2 xl:grid-cols-3">
+      <div className="grid grid-cols-1 gap-6 md:grid-cols-3">
         {liveProducts.map((product) => (
-          <div
+          <ProductCard
             key={product.id || product.productId || product.name}
-            className="rounded-xl border border-slate-200 bg-white p-5 shadow-sm"
-          >
-            <div className="mb-4 flex h-36 items-center justify-center rounded-lg bg-slate-100 text-sm text-slate-400">
-              {product.image ? product.image : 'Product image'}
-            </div>
-            <p className="inline-flex rounded-full bg-emerald-50 px-2.5 py-1 text-[11px] font-semibold uppercase tracking-wide text-emerald-700">
-              {product.category || 'Product'}
-            </p>
-            <h2 className="mt-3 text-lg font-semibold text-slate-900">{product.name}</h2>
-            <p className="mt-2 text-sm text-slate-600">{product.description}</p>
-            <div className="mt-5 flex items-center justify-between border-t border-slate-100 pt-4">
-              <div>
-                <p className="text-xs text-slate-500">Price per Ton</p>
-                <p className="text-lg font-bold text-slate-900">
-                  {product.currency || 'NGN'}{' '}
-                  {Number(
-                    product.pricePerTon ??
-                      product.price ??
-                      product.unitPrice ??
-                      0
-                  ).toLocaleString()}
-                </p>
-                {product.stockTonnage != null || product.inventoryTons != null ? (
-                  <p className="mt-1 text-xs text-slate-500">
-                    Stock:{' '}
-                    {Number(
-                      product.stockTonnage ?? product.inventoryTons
-                    ).toLocaleString()}{' '}
-                    tons
-                  </p>
-                ) : null}
-              </div>
-              <button className="rounded-md bg-slate-900 px-4 py-2 text-sm font-semibold text-white transition hover:bg-slate-800">
-                Order / Quote
-              </button>
-            </div>
-          </div>
+            product={product}
+          />
         ))}
       </div>
     </div>
