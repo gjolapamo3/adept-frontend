@@ -175,10 +175,19 @@ export default function EscrowOrderTracker(props) {
           />
           <button
             type="submit"
+            onClick={handleSubmit}
             disabled={loading}
-            className="bg-slate-900 text-white px-4 py-2 rounded-md text-sm font-semibold hover:bg-slate-800 transition disabled:cursor-not-allowed disabled:opacity-70"
+            style={{
+              padding: '8px 16px',
+              borderRadius: '6px',
+              background: '#2563eb',
+              color: '#fff',
+              border: 'none',
+              fontWeight: 'bold',
+              cursor: 'pointer',
+            }}
           >
-            {loading ? 'Tracking...' : 'Track'}
+            {loading ? 'Loading...' : 'Track'}
           </button>
         </form>
 
