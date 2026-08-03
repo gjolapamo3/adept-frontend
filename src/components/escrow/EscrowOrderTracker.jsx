@@ -1,15 +1,16 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import EscrowPaymentPoller from './EscrowPaymentPoller';
 import { useEscrowPoller } from '../../hooks/useEscrowPoller';
 
 export default function EscrowOrderTracker({
+  initialReference = '',
   onTrack,
   title = 'Escrow Order Tracker',
   description = 'Enter your payment reference to track virtual account funding and delivery status.',
   placeholder = 'e.g. ADEPT-REF-9082',
 }) {
-  const [reference, setReference] = useState('');
-  const [activeReference, setActiveReference] = useState('');
+  const [reference, setReference] = useState(initialReference);
+  const [activeReference, setActiveReference] = useState(initialReference);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
 
@@ -21,6 +22,16 @@ export default function EscrowOrderTracker({
   } = useEscrowPoller(activeReference, {
     enabled: Boolean(activeReference),
   });
+
+  useEffect(() => {
+    if (!initialReference) {
+      return;
+    }
+
+    setReference(initialReference);
+    setActiveReference(initialReference);
+    setError('');
+  }, [initialReference]);
 
   const handleSubmit = async (event) => {
     event.preventDefault();

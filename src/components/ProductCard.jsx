@@ -27,7 +27,7 @@ class ModalErrorBoundary extends React.Component {
   }
 }
 
-export default function ProductCard({ product }) {
+export default function ProductCard({ product, onOrderCreated }) {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [modalRenderError, setModalRenderError] = useState('');
 
@@ -123,7 +123,11 @@ export default function ProductCard({ product }) {
 
       {isModalOpen && (
         <ModalErrorBoundary onError={handleModalError} fallback={modalFallback}>
-          <OrderModal product={product} onClose={() => setIsModalOpen(false)} />
+          <OrderModal
+            product={product}
+            onClose={() => setIsModalOpen(false)}
+            onOrderCreated={onOrderCreated}
+          />
         </ModalErrorBoundary>
       )}
     </>

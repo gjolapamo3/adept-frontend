@@ -5,6 +5,12 @@ import EscrowOrderTracker from './components/escrow/EscrowOrderTracker';
 
 export default function App() {
   const [activeTab, setActiveTab] = useState('marketplace');
+  const [latestOrderReference, setLatestOrderReference] = useState('');
+
+  const handleOrderCreated = (reference) => {
+    setLatestOrderReference(reference);
+    setActiveTab('orders');
+  };
 
   return (
     <div className="min-h-screen bg-slate-50 flex flex-col font-sans text-slate-800">
@@ -58,9 +64,9 @@ export default function App() {
       </header>
 
       <main className="flex-1">
-        {activeTab === 'marketplace' && <Marketplace />}
+        {activeTab === 'marketplace' && <Marketplace onOrderCreated={handleOrderCreated} />}
         {activeTab === 'supplier' && <SupplierDashboard />}
-        {activeTab === 'orders' && <EscrowOrderTracker />}
+        {activeTab === 'orders' && <EscrowOrderTracker initialReference={latestOrderReference} />}
       </main>
 
       <footer className="bg-white border-t border-slate-200 py-6 mt-12">

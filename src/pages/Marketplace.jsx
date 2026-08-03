@@ -33,7 +33,7 @@ const sampleProducts = [
   },
 ];
 
-export default function Marketplace() {
+export default function Marketplace({ onOrderCreated }) {
   const {
     products,
     connectionStatus,
@@ -80,6 +80,7 @@ export default function Marketplace() {
           <ProductCard
             key={product.id || product.productId || product.name}
             product={product}
+            onOrderCreated={onOrderCreated}
           />
         ))}
       </div>
