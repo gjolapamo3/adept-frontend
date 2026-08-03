@@ -46,7 +46,7 @@ class TrackerSectionErrorBoundary extends React.Component {
   }
 }
 
-function TrackerResultPanel({ activeReference }) {
+function TrackerResultPanel({ activeReference, isSearching = false, refreshedAt = null }) {
   const safeReference = typeof activeReference === 'string' ? activeReference : String(activeReference || '');
   const normalizedReference = safeReference.trim();
 
@@ -69,7 +69,7 @@ function TrackerResultPanel({ activeReference }) {
           <p className="mt-1 text-xs text-slate-600">{fallbackStatus}</p>
         </div>
         <span className="rounded-full bg-emerald-100 px-3 py-1 text-[11px] font-semibold uppercase tracking-wide text-emerald-700">
-          {normalizedReference ? 'Ready' : 'Pending'}
+          {isSearching ? 'Searching...' : normalizedReference ? 'Ready' : 'Pending'}
         </span>
       </div>
 
@@ -85,7 +85,12 @@ function TrackerResultPanel({ activeReference }) {
       </div>
 
       <div className="mt-4">
-        <p className="text-xs font-semibold uppercase tracking-wide text-slate-500">Timeline</p>
+        <div className="flex items-center justify-between gap-2">
+          <p className="text-xs font-semibold uppercase tracking-wide text-slate-500">Timeline</p>
+          {refreshedAt ? (
+            <p className="text-[11px] text-slate-400">Updated {refreshedAt}</p>
+          ) : null}
+        </div>
         <ul className="mt-2 space-y-2">
           {fallbackTimeline.map((entry, index) => (
             <li key={`${entry}-${index}`} className="flex items-center gap-2 text-sm text-slate-700">
@@ -118,6 +123,7 @@ export default function EscrowOrderTracker(props) {
   const [activeReference, setActiveReference] = useState(() => safeInitialReference);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
+  const [refreshStamp, setRefreshStamp] = useState('');
 
   const handleSubmit = async (event) => {
     event.preventDefault();
@@ -137,6 +143,7 @@ export default function EscrowOrderTracker(props) {
     setError('');
     setLoading(true);
     setActiveReference(trimmedRef);
+    setRefreshStamp(new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }));
 
     if (!onTrack) {
       setLoading(false);
@@ -176,7 +183,7 @@ export default function EscrowOrderTracker(props) {
         </form>
 
         <TrackerSectionErrorBoundary>
-          <TrackerResultPanel activeReference={activeReference} />
+          <TrackerResultPanel activeReference={activeReference} isSearching={loading} refreshedAt={refreshStamp} />
         </TrackerSectionErrorBoundary>
         {error ? <p className="mt-3 text-left text-xs text-red-600">{error}</p> : null}
       </div>
