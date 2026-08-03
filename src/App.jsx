@@ -128,7 +128,10 @@ export default function App() {
       if (safeTab === TAB_KEYS.ORDERS) {
         return (
           <TabContentErrorBoundary onReset={() => setActiveTabSafely(TAB_KEYS.MARKETPLACE)}>
-            <EscrowOrderTracker initialReference={latestOrderReference || ''} />
+            <EscrowOrderTracker
+              key={latestOrderReference || 'orders-default'}
+              initialReference={latestOrderReference || ''}
+            />
           </TabContentErrorBoundary>
         );
       }

@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useState } from 'react';
 import EscrowPaymentPoller from './EscrowPaymentPoller';
 import { useEscrowPoller } from '../../hooks/useEscrowPoller';
 
@@ -139,35 +139,10 @@ export default function EscrowOrderTracker(props) {
     : 'e.g. ADEPT-REF-9082';
 
   const safeInitialReference = typeof initialReference === 'string' ? initialReference : String(initialReference ?? '');
-  const [reference, setReference] = useState(safeInitialReference);
-  const [activeReference, setActiveReference] = useState(safeInitialReference);
+  const [reference, setReference] = useState(() => safeInitialReference);
+  const [activeReference, setActiveReference] = useState(() => safeInitialReference);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
-
-  useEffect(() => {
-    try {
-      if (initialReference == null) {
-        return;
-      }
-
-      const nextReference = typeof initialReference === 'string'
-        ? initialReference
-        : String(initialReference ?? '');
-
-      setReference((currentReference) => (
-        currentReference === nextReference ? currentReference : nextReference
-      ));
-      setActiveReference((currentActiveReference) => (
-        currentActiveReference === nextReference ? currentActiveReference : nextReference
-      ));
-      setError((currentError) => (currentError === '' ? currentError : ''));
-    } catch (syncError) {
-      console.error('Failed to sync tracker initial reference:', syncError);
-      setReference('');
-      setActiveReference('');
-      setError('Unable to initialize tracking reference.');
-    }
-  }, [initialReference]);
 
   const handleSubmit = async (event) => {
     event.preventDefault();
