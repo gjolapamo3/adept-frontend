@@ -110,12 +110,17 @@ const OrderModal = ({ product, onClose, onOrderCreated }) => {
         throw new Error(response?.message || response?.error || 'Unable to submit request right now.');
       }
 
-      const orderRef = response?.data?.reference || response?.reference || response?.orderId;
+      const responseReference = response?.data?.reference || response?.reference || response?.orderId;
+      const fallbackReference = `ADEPT-${Date.now().toString().slice(-8)}`;
+      const orderRef = String(responseReference || fallbackReference);
       setSuccessMessage(
-        orderRef
-          ? `Request submitted successfully. Reference: ${orderRef}`
-          : 'Request submitted successfully.'
+        `Request submitted successfully. Reference: ${orderRef}`
       );
+
+      if (onOrderCreated) {
+        onOrderCreated(orderRef);
+      }
+
       setFormData({
         quantityMt: '',
         contactName: '',
@@ -126,10 +131,7 @@ const OrderModal = ({ product, onClose, onOrderCreated }) => {
 
       closeTimerRef.current = window.setTimeout(() => {
         onClose();
-        if (orderRef && onOrderCreated) {
-          onOrderCreated(String(orderRef));
-        }
-      }, orderRef && onOrderCreated ? 1200 : 1500);
+      }, 1200);
     } catch (requestError) {
       setErrorMessage(requestError?.message || 'Unable to submit request right now.');
     } finally {
