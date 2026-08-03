@@ -1,6 +1,4 @@
 import React, { useState } from 'react';
-import EscrowPaymentPoller from './EscrowPaymentPoller';
-import { useEscrowPoller } from '../../hooks/useEscrowPoller';
 
 class TrackerSectionErrorBoundary extends React.Component {
   constructor(props) {
@@ -49,82 +47,55 @@ class TrackerSectionErrorBoundary extends React.Component {
 }
 
 function TrackerResultPanel({ activeReference }) {
-  const {
-    order,
-    isPolling,
-    error: pollError,
-    lastCheckedAt,
-  } = useEscrowPoller(activeReference, {
-    enabled: Boolean(activeReference),
-  });
-
   const safeReference = typeof activeReference === 'string' ? activeReference : String(activeReference || '');
-  const safeAmount = order?.amount != null && Number.isFinite(Number(order.amount))
-    ? Number(order.amount).toLocaleString()
-    : '-';
-  const safeStatus = typeof order?.status === 'string' && order.status.trim() ? order.status : '-';
-  const safeEmail = typeof (order?.customerEmail || order?.email) === 'string' && (order?.customerEmail || order?.email).trim()
-    ? (order?.customerEmail || order?.email)
-    : '-';
-  const safeTimestamp = typeof (order?.updatedAt || order?.createdAt) === 'string' && (order?.updatedAt || order?.createdAt).trim()
-    ? (order?.updatedAt || order?.createdAt)
-    : '-';
+  const normalizedReference = safeReference.trim();
+
+  const fallbackStatus = normalizedReference
+    ? 'Reference captured. Escrow workflow is ready for review.'
+    : 'Enter a reference to preview the escrow workflow.';
+
+  const fallbackAmount = normalizedReference ? '—' : '—';
+  const fallbackTimeline = [
+    'Reference received',
+    'Payment check queued',
+    'Escrow review pending',
+  ];
 
   return (
-    <>
-      <div className="table-wrapper mt-6">
-        <table>
-          <thead>
-            <tr>
-              <th>Reference</th>
-              <th>Amount</th>
-              <th>Status</th>
-              <th>Email</th>
-              <th>Timestamp</th>
-              <th>Action</th>
-            </tr>
-          </thead>
-          <tbody>
-            {order ? (
-              <tr>
-                <td>{safeReference || '-'}</td>
-                <td>{safeAmount}</td>
-                <td>{safeStatus}</td>
-                <td>{safeEmail}</td>
-                <td>{safeTimestamp}</td>
-                <td>
-                  <button
-                    type="button"
-                    onClick={() => {
-                      if (safeReference) {
-                        navigator?.clipboard?.writeText?.(safeReference).catch(() => {});
-                      }
-                    }}
-                    className="rounded-md border border-slate-200 bg-white px-3 py-1.5 text-xs font-semibold text-slate-700"
-                  >
-                    View
-                  </button>
-                </td>
-              </tr>
-            ) : (
-              <tr>
-                <td colSpan="6" className="text-slate-500">
-                  No transaction rows yet. Track a payment reference to populate this table.
-                </td>
-              </tr>
-            )}
-          </tbody>
-        </table>
+    <div className="mt-6 rounded-xl border border-slate-200 bg-slate-50 p-4 text-left">
+      <div className="flex items-center justify-between gap-3">
+        <div>
+          <p className="text-sm font-semibold text-slate-900">Escrow workflow preview</p>
+          <p className="mt-1 text-xs text-slate-600">{fallbackStatus}</p>
+        </div>
+        <span className="rounded-full bg-emerald-100 px-3 py-1 text-[11px] font-semibold uppercase tracking-wide text-emerald-700">
+          {normalizedReference ? 'Ready' : 'Pending'}
+        </span>
       </div>
 
-      <EscrowPaymentPoller
-        status={safeStatus === '-' ? undefined : safeStatus}
-        isPolling={Boolean(isPolling)}
-        lastCheckedAt={lastCheckedAt}
-      />
+      <div className="mt-4 grid gap-2">
+        <div className="rounded-lg border border-slate-200 bg-white p-3">
+          <p className="text-xs font-semibold uppercase tracking-wide text-slate-500">Reference</p>
+          <p className="mt-1 text-sm font-medium text-slate-900">{normalizedReference || 'No reference yet'}</p>
+        </div>
+        <div className="rounded-lg border border-slate-200 bg-white p-3">
+          <p className="text-xs font-semibold uppercase tracking-wide text-slate-500">Amount</p>
+          <p className="mt-1 text-sm font-medium text-slate-900">{fallbackAmount}</p>
+        </div>
+      </div>
 
-      {pollError ? <p className="mt-3 text-left text-xs text-red-600">{pollError}</p> : null}
-    </>
+      <div className="mt-4">
+        <p className="text-xs font-semibold uppercase tracking-wide text-slate-500">Timeline</p>
+        <ul className="mt-2 space-y-2">
+          {fallbackTimeline.map((entry, index) => (
+            <li key={`${entry}-${index}`} className="flex items-center gap-2 text-sm text-slate-700">
+              <span className="inline-flex h-2.5 w-2.5 rounded-full bg-emerald-500" />
+              <span>{entry}</span>
+            </li>
+          ))}
+        </ul>
+      </div>
+    </div>
   );
 }
 
