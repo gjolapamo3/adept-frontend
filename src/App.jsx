@@ -3,13 +3,39 @@ import Marketplace from './pages/Marketplace';
 import SupplierDashboard from './pages/SupplierDashboard';
 import EscrowOrderTracker from './components/escrow/EscrowOrderTracker';
 
+const TAB_KEYS = {
+  MARKETPLACE: 'marketplace',
+  SUPPLIER: 'supplier',
+  ORDERS: 'orders',
+};
+
+const normalizeOrderReference = (input) => {
+  if (typeof input === 'string') {
+    return input.trim();
+  }
+
+  if (input && typeof input === 'object') {
+    const fromObject = input.reference ?? input.orderReference ?? input.orderId ?? input.id;
+    if (fromObject != null) {
+      return String(fromObject).trim();
+    }
+  }
+
+  if (input == null) {
+    return '';
+  }
+
+  return String(input).trim();
+};
+
 export default function App() {
-  const [activeTab, setActiveTab] = useState('marketplace');
+  const [activeTab, setActiveTab] = useState(TAB_KEYS.MARKETPLACE);
   const [latestOrderReference, setLatestOrderReference] = useState('');
 
-  const handleOrderCreated = (reference) => {
+  const handleOrderCreated = (referencePayload) => {
+    const reference = normalizeOrderReference(referencePayload);
     setLatestOrderReference(reference);
-    setActiveTab('orders');
+    setActiveTab(TAB_KEYS.ORDERS);
   };
 
   return (
@@ -30,9 +56,9 @@ export default function App() {
 
           <nav className="filter-bar w-full sm:w-auto flex items-center justify-center sm:justify-end gap-1 sm:gap-2 text-sm font-medium">
             <button
-              onClick={() => setActiveTab('marketplace')}
+              onClick={() => setActiveTab(TAB_KEYS.MARKETPLACE)}
               className={`px-3 py-2 rounded-md transition ${
-                activeTab === 'marketplace'
+                activeTab === TAB_KEYS.MARKETPLACE
                   ? 'bg-emerald-600 text-white font-semibold'
                   : 'text-slate-300 hover:text-white hover:bg-slate-800'
               }`}
@@ -40,9 +66,9 @@ export default function App() {
               Marketplace
             </button>
             <button
-              onClick={() => setActiveTab('supplier')}
+              onClick={() => setActiveTab(TAB_KEYS.SUPPLIER)}
               className={`px-3 py-2 rounded-md transition ${
-                activeTab === 'supplier'
+                activeTab === TAB_KEYS.SUPPLIER
                   ? 'bg-emerald-600 text-white font-semibold'
                   : 'text-slate-300 hover:text-white hover:bg-slate-800'
               }`}
@@ -50,9 +76,9 @@ export default function App() {
               Supplier Portal
             </button>
             <button
-              onClick={() => setActiveTab('orders')}
+              onClick={() => setActiveTab(TAB_KEYS.ORDERS)}
               className={`px-3 py-2 rounded-md transition ${
-                activeTab === 'orders'
+                activeTab === TAB_KEYS.ORDERS
                   ? 'bg-emerald-600 text-white font-semibold'
                   : 'text-slate-300 hover:text-white hover:bg-slate-800'
               }`}
@@ -64,9 +90,9 @@ export default function App() {
       </header>
 
       <main className="flex-1">
-        {activeTab === 'marketplace' && <Marketplace onOrderCreated={handleOrderCreated} />}
-        {activeTab === 'supplier' && <SupplierDashboard />}
-        {activeTab === 'orders' && <EscrowOrderTracker initialReference={latestOrderReference} />}
+        {activeTab === TAB_KEYS.MARKETPLACE && <Marketplace onOrderCreated={handleOrderCreated} />}
+        {activeTab === TAB_KEYS.SUPPLIER && <SupplierDashboard />}
+        {activeTab === TAB_KEYS.ORDERS && <EscrowOrderTracker initialReference={latestOrderReference} />}
       </main>
 
       <footer className="bg-white border-t border-slate-200 py-6 mt-12">

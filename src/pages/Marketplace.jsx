@@ -33,7 +33,7 @@ const sampleProducts = [
   },
 ];
 
-export default function Marketplace({ onOrderCreated }) {
+export default function Marketplace({ onOrderCreated = () => {} }) {
   const {
     products,
     connectionStatus,
