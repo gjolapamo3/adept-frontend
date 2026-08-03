@@ -154,9 +154,13 @@ export default function EscrowOrderTracker(props) {
         ? initialReference
         : String(initialReference ?? '');
 
-      setReference(nextReference);
-      setActiveReference(nextReference);
-      setError('');
+      setReference((currentReference) => (
+        currentReference === nextReference ? currentReference : nextReference
+      ));
+      setActiveReference((currentActiveReference) => (
+        currentActiveReference === nextReference ? currentActiveReference : nextReference
+      ));
+      setError((currentError) => (currentError === '' ? currentError : ''));
     } catch (syncError) {
       console.error('Failed to sync tracker initial reference:', syncError);
       setReference('');
