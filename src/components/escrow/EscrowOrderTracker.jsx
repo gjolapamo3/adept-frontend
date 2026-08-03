@@ -20,6 +20,10 @@ class TrackerSectionErrorBoundary extends React.Component {
   }
 
   handleReset = () => {
+    if (!this.state.hasError && !this.state.errorMessage) {
+      return;
+    }
+
     this.setState({ hasError: false, errorMessage: '' });
   };
 
@@ -149,20 +153,26 @@ export default function EscrowOrderTracker(props) {
 
     const normalizedReference = typeof reference === 'string' ? reference : String(reference ?? '');
     const trimmedRef = normalizedReference.trim();
+
     if (!trimmedRef) {
       setError('Payment reference is required.');
       return;
     }
 
+    if (activeReference === trimmedRef && !error) {
+      return;
+    }
+
     setError('');
+    setLoading(true);
     setActiveReference(trimmedRef);
 
     if (!onTrack) {
+      setLoading(false);
       return;
     }
 
     try {
-      setLoading(true);
       await onTrack(trimmedRef);
     } catch (requestError) {
       setError(requestError?.message || 'Unable to track order right now.');
