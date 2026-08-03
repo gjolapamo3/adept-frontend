@@ -22,6 +22,33 @@ const OrderModal = ({ product, onClose, onOrderCreated }) => {
   const [submitting, setSubmitting] = useState(false);
   const closeTimerRef = useRef(null);
 
+  const fieldGroupStyle = {
+    display: 'flex',
+    flexDirection: 'column',
+    width: '100%',
+  };
+
+  const labelStyle = {
+    display: 'block',
+    marginBottom: '0.25rem',
+    fontSize: '0.75rem',
+    fontWeight: 600,
+    color: 'rgb(203, 213, 225)',
+  };
+
+  const controlStyle = {
+    display: 'block',
+    width: '100%',
+    boxSizing: 'border-box',
+    borderRadius: '0.5rem',
+    border: '1px solid rgb(51, 65, 85)',
+    backgroundColor: 'rgb(30, 41, 59)',
+    color: '#ffffff',
+    padding: '0.5rem 0.75rem',
+    fontSize: '0.875rem',
+    lineHeight: 1.35,
+  };
+
   useEffect(() => {
     const handleKeyDown = (e) => {
       if (e.key === 'Escape') onClose();
@@ -181,8 +208,8 @@ const OrderModal = ({ product, onClose, onOrderCreated }) => {
           </div>
 
           <form onSubmit={handleSubmit} className="space-y-3">
-            <div>
-              <label htmlFor="quantityMt" className="mb-1 block text-xs font-semibold text-slate-300">
+            <div style={fieldGroupStyle}>
+              <label htmlFor="quantityMt" className="mb-1 block text-xs font-semibold text-slate-300" style={labelStyle}>
                 Quantity (MT)
               </label>
               <input
@@ -193,13 +220,14 @@ const OrderModal = ({ product, onClose, onOrderCreated }) => {
                 value={formData.quantityMt}
                 onChange={handleChange}
                 className="w-full rounded-lg border border-slate-700 bg-slate-800 px-3 py-2 text-sm text-white outline-none focus:border-emerald-500"
+                style={controlStyle}
                 placeholder="e.g. 50"
                 required
               />
             </div>
 
-            <div>
-              <label htmlFor="contactName" className="mb-1 block text-xs font-semibold text-slate-300">
+            <div style={fieldGroupStyle}>
+              <label htmlFor="contactName" className="mb-1 block text-xs font-semibold text-slate-300" style={labelStyle}>
                 Contact Name
               </label>
               <input
@@ -209,13 +237,21 @@ const OrderModal = ({ product, onClose, onOrderCreated }) => {
                 value={formData.contactName}
                 onChange={handleChange}
                 className="w-full rounded-lg border border-slate-700 bg-slate-800 px-3 py-2 text-sm text-white outline-none focus:border-emerald-500"
+                style={controlStyle}
                 placeholder="Your name"
               />
             </div>
 
-            <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
-              <div>
-                <label htmlFor="contactEmail" className="mb-1 block text-xs font-semibold text-slate-300">
+            <div
+              className="grid grid-cols-1 gap-3 sm:grid-cols-2"
+              style={{
+                display: 'flex',
+                flexDirection: 'column',
+                gap: '0.75rem',
+              }}
+            >
+              <div style={fieldGroupStyle}>
+                <label htmlFor="contactEmail" className="mb-1 block text-xs font-semibold text-slate-300" style={labelStyle}>
                   Email
                 </label>
                 <input
@@ -225,11 +261,12 @@ const OrderModal = ({ product, onClose, onOrderCreated }) => {
                   value={formData.contactEmail}
                   onChange={handleChange}
                   className="w-full rounded-lg border border-slate-700 bg-slate-800 px-3 py-2 text-sm text-white outline-none focus:border-emerald-500"
+                  style={controlStyle}
                   placeholder="you@company.com"
                 />
               </div>
-              <div>
-                <label htmlFor="contactPhone" className="mb-1 block text-xs font-semibold text-slate-300">
+              <div style={fieldGroupStyle}>
+                <label htmlFor="contactPhone" className="mb-1 block text-xs font-semibold text-slate-300" style={labelStyle}>
                   Phone
                 </label>
                 <input
@@ -239,13 +276,14 @@ const OrderModal = ({ product, onClose, onOrderCreated }) => {
                   value={formData.contactPhone}
                   onChange={handleChange}
                   className="w-full rounded-lg border border-slate-700 bg-slate-800 px-3 py-2 text-sm text-white outline-none focus:border-emerald-500"
+                  style={controlStyle}
                   placeholder="+234..."
                 />
               </div>
             </div>
 
-            <div>
-              <label htmlFor="deliveryNotes" className="mb-1 block text-xs font-semibold text-slate-300">
+            <div style={fieldGroupStyle}>
+              <label htmlFor="deliveryNotes" className="mb-1 block text-xs font-semibold text-slate-300" style={labelStyle}>
                 Delivery Notes
               </label>
               <textarea
@@ -255,6 +293,11 @@ const OrderModal = ({ product, onClose, onOrderCreated }) => {
                 value={formData.deliveryNotes}
                 onChange={handleChange}
                 className="w-full rounded-lg border border-slate-700 bg-slate-800 px-3 py-2 text-sm text-white outline-none focus:border-emerald-500"
+                style={{
+                  ...controlStyle,
+                  resize: 'vertical',
+                  minHeight: '5rem',
+                }}
                 placeholder="Preferred location, timeline, packaging requirements..."
               />
             </div>
