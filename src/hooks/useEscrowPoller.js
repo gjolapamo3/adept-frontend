@@ -16,6 +16,9 @@ export function useEscrowPoller(
   const [attempts, setAttempts] = useState(0);
 
   const timerRef = useRef(null);
+  const attemptsRef = useRef(0);
+  const activeRequestRef = useRef(0);
+  const lastConfigRef = useRef(null);
 
   const stopPolling = useCallback(() => {
     if (timerRef.current) {
@@ -25,15 +28,33 @@ export function useEscrowPoller(
   }, []);
 
   const fetchStatus = useCallback(async () => {
-    if (!reference || !enabled) {
+    const normalizedReference = typeof reference === 'string' ? reference.trim() : '';
+    if (!normalizedReference || !enabled) {
       return;
     }
 
-    setLoading(true);
+    const requestId = ++activeRequestRef.current;
+    setLoading((currentLoading) => (currentLoading ? currentLoading : true));
+
     try {
-      const data = await checkEscrowStatus(reference);
+      const data = await checkEscrowStatus(normalizedReference);
+      if (requestId !== activeRequestRef.current) {
+        return;
+      }
+
       if (data) {
-        setOrder(data);
+        setOrder((currentOrder) => {
+          if (
+            currentOrder &&
+            currentOrder.reference === data.reference &&
+            currentOrder.status === data.status &&
+            currentOrder.amount === data.amount
+          ) {
+            return currentOrder;
+          }
+
+          return data;
+        });
         setError(null);
 
         const isTerminalState = [
@@ -48,31 +69,49 @@ export function useEscrowPoller(
         }
       }
     } catch (err) {
-      console.error('Poller error fetching escrow status:', err);
-      setError('Temporary error connecting to payment gateway.');
+      if (requestId === activeRequestRef.current) {
+        console.error('Poller error fetching escrow status:', err);
+        setError('Temporary error connecting to payment gateway.');
+      }
     } finally {
-      setLoading(false);
+      if (requestId === activeRequestRef.current) {
+        setLoading(false);
+      }
     }
   }, [reference, enabled, stopPolling]);
 
   useEffect(() => {
-    if (!reference || !enabled) {
-      stopPolling();
+    const normalizedReference = typeof reference === 'string' ? reference.trim() : '';
+    const configSignature = `${normalizedReference || ''}|${Boolean(enabled)}|${interval}|${maxAttempts}`;
+
+    if (lastConfigRef.current === configSignature) {
       return undefined;
     }
 
+    lastConfigRef.current = configSignature;
+    activeRequestRef.current += 1;
+    attemptsRef.current = 0;
     setAttempts(0);
+    stopPolling();
+
+    if (!normalizedReference || !enabled) {
+      setOrder(null);
+      setError(null);
+      setLoading(false);
+      return undefined;
+    }
+
+    setError(null);
     fetchStatus();
 
     timerRef.current = setInterval(() => {
-      setAttempts((prev) => {
-        const nextAttempts = prev + 1;
-        if (nextAttempts >= maxAttempts) {
-          stopPolling();
-        }
-        return nextAttempts;
-      });
+      if (attemptsRef.current >= maxAttempts) {
+        stopPolling();
+        return;
+      }
 
+      attemptsRef.current += 1;
+      setAttempts(attemptsRef.current);
       fetchStatus();
     }, interval);
 
