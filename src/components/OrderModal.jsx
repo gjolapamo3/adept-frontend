@@ -119,14 +119,41 @@ const OrderModal = ({ product, onClose, onOrderCreated }) => {
         width: '100vw',
         height: '100dvh',
         minHeight: '100vh',
+        padding: '16px',
+        backgroundColor: 'rgba(2, 6, 23, 0.88)',
+        backdropFilter: 'blur(6px)',
+        WebkitBackdropFilter: 'blur(6px)',
         zIndex: 99999,
       }}
       onClick={onClose}
       role="presentation"
     >
-      <div className="mx-auto flex min-h-full w-full max-w-sm items-center justify-center">
+      <div
+        className="mx-auto flex min-h-full w-full max-w-sm items-center justify-center"
+        style={{
+          margin: '0 auto',
+          minHeight: '100%',
+          width: '100%',
+          maxWidth: '24rem',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+        }}
+      >
         <div
           className="relative w-full max-h-[90dvh] overflow-y-auto rounded-xl border border-slate-700 bg-slate-900 p-6 text-white shadow-2xl"
+          style={{
+            position: 'relative',
+            width: '100%',
+            maxHeight: '90dvh',
+            overflowY: 'auto',
+            borderRadius: '0.75rem',
+            border: '1px solid rgb(51, 65, 85)',
+            backgroundColor: 'rgb(15, 23, 42)',
+            padding: '1.5rem',
+            color: '#ffffff',
+            boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.65)',
+          }}
           onClick={(e) => e.stopPropagation()}
           role="dialog"
           aria-modal="true"

@@ -1,6 +1,30 @@
 // Adept-Frontend/src/services/api.js
 
-const API_BASE_URL = process.env.REACT_APP_BACKEND_URL || 'http://localhost:5000/api';
+const resolveApiBaseUrl = () => {
+  const viteEnv = typeof import.meta !== 'undefined' ? import.meta.env : undefined;
+  const configuredUrl =
+    viteEnv?.VITE_API_URL ||
+    viteEnv?.VITE_BACKEND_URL ||
+    viteEnv?.VITE_API_BASE_URL ||
+    (typeof process !== 'undefined'
+      ? process.env.REACT_APP_BACKEND_URL || process.env.REACT_APP_API_URL
+      : '') ||
+    '/api';
+
+  return configuredUrl.endsWith('/') ? configuredUrl.slice(0, -1) : configuredUrl;
+};
+
+const API_BASE_URL = resolveApiBaseUrl();
+
+if (typeof console !== 'undefined') {
+  const usingFallback = API_BASE_URL === '/api' || API_BASE_URL.includes('localhost');
+  const message = `[api] Base URL resolved to: ${API_BASE_URL}`;
+  if (usingFallback) {
+    console.warn(`${message} (fallback/local value detected)`);
+  } else {
+    console.info(message);
+  }
+}
 
 // Helper for authenticated header
 const getAuthHeaders = () => {
@@ -12,26 +36,59 @@ const getAuthHeaders = () => {
 };
 
 const buildUrl = (path) => {
-  const normalizedBase = API_BASE_URL.endsWith('/') ? API_BASE_URL.slice(0, -1) : API_BASE_URL;
-  const normalizedPath = path.startsWith('/') ? path : `/${path}`;
+  if (path.startsWith('http://') || path.startsWith('https://')) {
+    return path;
+  }
 
-  if (normalizedPath.startsWith('/api/')) {
-    return normalizedPath;
+  const normalizedPath = path.startsWith('/') ? path : `/${path}`;
+  const normalizedBase = API_BASE_URL.endsWith('/') ? API_BASE_URL.slice(0, -1) : API_BASE_URL;
+
+  if (normalizedBase.endsWith('/api') && normalizedPath.startsWith('/api/')) {
+    return `${normalizedBase}${normalizedPath.slice(4)}`;
   }
 
   return `${normalizedBase}${normalizedPath}`;
 };
 
-const request = async (path, options = {}) => {
-  const response = await fetch(buildUrl(path), {
-    ...options,
-    headers: {
-      ...getAuthHeaders(),
-      ...(options.headers || {}),
-    },
-  });
+const parseResponseBody = async (response) => {
+  const contentType = response.headers.get('content-type') || '';
+  if (contentType.includes('application/json')) {
+    return response.json();
+  }
 
-  return response.json();
+  const text = await response.text();
+  return text ? { message: text } : {};
+};
+
+const request = async (path, options = {}) => {
+  const url = buildUrl(path);
+
+  let response;
+  try {
+    response = await fetch(url, {
+      ...options,
+      headers: {
+        ...getAuthHeaders(),
+        ...(options.headers || {}),
+      },
+    });
+  } catch (networkError) {
+    throw new Error(
+      `Failed to reach API at ${url}. Verify VITE_API_URL (or VITE_BACKEND_URL) and backend CORS settings.`
+    );
+  }
+
+  const payload = await parseResponseBody(response);
+
+  if (!response.ok) {
+    throw new Error(
+      payload?.message ||
+        payload?.error ||
+        `Request failed (${response.status} ${response.statusText})`
+    );
+  }
+
+  return payload;
 };
 
 const api = {
@@ -48,38 +105,22 @@ const api = {
 
 // --- AUTHENTICATION ---
 export const loginUser = async (credentials) => {
-  const res = await fetch(`${API_BASE_URL}/auth/login`, {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify(credentials)
-  });
-  return res.json();
+  return api.post('/auth/login', credentials);
 };
 
 // --- MARKETPLACE / PRODUCTS ---
 export const fetchProducts = async (filters = {}) => {
   const query = new URLSearchParams(filters).toString();
-  const res = await fetch(`${API_BASE_URL}/products?${query}`);
-  return res.json();
+  return api.get(query ? `/products?${query}` : '/products');
 };
 
 export const createProduct = async (productData) => {
-  const res = await fetch(`${API_BASE_URL}/products`, {
-    method: 'POST',
-    headers: getAuthHeaders(),
-    body: JSON.stringify(productData)
-  });
-  return res.json();
+  return api.post('/products', productData);
 };
 
 // --- ORDERS ---
 export const placeOrder = async (orderData) => {
-  const res = await fetch(`${API_BASE_URL}/orders`, {
-    method: 'POST',
-    headers: getAuthHeaders(),
-    body: JSON.stringify(orderData)
-  });
-  return res.json();
+  return api.post('/orders', orderData);
 };
 
 export default api;
