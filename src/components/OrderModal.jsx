@@ -3,9 +3,7 @@ import ReactDOM from 'react-dom';
 import { placeOrder } from '../services/api';
 
 const OrderModal = ({ product, onClose, onOrderCreated }) => {
-  if (!product) return null;
-
-  const name = product.name || 'Product';
+  const name = product?.name || 'Product';
   const rawCurrency = String(product.currency || 'NGN').trim();
   const currency = rawCurrency ? `${rawCurrency} ` : 'NGN ';
   const price = Number(product.pricePerTon ?? product.price ?? product.unitPrice ?? 0);
@@ -138,6 +136,8 @@ const OrderModal = ({ product, onClose, onOrderCreated }) => {
       setSubmitting(false);
     }
   };
+
+  if (!product) return null;
 
   const modalContent = (
     <div
