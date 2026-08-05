@@ -309,7 +309,7 @@ export default function EscrowOrderTracker({
                 </div>
                 <div className="escrow-kv-item">
                   <p className="escrow-kv-label">
-                    Contact
+                    Buyer / Supplier
                   </p>
                   <p className="escrow-kv-value">
                     {order?.customerEmail || order?.email || '-'}
@@ -317,10 +317,10 @@ export default function EscrowOrderTracker({
                 </div>
                 <div className="escrow-kv-item">
                   <p className="escrow-kv-label">
-                    Last update
+                    Commodity terms
                   </p>
                   <p className="escrow-kv-value">
-                    {formatDisplayTime(order?.updatedAt || order?.createdAt)}
+                    {order?.commodity || order?.productName || '-'}
                   </p>
                 </div>
               </div>
