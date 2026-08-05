@@ -1,14 +1,14 @@
 .escrow-poller-wrap {
-  margin-top: 1rem;
+  margin-top: 1.25rem;
   text-align: left;
 }
 
 .escrow-poller-badge {
-  --poller-bg: #fffbeb;
-  --poller-border: #fde68a;
-  --poller-text: #92400e;
-  --poller-dot: #f59e0b;
-  --poller-pulse: rgba(245, 158, 11, 0.32);
+  --poller-bg: rgba(248, 250, 252, 0.08);
+  --poller-border: #475569;
+  --poller-text: #cbd5e1;
+  --poller-dot: #fbbf24;
+  --poller-pulse: rgba(251, 191, 36, 0.3);
 
   display: inline-flex;
   align-items: center;
@@ -25,27 +25,27 @@
 }
 
 .escrow-poller-badge--waiting {
-  --poller-bg: #f8fafc;
-  --poller-border: #cbd5e1;
-  --poller-text: #334155;
-  --poller-dot: #0f766e;
-  --poller-pulse: rgba(15, 118, 110, 0.18);
+  --poller-bg: rgba(254, 243, 199, 0.12);
+  --poller-border: #fde68a;
+  --poller-text: #fcd34d;
+  --poller-dot: #fbbf24;
+  --poller-pulse: rgba(251, 191, 36, 0.3);
 }
 
 .escrow-poller-badge--success {
-  --poller-bg: #ecfdf5;
+  --poller-bg: rgba(209, 250, 229, 0.15);
   --poller-border: #a7f3d0;
-  --poller-text: #166534;
-  --poller-dot: #10b981;
-  --poller-pulse: rgba(16, 185, 129, 0.2);
+  --poller-text: #34d399;
+  --poller-dot: #34d399;
+  --poller-pulse: rgba(52, 211, 153, 0.25);
 }
 
 .escrow-poller-badge--error {
-  --poller-bg: #fff1f2;
-  --poller-border: #fecdd3;
-  --poller-text: #be123c;
+  --poller-bg: rgba(254, 205, 211, 0.12);
+  --poller-border: #fda4af;
+  --poller-text: #fda4af;
   --poller-dot: #f43f5e;
-  --poller-pulse: rgba(244, 63, 94, 0.2);
+  --poller-pulse: rgba(244, 63, 94, 0.25);
 }
 
 .escrow-poller-dot-shell {
@@ -80,106 +80,218 @@
 .escrow-poller-meta {
   margin-top: 0.35rem;
   font-size: 0.7rem;
-  color: #64748b;
+  color: #94a3b8;
   letter-spacing: 0.01em;
 }
 
-.tracker-card {
-  border: 1px solid #e2e8f0;
-  border-radius: 1.25rem;
-  background: linear-gradient(180deg, #f8fafc 0%, #ffffff 100%);
-  padding: 1rem;
-  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.65);
+.escrow-tracker-card {
+  max-width: 600px;
+  margin: 0 auto;
+  background: #1e293b;
+  border: 1px solid #334155;
+  border-radius: 12px;
+  padding: 24px;
+  box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.3);
+  text-align: left;
 }
 
-.tracker-detail-grid {
-  display: grid;
-  gap: 0.75rem;
-}
-
-.tracker-timeline {
-  list-style: none;
-  padding: 0;
-  margin: 0;
+.escrow-status-header {
   display: flex;
-  flex-direction: column;
-  gap: 0.75rem;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+  border-bottom: 1px solid #334155;
+  padding-bottom: 16px;
+  margin-bottom: 20px;
 }
 
-.tracker-timeline-item {
-  display: flex;
-  align-items: flex-start;
-  gap: 0.75rem;
-  border: 1px solid #e2e8f0;
-  border-radius: 1rem;
-  padding: 0.8rem 0.9rem;
-  background: #f8fafc;
+.escrow-reference-code {
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, 'Liberation Mono', 'Courier New', monospace;
+  font-size: 1.1rem;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+  color: #38bdf8;
 }
 
-.tracker-timeline-item--completed {
-  border-color: #a7f3d0;
-  background: #f0fdf4;
-}
-
-.tracker-timeline-item--active {
-  border-color: #fde68a;
-  background: #fffbeb;
-}
-
-.tracker-timeline-item--error {
-  border-color: #fecdd3;
-  background: #fff1f2;
-}
-
-.tracker-step-icon {
-  width: 2rem;
-  height: 2rem;
-  border-radius: 9999px;
+.escrow-status-badge {
   display: inline-flex;
   align-items: center;
-  justify-content: center;
-  font-size: 0.9rem;
+  border-radius: 9999px;
+  padding: 0.28rem 0.7rem;
+  border: 1px solid transparent;
+  font-size: 0.75rem;
   font-weight: 700;
-  flex-shrink: 0;
+  letter-spacing: 0.03em;
+  text-transform: uppercase;
 }
 
-.tracker-step-icon--completed {
-  background: #dcfce7;
-  color: #166534;
-}
-
-.tracker-step-icon--active {
+.escrow-status-badge--pending {
   background: #fef3c7;
-  color: #92400e;
+  color: #b45309;
+  border-color: #fde68a;
 }
 
-.tracker-step-icon--error {
-  background: #ffe4e6;
-  color: #be123c;
+.escrow-status-badge--success {
+  background: #d1fae5;
+  color: #047857;
+  border-color: #a7f3d0;
 }
 
-.tracker-step-icon--future {
-  background: #e2e8f0;
-  color: #64748b;
+.escrow-status-badge--error {
+  background: #fee2e2;
+  color: #b91c1c;
+  border-color: #fecaca;
 }
 
-.tracker-step-title {
+.escrow-kv-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 16px;
+  margin-bottom: 20px;
+}
+
+.escrow-kv-item {
+  border: 1px solid #334155;
+  background: #0f172a;
+  border-radius: 10px;
+  padding: 12px;
+}
+
+.escrow-kv-label {
+  font-size: 0.72rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: #94a3b8;
+}
+
+.escrow-kv-value {
+  margin-top: 0.45rem;
   font-size: 0.95rem;
   font-weight: 600;
-  color: #0f172a;
+  color: #e2e8f0;
+  word-break: break-word;
 }
 
-.tracker-step-time {
-  font-size: 0.76rem;
-  font-weight: 600;
+.escrow-kv-value--amount {
+  color: #34d399;
+  font-size: 1.25rem;
+  font-weight: 700;
+}
+
+.escrow-timeline-panel {
+  border: 1px solid #334155;
+  background: #0f172a;
+  border-radius: 10px;
+  padding: 16px;
+}
+
+.escrow-timeline {
+  list-style: none;
+  margin: 0;
+  margin-left: 8px;
+  padding-left: 20px;
+  border-left: 2px solid #475569;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.escrow-timeline-step {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  margin-left: -4px;
+}
+
+.escrow-step-icon {
+  width: 20px;
+  min-width: 20px;
+  margin-top: 1px;
+  font-size: 1rem;
+  line-height: 1;
+  font-weight: 700;
+  text-align: center;
+}
+
+.escrow-step-icon--completed {
+  color: #34d399;
+}
+
+.escrow-step-icon--active {
+  color: #fbbf24;
+  animation: escrowActivePulse 1.6s ease-in-out infinite;
+}
+
+.escrow-step-icon--future {
   color: #64748b;
 }
 
-.tracker-step-detail {
+.escrow-step-icon--error {
+  color: #fda4af;
+}
+
+.escrow-step-title {
+  font-size: 0.95rem;
+  font-weight: 600;
+  color: #e2e8f0;
+}
+
+.escrow-timeline-step--completed .escrow-step-title {
+  font-weight: 700;
+  color: #34d399;
+}
+
+.escrow-step-time {
+  font-size: 0.85rem;
+  color: #94a3b8;
+  font-weight: 500;
+}
+
+.escrow-step-detail {
   margin-top: 0.25rem;
   font-size: 0.84rem;
-  color: #64748b;
+  color: #94a3b8;
   line-height: 1.45;
+}
+
+.escrow-action-bar {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  margin-top: 24px;
+  border-top: 1px solid #334155;
+  padding-top: 16px;
+}
+
+.escrow-action-btn {
+  border: 1px solid #475569;
+  background: #0f172a;
+  color: #cbd5e1;
+  border-radius: 0.375rem;
+  padding: 0.55rem 0.85rem;
+  font-size: 0.85rem;
+  font-weight: 600;
+  line-height: 1.2;
+  transition: background-color 0.2s ease, border-color 0.2s ease, color 0.2s ease;
+}
+
+.escrow-action-btn:hover {
+  border-color: #38bdf8;
+  background: #1e3a8a;
+  color: #e0f2fe;
+}
+
+.escrow-action-btn--primary {
+  border-color: #065f46;
+  background: #047857;
+  color: #ecfdf5;
+}
+
+.escrow-action-btn--primary:hover {
+  background: #059669;
+  border-color: #10b981;
+  color: #f0fdf4;
 }
 
 @keyframes escrowPollerPulse {
@@ -199,19 +311,35 @@
   }
 }
 
-@media (min-width: 640px) {
-  .tracker-detail-grid {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
+@keyframes escrowActivePulse {
+  0%,
+  100% {
+    opacity: 1;
+    transform: scale(1);
+  }
+
+  50% {
+    opacity: 0.55;
+    transform: scale(1.07);
   }
 }
 
 @media (max-width: 640px) {
+  .escrow-tracker-card {
+    padding: 16px;
+  }
+
+  .escrow-status-header {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+
+  .escrow-action-btn {
+    width: 100%;
+  }
+
   .escrow-poller-badge {
     font-size: 0.72rem;
     line-height: 1.1;
-  }
-
-  .tracker-card {
-    padding: 0.9rem;
   }
 }

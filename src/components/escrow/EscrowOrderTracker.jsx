@@ -29,6 +29,13 @@ const STATUS_LABELS = {
   CANCELLED: 'Action required',
 };
 
+const SUCCESS_STATUSES = new Set([
+  'FUNDS_LOCKED',
+  'IN_TRANSIT',
+  'DELIVERY_VERIFIED',
+  'FUNDS_RELEASED',
+]);
+
 function formatDisplayTime(value) {
   if (!value) {
     return 'Awaiting update';
@@ -189,6 +196,12 @@ export default function EscrowOrderTracker({
 
   const orderStatus = order?.status || 'PENDING';
   const statusText = STATUS_LABELS[orderStatus] || 'Monitoring escrow';
+  const statusBadgeTone =
+    orderStatus === 'FAILED' || orderStatus === 'CANCELLED'
+      ? 'error'
+      : SUCCESS_STATUSES.has(orderStatus)
+        ? 'success'
+        : 'pending';
   const timelineSteps = useMemo(
     () => getTimelineSteps(orderStatus, order?.updatedAt || order?.createdAt),
     [orderStatus, order?.updatedAt, order?.createdAt]
@@ -226,7 +239,7 @@ export default function EscrowOrderTracker({
 
   return (
     <div className="mx-auto max-w-7xl px-4 py-8 sm:py-16">
-      <div className="mx-auto max-w-3xl overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm">
+      <div className="mx-auto max-w-3xl overflow-hidden rounded-2xl border border-slate-700 bg-slate-900 shadow-xl shadow-black/30">
         <div className="bg-slate-950 px-5 py-6 text-left text-white sm:px-8">
           <div className="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
             <div>
@@ -249,107 +262,107 @@ export default function EscrowOrderTracker({
               value={reference}
               onChange={(event) => setReference(event.target.value)}
               placeholder={placeholder}
-              className="flex-1 rounded-xl border border-slate-200 px-3 py-2.5 text-sm text-slate-800 outline-none transition focus:border-slate-900 focus:ring-2 focus:ring-slate-200"
+              className="flex-1 rounded-xl border border-slate-600 bg-slate-800 px-3 py-2.5 text-sm text-slate-100 outline-none transition focus:border-sky-400 focus:ring-2 focus:ring-slate-700"
             />
             <button
               type="submit"
               disabled={loading}
-              className="rounded-xl bg-slate-900 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-slate-800 disabled:cursor-not-allowed disabled:opacity-70"
+              className="rounded-xl bg-sky-600 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-sky-500 disabled:cursor-not-allowed disabled:opacity-70"
             >
               {loading ? 'Tracking...' : 'Track'}
             </button>
           </form>
 
           {order ? (
-            <div id="escrow-order-details" className="tracker-card mt-6">
-              <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
+            <div id="escrow-order-details" className="escrow-tracker-card mt-6">
+              <div className="escrow-status-header">
                 <div>
-                  <p className="text-xs font-semibold uppercase tracking-[0.28em] text-slate-500">
+                  <p className="text-xs font-semibold uppercase tracking-[0.28em] text-slate-400">
                     Order snapshot
                   </p>
-                  <h3 className="mt-2 text-lg font-semibold text-slate-900">
+                  <h3 className="escrow-reference-code mt-2">
                     {activeReference || '-'}
                   </h3>
-                  <p className="mt-1 text-sm text-slate-600">{statusText}</p>
+                  <p className="mt-1 text-sm text-slate-300">{statusText}</p>
                 </div>
-                <div className="inline-flex w-fit items-center rounded-full border border-emerald-200 bg-emerald-50 px-3 py-1 text-sm font-semibold text-emerald-700">
+                <div className={`escrow-status-badge escrow-status-badge--${statusBadgeTone}`}>
                   {statusText}
                 </div>
               </div>
 
-              <div className="tracker-detail-grid mt-5">
-                <div className="rounded-xl border border-slate-200 bg-white p-4">
-                  <p className="text-xs font-semibold uppercase tracking-[0.24em] text-slate-500">
+              <div className="escrow-kv-grid">
+                <div className="escrow-kv-item">
+                  <p className="escrow-kv-label">
                     Reference
                   </p>
-                  <p className="mt-2 text-sm font-semibold text-slate-900">
+                  <p className="escrow-kv-value">
                     {activeReference || '-'}
                   </p>
                 </div>
-                <div className="rounded-xl border border-slate-200 bg-white p-4">
-                  <p className="text-xs font-semibold uppercase tracking-[0.24em] text-slate-500">
+                <div className="escrow-kv-item">
+                  <p className="escrow-kv-label">
                     Amount
                   </p>
-                  <p className="mt-2 text-sm font-semibold text-slate-900">
+                  <p className="escrow-kv-value escrow-kv-value--amount">
                     {order?.amount != null ? `₦${Number(order.amount).toLocaleString()}` : '-'}
                   </p>
                 </div>
-                <div className="rounded-xl border border-slate-200 bg-white p-4">
-                  <p className="text-xs font-semibold uppercase tracking-[0.24em] text-slate-500">
+                <div className="escrow-kv-item">
+                  <p className="escrow-kv-label">
                     Contact
                   </p>
-                  <p className="mt-2 text-sm font-semibold text-slate-900">
+                  <p className="escrow-kv-value">
                     {order?.customerEmail || order?.email || '-'}
                   </p>
                 </div>
-                <div className="rounded-xl border border-slate-200 bg-white p-4">
-                  <p className="text-xs font-semibold uppercase tracking-[0.24em] text-slate-500">
+                <div className="escrow-kv-item">
+                  <p className="escrow-kv-label">
                     Last update
                   </p>
-                  <p className="mt-2 text-sm font-semibold text-slate-900">
+                  <p className="escrow-kv-value">
                     {formatDisplayTime(order?.updatedAt || order?.createdAt)}
                   </p>
                 </div>
               </div>
 
-              <div className="mt-5 rounded-2xl border border-slate-200 bg-white p-4 sm:p-5">
+              <div className="escrow-timeline-panel">
                 <div className="flex flex-col gap-2 sm:flex-row sm:items-start sm:justify-between">
                   <div>
-                    <p className="text-xs font-semibold uppercase tracking-[0.28em] text-slate-500">
+                    <p className="text-xs font-semibold uppercase tracking-[0.28em] text-slate-400">
                       Escrow progress
                     </p>
-                    <p className="mt-1 text-sm text-slate-600">
+                    <p className="mt-1 text-sm text-slate-300">
                       A clearer view of where the transaction currently sits in the process.
                     </p>
                   </div>
-                  <div className="text-sm text-slate-500">
-                    <div className="font-semibold text-slate-700">
+                  <div className="text-sm text-slate-400">
+                    <div className="font-semibold text-slate-200">
                       {formatDisplayTime(order?.updatedAt || order?.createdAt)}
                     </div>
                     <div>Last update</div>
                   </div>
                 </div>
 
-                <ol className="tracker-timeline mt-4">
+                <ol className="escrow-timeline mt-4">
                   {timelineSteps.map((step) => {
                     const iconMap = {
                       completed: '✓',
                       active: '⏳',
                       error: '!',
-                      future: '•',
+                      future: '○',
                     };
 
                     return (
-                      <li key={step.id} className={`tracker-timeline-item tracker-timeline-item--${step.state}`}>
-                        <span className={`tracker-step-icon tracker-step-icon--${step.state}`}>
+                      <li key={step.id} className={`escrow-timeline-step escrow-timeline-step--${step.state}`}>
+                        <span className={`escrow-step-icon escrow-step-icon--${step.state}`}>
                           {iconMap[step.state] || '•'}
                         </span>
                         <div className="min-w-0 flex-1">
                           <div className="flex flex-col gap-1 sm:flex-row sm:items-center sm:justify-between">
-                            <p className="tracker-step-title">{step.title}</p>
-                            <p className="tracker-step-time">{formatDisplayTime(step.time)}</p>
+                            <p className="escrow-step-title">{step.title}</p>
+                            <p className="escrow-step-time">{formatDisplayTime(step.time)}</p>
                           </div>
-                          <p className="tracker-step-detail">{step.detail}</p>
+                          <p className="escrow-step-detail">{step.detail}</p>
                         </div>
                       </li>
                     );
@@ -357,32 +370,32 @@ export default function EscrowOrderTracker({
                 </ol>
               </div>
 
-              <div className="mt-5 flex flex-col gap-2 sm:flex-row">
+              <div className="escrow-action-bar">
                 <button
                   type="button"
                   onClick={handleDownloadReceipt}
-                  className="rounded-xl border border-slate-200 bg-white px-3 py-2 text-sm font-semibold text-slate-700 transition hover:border-slate-300 hover:bg-slate-50"
+                  className="escrow-action-btn"
                 >
                   Download receipt
                 </button>
                 <a
                   href="mailto:support@adeptprocessing.com?subject=Escrow%20Order%20Support"
-                  className="rounded-xl border border-slate-200 bg-white px-3 py-2 text-center text-sm font-semibold text-slate-700 transition hover:border-slate-300 hover:bg-slate-50"
+                  className="escrow-action-btn text-center"
                 >
                   Contact support
                 </a>
                 <button
                   type="button"
                   onClick={handleJumpToDetails}
-                  className="rounded-xl bg-slate-900 px-3 py-2 text-sm font-semibold text-white transition hover:bg-slate-800"
+                  className="escrow-action-btn escrow-action-btn--primary"
                 >
                   Go to order details
                 </button>
               </div>
             </div>
           ) : (
-            <div className="tracker-card mt-6 text-left">
-              <p className="text-sm text-slate-600">
+            <div className="escrow-tracker-card mt-6">
+              <p className="text-sm text-slate-300">
                 No transaction rows yet. Track a payment reference to populate this overview with a live summary, timeline, and receipt actions.
               </p>
             </div>
