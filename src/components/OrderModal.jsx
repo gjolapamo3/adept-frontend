@@ -3,10 +3,12 @@ import ReactDOM from 'react-dom';
 import { placeOrder } from '../services/api';
 
 const OrderModal = ({ product, onClose, onOrderCreated }) => {
-  const name = product?.name || 'Product';
-  const rawCurrency = String(product.currency || 'NGN').trim();
+  const safeProduct = product && typeof product === 'object' ? product : {};
+
+  const name = safeProduct.name || 'Product';
+  const rawCurrency = String(safeProduct.currency || 'NGN').trim();
   const currency = rawCurrency ? `${rawCurrency} ` : 'NGN ';
-  const price = Number(product.pricePerTon ?? product.price ?? product.unitPrice ?? 0);
+  const price = Number(safeProduct.pricePerTon ?? safeProduct.price ?? safeProduct.unitPrice ?? 0);
 
   const [formData, setFormData] = useState({
     quantityMt: '',
@@ -48,6 +50,10 @@ const OrderModal = ({ product, onClose, onOrderCreated }) => {
   };
 
   useEffect(() => {
+    if (!product) {
+      return undefined;
+    }
+
     const handleKeyDown = (e) => {
       if (e.key === 'Escape') onClose();
     };
@@ -89,7 +95,7 @@ const OrderModal = ({ product, onClose, onOrderCreated }) => {
     }
 
     const payload = {
-      productId: product.id ?? product.productId,
+      productId: safeProduct.id ?? safeProduct.productId,
       productName: name,
       quantityMt: quantityValue,
       unitPrice: price,

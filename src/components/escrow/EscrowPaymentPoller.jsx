@@ -74,6 +74,10 @@ export default function EscrowPaymentPoller({
   lastCheckedAt = null,
 }) {
   const [nowMs, setNowMs] = useState(Date.now());
+  const relativeCheckTime = useMemo(
+    () => formatRelativeLastChecked(lastCheckedAt, nowMs),
+    [lastCheckedAt, nowMs]
+  );
 
   useEffect(() => {
     if (!isPolling) {
@@ -96,10 +100,6 @@ export default function EscrowPaymentPoller({
   const isTerminal = status && TERMINAL_STATUSES.has(status);
   const isError = status === 'FAILED' || status === 'CANCELLED';
   const isWaiting = !isTerminal && !isError;
-  const relativeCheckTime = useMemo(
-    () => formatRelativeLastChecked(lastCheckedAt, nowMs),
-    [lastCheckedAt, nowMs]
-  );
 
   const toneClass = isTerminal
     ? 'escrow-poller-badge--success'
