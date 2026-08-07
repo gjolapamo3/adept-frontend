@@ -76,39 +76,39 @@ export default function ProductCard({ product, onOrderCreated }) {
 
   return (
     <>
-      <div className="bg-white rounded-lg border border-gray-200 shadow-sm hover:shadow-md transition p-5 flex flex-col justify-between">
+      <div className="product-card">
         <div>
-          <div className="mb-3 aspect-[4/3] w-full overflow-hidden rounded-md bg-gray-100">
+          <div className="product-card__media">
             {image ? (
-              <img src={image} alt={name || 'Product image'} className="h-full w-full object-cover" loading="lazy" />
+              <img src={image} alt={name || 'Product image'} className="product-card__image" loading="lazy" />
             ) : (
-              <div className="flex h-full w-full items-center justify-center text-sm text-gray-400">
+              <div className="product-card__empty-state">
                 No image available
               </div>
             )}
           </div>
 
-          <p className="mb-2 inline-flex rounded-full bg-gray-100 px-2 py-1 text-[11px] font-medium text-gray-600">
+          <p className="category-tag">
             {category || 'General'}
           </p>
-          <h3 className="text-lg font-bold text-gray-900">{name || 'Unnamed Product'}</h3>
+          <h3>{name || 'Unnamed Product'}</h3>
           {description ? (
-            <p className="mt-2 line-clamp-3 text-sm text-gray-600">{description}</p>
+            <p className="product-card__description">{description}</p>
           ) : (
-            <p className="mt-2 text-sm text-gray-400">No description available.</p>
+            <p className="product-card__description product-card__description--muted">No description available.</p>
           )}
         </div>
 
-        <div className="border-t pt-3 mt-2 flex justify-between items-center">
+        <div className="product-card__footer">
           <div>
-            <p className="text-xs text-gray-500">Price per Ton</p>
-            <p className="text-xl font-extrabold text-emerald-800">
+            <p className="product-card__label">Price per Ton</p>
+            <p className="price-tag">
               {currency} {Number(displayPrice).toLocaleString()}
             </p>
           </div>
           <button
             onClick={handleOpenModal}
-            className="bg-gray-900 text-white text-sm px-4 py-2 rounded-md hover:bg-gray-800 transition"
+            className="btn-order"
           >
             Order / Quote
           </button>

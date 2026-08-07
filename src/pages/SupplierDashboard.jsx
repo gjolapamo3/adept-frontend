@@ -4,6 +4,7 @@ import {
   createProductListing,
   updateProductStock,
 } from '../services/supplierService';
+import './SupplierDashboard.css';
 
 const INITIAL_FORM = {
   name: '',
@@ -115,8 +116,8 @@ export default function SupplierDashboard() {
   };
 
   return (
-    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10 space-y-8">
-      <section className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
+    <div className="supplier-portal-container max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10 space-y-8">
+      <section className="supplier-card">
         <div className="flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
           <div>
             <p className="text-sm font-semibold uppercase tracking-[0.2em] text-emerald-600">
@@ -130,7 +131,7 @@ export default function SupplierDashboard() {
           <button
             type="button"
             onClick={loadListings}
-            className="rounded-md bg-slate-900 px-4 py-2 text-sm font-semibold text-white transition hover:bg-slate-800"
+            className="btn-secondary"
           >
             Refresh Listings
           </button>
@@ -153,7 +154,7 @@ export default function SupplierDashboard() {
       )}
 
       <section className="grid gap-8 lg:grid-cols-[1.1fr_1.4fr]">
-        <form onSubmit={handleCreateListing} className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm space-y-4">
+        <form onSubmit={handleCreateListing} className="supplier-card space-y-4">
           <div>
             <h2 className="text-xl font-bold text-slate-900">Create Product Listing</h2>
             <p className="mt-1 text-sm text-slate-500">Add a fresh offer for buyers searching the marketplace.</p>
@@ -164,7 +165,7 @@ export default function SupplierDashboard() {
             value={formState.name}
             onChange={handleFormChange}
             placeholder="Product name"
-            className="w-full rounded-md border border-slate-200 px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-emerald-500"
+            className="supplier-input"
             required
           />
           <input
@@ -172,7 +173,7 @@ export default function SupplierDashboard() {
             value={formState.category}
             onChange={handleFormChange}
             placeholder="Category"
-            className="w-full rounded-md border border-slate-200 px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-emerald-500"
+            className="supplier-input"
             required
           />
           <textarea
@@ -181,7 +182,7 @@ export default function SupplierDashboard() {
             onChange={handleFormChange}
             placeholder="Product description"
             rows="4"
-            className="w-full rounded-md border border-slate-200 px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-emerald-500"
+            className="supplier-input supplier-textarea"
             required
           />
 
@@ -191,7 +192,7 @@ export default function SupplierDashboard() {
               value={formState.currency}
               onChange={handleFormChange}
               placeholder="Currency"
-              className="rounded-md border border-slate-200 px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-emerald-500"
+              className="supplier-input"
               required
             />
             <input
@@ -201,7 +202,7 @@ export default function SupplierDashboard() {
               value={formState.pricePerTon}
               onChange={handleFormChange}
               placeholder="Price per ton"
-              className="rounded-md border border-slate-200 px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-emerald-500"
+              className="supplier-input"
               required
             />
             <input
@@ -211,7 +212,7 @@ export default function SupplierDashboard() {
               value={formState.stock}
               onChange={handleFormChange}
               placeholder="Stock tons"
-              className="rounded-md border border-slate-200 px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-emerald-500"
+              className="supplier-input"
               required
             />
           </div>
@@ -219,13 +220,13 @@ export default function SupplierDashboard() {
           <button
             type="submit"
             disabled={submitting}
-            className="w-full rounded-md bg-emerald-600 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-emerald-700 disabled:cursor-not-allowed disabled:opacity-60"
+            className="btn-primary"
           >
             {submitting ? 'Creating Listing...' : 'Create Listing'}
           </button>
         </form>
 
-        <section className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
+        <section className="supplier-card">
           <div className="flex items-center justify-between gap-3 border-b border-slate-100 pb-4">
             <div>
               <h2 className="text-xl font-bold text-slate-900">Managed Listings</h2>
@@ -250,7 +251,7 @@ export default function SupplierDashboard() {
                 const priceValue = draft.pricePerTon ?? '';
 
                 return (
-                  <article key={listingId} className="rounded-xl border border-slate-200 bg-slate-50 p-4">
+                  <article key={listingId} className="supplier-listing-card">
                     <div className="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
                       <div>
                         <p className="inline-flex rounded-full bg-white px-2.5 py-1 text-[11px] font-semibold uppercase tracking-wide text-emerald-700 border border-emerald-100">
@@ -281,7 +282,7 @@ export default function SupplierDashboard() {
                           value={stockValue}
                           onChange={(event) => handleDraftChange(listingId, 'stock', event.target.value)}
                           placeholder="New stock tons"
-                          className="rounded-md border border-slate-200 bg-white px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-slate-800"
+                          className="supplier-input"
                         />
                         <input
                           type="number"
@@ -289,12 +290,12 @@ export default function SupplierDashboard() {
                           value={priceValue}
                           onChange={(event) => handleDraftChange(listingId, 'pricePerTon', event.target.value)}
                           placeholder="New price per ton"
-                          className="rounded-md border border-slate-200 bg-white px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-slate-800"
+                          className="supplier-input"
                         />
                         <button
                           type="button"
                           onClick={() => handleUpdateListing(listingId)}
-                          className="sm:col-span-2 rounded-md bg-slate-900 px-4 py-2 text-sm font-semibold text-white transition hover:bg-slate-800"
+                          className="sm:col-span-2 btn-secondary"
                         >
                           Save Stock Update
                         </button>

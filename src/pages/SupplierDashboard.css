@@ -1,0 +1,123 @@
+.supplier-portal-container {
+  max-width: 800px;
+  margin: 0 auto;
+  padding: 16px;
+}
+
+.supplier-card {
+  background: #ffffff;
+  border-radius: 12px;
+  padding: 24px;
+  margin-bottom: 24px;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+  color: #0f172a !important;
+}
+
+.supplier-card h2,
+.supplier-card h3 {
+  color: #0f172a !important;
+  margin-top: 0;
+}
+
+.supplier-card p {
+  color: #475569 !important;
+}
+
+.supplier-card input,
+.supplier-card textarea,
+.supplier-card select {
+  width: 100%;
+  padding: 10px 14px;
+  margin-top: 6px;
+  margin-bottom: 16px;
+  border: 1px solid #cbd5e1;
+  border-radius: 8px;
+  background-color: #f8fafc;
+  color: #0f172a;
+  font-size: 0.95rem;
+  box-sizing: border-box;
+}
+
+.supplier-card input::placeholder,
+.supplier-card textarea::placeholder {
+  color: #94a3b8;
+}
+
+.supplier-card input:focus,
+.supplier-card textarea:focus,
+.supplier-card select:focus {
+  outline: none;
+  border-color: #059669;
+  background-color: #ffffff;
+  box-shadow: 0 0 0 3px rgba(5, 150, 105, 0.12);
+}
+
+.supplier-card .btn-primary,
+.supplier-card .btn-secondary {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border: none;
+  border-radius: 8px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background-color 0.2s ease, transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.supplier-card .btn-primary {
+  background-color: #059669;
+  color: #ffffff;
+  padding: 10px 20px;
+  width: 100%;
+}
+
+.supplier-card .btn-primary:hover {
+  background-color: #047857;
+}
+
+.supplier-card .btn-secondary {
+  background-color: #0f172a;
+  color: #ffffff;
+  padding: 10px 20px;
+}
+
+.supplier-card .btn-secondary:hover {
+  background-color: #1e293b;
+}
+
+.supplier-card .btn-primary:focus-visible,
+.supplier-card .btn-secondary:focus-visible {
+  outline: none;
+  box-shadow: 0 0 0 3px rgba(5, 150, 105, 0.18);
+}
+
+.supplier-card .btn-primary:disabled {
+  cursor: not-allowed;
+  opacity: 0.6;
+}
+
+.supplier-listing-card {
+  border-radius: 12px;
+  border: 1px solid #e2e8f0;
+  background: #f8fafc;
+  padding: 16px;
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.6);
+}
+
+.supplier-listing-card h3 {
+  color: #0f172a !important;
+}
+
+.supplier-listing-card p {
+  color: #475569 !important;
+}
+
+@media (max-width: 640px) {
+  .supplier-portal-container {
+    padding: 12px;
+  }
+
+  .supplier-card {
+    padding: 18px;
+  }
+}
