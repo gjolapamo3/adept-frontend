@@ -92,27 +92,9 @@ export default function EscrowOrderTracker({
     enabled: Boolean(activeReference),
   });
 
-  const transactions = Array.isArray(order?.transactions)
-    ? order.transactions
-    : Array.isArray(order)
-      ? order
-      : [];
-  const transaction =
-    !Array.isArray(order) && order && !Array.isArray(order?.transactions)
-      ? order
-      : null;
-
   const transactionRows = useMemo(
-    () =>
-      normalizeTransactionRows(
-        Array.isArray(transactions) && transactions.length > 0
-          ? transactions
-          : transaction
-            ? [transaction]
-            : [],
-        activeReference
-      ),
-    [transactions, transaction, activeReference]
+    () => normalizeTransactionRows(order, activeReference),
+    [order, activeReference]
   );
 
   const isFunded = transactionRows.some((tx) => {
@@ -121,6 +103,7 @@ export default function EscrowOrderTracker({
   });
 
   const primaryTransaction = transactionRows[0] ?? null;
+  const shouldShowPollError = Boolean(pollError) && transactionRows.length === 0 && !isFunded;
 
   useEffect(() => {
     if (!initialReference) {
@@ -234,7 +217,7 @@ export default function EscrowOrderTracker({
           lastCheckedAt={lastCheckedAt}
         />
 
-        {pollError ? <p className="mt-3 text-left text-xs text-red-600">{pollError}</p> : null}
+        {shouldShowPollError ? <p className="mt-3 text-left text-xs text-red-600">{pollError}</p> : null}
         {error ? <p className="mt-3 text-left text-xs text-red-600">{error}</p> : null}
       </div>
     </div>
