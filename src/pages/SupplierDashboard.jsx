@@ -123,8 +123,8 @@ export default function SupplierDashboard() {
             <p className="text-sm font-semibold uppercase tracking-[0.2em] text-emerald-600">
               Supplier Workspace
             </p>
-            <h1 className="mt-2 text-3xl font-bold text-slate-900">Manage listings and live stock</h1>
-            <p className="mt-3 max-w-2xl text-sm text-slate-600">
+            <h1 className="supplier-workspace-title mt-2 text-3xl font-bold text-slate-900">Manage listings and live stock</h1>
+            <p className="supplier-workspace-subtitle mt-3 max-w-2xl text-sm text-slate-600">
               Publish new chemical listings, adjust tonnage, and keep pricing current for marketplace buyers.
             </p>
           </div>

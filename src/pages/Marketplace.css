@@ -178,6 +178,27 @@
   box-shadow: 0 0 0 3px rgba(5, 150, 105, 0.18);
 }
 
+@media (max-width: 640px) {
+  .product-card__media,
+  .product-card .image-placeholder-container,
+  .product-card-image-wrapper {
+    height: 140px;
+    min-height: 120px;
+    max-height: 160px;
+    aspect-ratio: auto;
+    background-color: #f8fafc !important;
+    border-radius: 8px !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+  }
+
+  .product-card__empty-state {
+    min-height: 120px;
+    max-height: 160px;
+  }
+}
+
 @media (min-width: 768px) {
   .marketplace-hero-layout {
     flex-direction: row;
