@@ -2,7 +2,7 @@ import React, { useEffect, useMemo, useState } from 'react';
 import EscrowPaymentPoller from './EscrowPaymentPoller';
 import { useEscrowPoller } from '../../hooks/useEscrowPoller';
 
-const normalizeStatus = (value) => {
+export const normalizeStatus = (value) => {
   const status = typeof value === 'string' ? value.trim().toUpperCase() : '';
 
   if (!status) {
@@ -20,21 +20,52 @@ const normalizeStatus = (value) => {
   return status;
 };
 
-const normalizeTransactionRows = (payload, fallbackReference) => {
+export const normalizeTransactionRows = (payload, fallbackReference) => {
   if (!payload) {
     return [];
   }
 
-  const sourceRows =
-    Array.isArray(payload)
-      ? payload
-      : Array.isArray(payload.transactions)
-        ? payload.transactions
-        : Array.isArray(payload.rows)
-          ? payload.rows
-          : Array.isArray(payload.data)
-            ? payload.data
-            : [payload];
+  const getRowsFromPayload = (value) => {
+    if (!value) {
+      return [];
+    }
+
+    if (Array.isArray(value)) {
+      return value;
+    }
+
+    if (typeof value !== 'object') {
+      return [];
+    }
+
+    if (Array.isArray(value.transactions)) {
+      return value.transactions;
+    }
+
+    if (Array.isArray(value.rows)) {
+      return value.rows;
+    }
+
+    if (Array.isArray(value.data)) {
+      return value.data;
+    }
+
+    if (value.transaction && typeof value.transaction === 'object') {
+      return [value.transaction];
+    }
+
+    if (value.orderData && typeof value.orderData === 'object') {
+      return [value.orderData];
+    }
+
+    if (value.data && typeof value.data === 'object') {
+      return getRowsFromPayload(value.data);
+    }
+
+    return [value];
+  };
+
+  const sourceRows = getRowsFromPayload(payload);
 
   return sourceRows
     .filter((row) => row && typeof row === 'object')
@@ -85,9 +116,11 @@ export default function EscrowOrderTracker({
 
   const {
     order,
+    loading: pollerLoading,
     isPolling,
     error: pollError,
     lastCheckedAt,
+    refetch,
   } = useEscrowPoller(activeReference, {
     enabled: Boolean(activeReference),
   });
@@ -103,7 +136,9 @@ export default function EscrowOrderTracker({
   });
 
   const primaryTransaction = transactionRows[0] ?? null;
+  const shouldHideWaitingBanner = transactionRows.length > 0 || isFunded;
   const shouldShowPollError = Boolean(pollError) && transactionRows.length === 0 && !isFunded;
+  const isSubmitting = loading || pollerLoading;
 
   useEffect(() => {
     if (!initialReference) {
@@ -125,7 +160,14 @@ export default function EscrowOrderTracker({
     }
 
     setError('');
+    const normalizedActiveReference = activeReference.trim();
+    const isRepeatLookup = trimmedRef === normalizedActiveReference;
+
     setActiveReference(trimmedRef);
+
+    if (isRepeatLookup) {
+      await refetch();
+    }
 
     if (!onTrack) {
       return;
@@ -157,10 +199,10 @@ export default function EscrowOrderTracker({
           />
           <button
             type="submit"
-            disabled={loading}
+            disabled={isSubmitting}
             className="bg-slate-900 text-white px-4 py-2 rounded-md text-sm font-semibold hover:bg-slate-800 transition disabled:cursor-not-allowed disabled:opacity-70"
           >
-            {loading ? 'Tracking...' : 'Track'}
+            {isSubmitting ? 'Tracking...' : 'Track'}
           </button>
         </form>
 
@@ -211,11 +253,13 @@ export default function EscrowOrderTracker({
           </table>
         </div>
 
-        <EscrowPaymentPoller
-          status={isFunded ? 'FUNDS_LOCKED' : primaryTransaction?.status}
-          isPolling={isPolling}
-          lastCheckedAt={lastCheckedAt}
-        />
+        {shouldHideWaitingBanner ? null : (
+          <EscrowPaymentPoller
+            status={isFunded ? 'FUNDS_LOCKED' : primaryTransaction?.status}
+            isPolling={isPolling}
+            lastCheckedAt={lastCheckedAt}
+          />
+        )}
 
         {shouldShowPollError ? <p className="mt-3 text-left text-xs text-red-600">{pollError}</p> : null}
         {error ? <p className="mt-3 text-left text-xs text-red-600">{error}</p> : null}
