@@ -19,6 +19,24 @@ export const normalizeStatus = (value) => {
   return status;
 };
 
+const resolveBadgeStatus = (row, isOrderFunded) => {
+  const paymentStatus = typeof row?.paymentStatus === 'string' ? row.paymentStatus.trim().toUpperCase() : '';
+  const rowStatus = typeof row?.status === 'string' ? row.status.trim().toUpperCase() : '';
+  const rawStatus = typeof row?.rawStatus === 'string' ? row.rawStatus.trim().toUpperCase() : '';
+  const statusCandidate = paymentStatus || rowStatus || rawStatus;
+  const normalized = normalizeStatus(statusCandidate);
+
+  if (normalized === 'FUNDS_LOCKED') {
+    return 'SUCCESS';
+  }
+
+  if (isOrderFunded && normalized === 'PAYMENT_PENDING') {
+    return 'SUCCESS';
+  }
+
+  return normalized || 'SUCCESS';
+};
+
 export const normalizeTransactionRows = (payload, fallbackReference) => {
   if (!payload) {
     return [];
@@ -239,7 +257,7 @@ export default function EscrowOrderTracker({
                     <td>NGN {Number(row.amountPaid || row.amount || 185000).toLocaleString()}</td>
                     <td>
                       <span className="status-badge success">
-                        {row.paymentStatus || row.status || 'SUCCESS'}
+                        {resolveBadgeStatus(row, isOrderFunded)}
                       </span>
                     </td>
                     <td>{row.rawWebhookPayload?.eventData?.customer?.email || row.email || 'gbolahan@adeptprocessing.com'}</td>
