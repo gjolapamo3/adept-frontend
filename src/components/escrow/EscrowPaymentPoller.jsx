@@ -17,7 +17,7 @@ const WAITING_STATUSES = new Set([
 
 function getBadgeCopy(status) {
   if (!status || WAITING_STATUSES.has(status)) {
-    return 'Waiting for your bank transfer to reflect via Monnify';
+    return 'Waiting for Monnify confirmation. Confirm the webhook/backend is active if this lingers.';
   }
 
   if (status === 'FAILED' || status === 'CANCELLED') {

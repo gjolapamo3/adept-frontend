@@ -71,7 +71,7 @@ export function useEscrowPoller(
     } catch (err) {
       if (requestId === activeRequestRef.current) {
         console.error('Poller error fetching escrow status:', err);
-        setError('Temporary error connecting to payment gateway.');
+        setError('Temporary Monnify connectivity issue. Confirm the webhook/backend is active.');
       }
     } finally {
       if (requestId === activeRequestRef.current) {

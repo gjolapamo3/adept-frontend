@@ -25,11 +25,11 @@
 }
 
 .escrow-poller-badge--waiting {
-  --poller-bg: rgba(254, 243, 199, 0.12);
-  --poller-border: #fde68a;
-  --poller-text: #fcd34d;
-  --poller-dot: #fbbf24;
-  --poller-pulse: rgba(251, 191, 36, 0.3);
+  --poller-bg: rgba(254, 243, 199, 0.7);
+  --poller-border: #f59e0b;
+  --poller-text: #92400e;
+  --poller-dot: #f59e0b;
+  --poller-pulse: rgba(245, 158, 11, 0.28);
 }
 
 .escrow-poller-badge--success {

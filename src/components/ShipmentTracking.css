@@ -15,6 +15,59 @@
   box-shadow: 0 12px 30px rgba(15, 23, 42, 0.05);
 }
 
+/* High-contrast text overrides for shipment tracking cards */
+.shipment-tracking__header,
+.shipment-tracking__panel,
+.shipment-tracking-card,
+.multi-stage-progress-card,
+.transit-summary-card {
+  background-color: #ffffff;
+  color: #0f172a !important;
+}
+
+.shipment-tracking__header h1,
+.shipment-tracking__panel h2,
+.shipment-tracking__panel h3,
+.shipment-tracking__panel p,
+.shipment-tracking-card h2,
+.shipment-tracking-card h3,
+.shipment-tracking-card p,
+.multi-stage-progress-title,
+.transit-summary-title {
+  color: #0f172a !important;
+}
+
+.shipment-tracking__header h1,
+.shipment-tracking__panel h2,
+.shipment-tracking__panel h3,
+.shipment-tracking__route-hubs button strong,
+.shipment-tracking__hub-detail h3,
+.shipment-tracking__step-index {
+  color: #0f172a !important;
+}
+
+.shipment-tracking__header p,
+.shipment-tracking__route-copy,
+.shipment-tracking__hub-detail p,
+.shipment-tracking-card .subtitle,
+.multi-stage-progress-subtitle {
+  color: #475569 !important;
+}
+
+.shipment-tracking__step-label,
+.shipment-tracking__stepper li.is-complete .shipment-tracking__step-label,
+.stepper-item .stepper-label,
+.stepper-item.is-complete .stepper-label {
+  color: #064e3b !important;
+  font-weight: 600;
+}
+
+.shipment-tracking__stepper li.is-current .shipment-tracking__step-label,
+.stepper-item.is-current .stepper-label {
+  color: #064e3b !important;
+  font-weight: 700;
+}
+
 .shipment-tracking__header {
   display: flex;
   align-items: flex-start;
@@ -94,6 +147,7 @@
   background: #f8fafc;
   text-align: left;
   cursor: pointer;
+  color: #334155;
 }
 
 .shipment-tracking__step-index {
@@ -110,11 +164,22 @@
 
 .shipment-tracking__step-label {
   font-weight: 600;
+  color: inherit;
 }
 
 .shipment-tracking__stepper li.is-complete button {
   border-color: #86efac;
   background: #f0fdf4;
+}
+
+.shipment-tracking__stepper li.is-complete .shipment-tracking__step-label,
+.shipment-tracking__stepper li.is-current .shipment-tracking__step-label {
+  color: #14532d;
+}
+
+.shipment-tracking__stepper li.is-current .shipment-tracking__step-label {
+  color: #052e16;
+  font-weight: 700;
 }
 
 .shipment-tracking__stepper li.is-complete .shipment-tracking__step-index,

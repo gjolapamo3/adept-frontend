@@ -18,6 +18,47 @@
   box-shadow: 0 18px 40px rgba(15, 23, 42, 0.06);
 }
 
+/* High-contrast text overrides for pricing hero and cards */
+.pricing-dashboard__hero,
+.pricing-dashboard__ticker-card,
+.pricing-dashboard__panel,
+.pricing-hero-card,
+.pricing-metric-card,
+.supply-lane-card {
+  background-color: #ffffff;
+  color: #0f172a !important;
+}
+
+.pricing-dashboard__hero h1,
+.pricing-dashboard__hero p,
+.pricing-dashboard__panel h2,
+.pricing-dashboard__panel h3,
+.pricing-dashboard__panel p,
+.pricing-hero-card h1,
+.pricing-hero-card p,
+.supply-lane-card h3,
+.supply-lane-card p {
+  color: #1e293b !important;
+}
+
+.pricing-dashboard__hero p,
+.pricing-dashboard__producer,
+.pricing-dashboard__producer-item p,
+.pricing-hero-card .hero-subtitle,
+.verified-supply-lanes .section-subtitle {
+  color: #334155 !important;
+}
+
+.pricing-dashboard__hero h1,
+.pricing-dashboard__panel h2,
+.pricing-dashboard__panel h3,
+.pricing-dashboard__ticker-head h3,
+.pricing-dashboard__ticker-price-row strong,
+.pricing-dashboard__calc-line strong,
+.pricing-dashboard__calc-line--total strong {
+  color: #0f172a !important;
+}
+
 .pricing-dashboard__hero h1 {
   margin: 0.3rem 0 0.4rem;
   font-size: 1.7rem;
