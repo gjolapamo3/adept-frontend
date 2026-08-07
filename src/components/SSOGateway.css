@@ -1,0 +1,157 @@
+.sso-shell {
+  min-height: calc(100vh - 8rem);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 2rem 1rem;
+  background: linear-gradient(135deg, #f8fafc 0%, #ecfeff 100%);
+}
+
+.sso-card {
+  width: min(100%, 720px);
+  background: #ffffff;
+  border: 1px solid #dbeafe;
+  border-radius: 24px;
+  box-shadow: 0 22px 60px rgba(15, 23, 42, 0.08);
+  padding: 2rem;
+}
+
+.sso-card__hero h1 {
+  margin: 0.25rem 0 0.5rem;
+  font-size: 1.8rem;
+  color: #0f172a;
+}
+
+.sso-card__hero p {
+  margin: 0;
+  color: #475569;
+  line-height: 1.6;
+}
+
+.sso-pill {
+  display: inline-flex;
+  align-items: center;
+  padding: 0.35rem 0.7rem;
+  background: #dcfce7;
+  color: #166534;
+  border-radius: 999px;
+  font-size: 0.8rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+}
+
+.sso-provider-list {
+  display: grid;
+  gap: 0.75rem;
+  margin: 1.5rem 0;
+}
+
+.sso-provider {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 0.2rem;
+  padding: 0.9rem 1rem;
+  border: 1px solid #cbd5e1;
+  border-radius: 14px;
+  background: #f8fafc;
+  cursor: pointer;
+  text-align: left;
+  transition: border-color 0.2s ease, transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.sso-provider:hover {
+  transform: translateY(-1px);
+  border-color: #10b981;
+  box-shadow: 0 10px 28px rgba(16, 185, 129, 0.1);
+}
+
+.sso-provider.is-active {
+  border-color: #10b981;
+  background: #ecfdf5;
+}
+
+.sso-provider__label {
+  font-weight: 700;
+  color: #0f172a;
+}
+
+.sso-provider__description {
+  color: #64748b;
+  font-size: 0.92rem;
+}
+
+.sso-form {
+  display: flex;
+  flex-direction: column;
+  gap: 0.7rem;
+}
+
+.sso-form__label {
+  font-weight: 600;
+  color: #334155;
+}
+
+.sso-form input {
+  padding: 0.9rem 1rem;
+  border: 1px solid #cbd5e1;
+  border-radius: 12px;
+  font-size: 1rem;
+  outline: none;
+}
+
+.sso-form input:focus {
+  border-color: #10b981;
+  box-shadow: 0 0 0 4px rgba(16, 185, 129, 0.14);
+}
+
+.sso-submit {
+  margin-top: 0.2rem;
+  padding: 0.9rem 1rem;
+  border: none;
+  border-radius: 12px;
+  background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+  color: #ffffff;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.sso-submit:disabled {
+  opacity: 0.7;
+  cursor: wait;
+}
+
+.sso-message {
+  margin-top: 1rem;
+  padding: 0.8rem 0.95rem;
+  border-radius: 12px;
+  font-size: 0.95rem;
+}
+
+.sso-message--error {
+  background: #fef2f2;
+  color: #b91c1c;
+}
+
+.sso-message--success {
+  background: #ecfdf5;
+  color: #166534;
+}
+
+.sso-footer {
+  margin-top: 1rem;
+  color: #64748b;
+  font-size: 0.92rem;
+  line-height: 1.5;
+}
+
+@media (max-width: 640px) {
+  .sso-card {
+    padding: 1.25rem;
+  }
+
+  .sso-card__hero h1 {
+    font-size: 1.45rem;
+  }
+}

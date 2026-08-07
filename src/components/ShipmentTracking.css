@@ -1,0 +1,239 @@
+.shipment-tracking {
+  max-width: 1100px;
+  margin: 0 auto;
+  padding: 2rem 1rem 3rem;
+  display: grid;
+  gap: 1rem;
+}
+
+.shipment-tracking__header,
+.shipment-tracking__panel {
+  background: #ffffff;
+  border: 1px solid #dbeafe;
+  border-radius: 18px;
+  padding: 1.25rem;
+  box-shadow: 0 12px 30px rgba(15, 23, 42, 0.05);
+}
+
+.shipment-tracking__header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 1rem;
+}
+
+.shipment-tracking__eyebrow {
+  margin: 0;
+  text-transform: uppercase;
+  letter-spacing: 0.18em;
+  font-size: 0.78rem;
+  color: #047857;
+  font-weight: 700;
+}
+
+.shipment-tracking__header h1 {
+  margin: 0.3rem 0;
+  font-size: 1.35rem;
+}
+
+.shipment-tracking__header p {
+  margin: 0;
+  color: #475569;
+}
+
+.shipment-tracking__escrow-badge {
+  border: 1px solid #86efac;
+  background: #f0fdf4;
+  border-radius: 12px;
+  padding: 0.8rem 1rem;
+  min-width: 250px;
+}
+
+.shipment-tracking__escrow-badge p {
+  margin: 0;
+  color: #166534;
+  font-size: 0.78rem;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  font-weight: 700;
+}
+
+.shipment-tracking__escrow-badge strong {
+  display: block;
+  margin-top: 0.25rem;
+  color: #14532d;
+}
+
+.shipment-tracking__escrow-badge span {
+  display: inline-block;
+  margin-top: 0.4rem;
+  padding: 0.2rem 0.5rem;
+  border-radius: 999px;
+  background: #dcfce7;
+  color: #166534;
+  font-size: 0.78rem;
+  font-weight: 700;
+}
+
+.shipment-tracking__stepper {
+  list-style: none;
+  margin: 0.9rem 0 0;
+  padding: 0;
+  display: grid;
+  gap: 0.55rem;
+}
+
+.shipment-tracking__stepper li button {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  border: 1px solid #dbeafe;
+  border-radius: 12px;
+  padding: 0.7rem 0.8rem;
+  background: #f8fafc;
+  text-align: left;
+  cursor: pointer;
+}
+
+.shipment-tracking__step-index {
+  width: 1.7rem;
+  height: 1.7rem;
+  border-radius: 999px;
+  background: #e2e8f0;
+  color: #0f172a;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 700;
+}
+
+.shipment-tracking__step-label {
+  font-weight: 600;
+}
+
+.shipment-tracking__stepper li.is-complete button {
+  border-color: #86efac;
+  background: #f0fdf4;
+}
+
+.shipment-tracking__stepper li.is-complete .shipment-tracking__step-index,
+.shipment-tracking__stepper li.is-current .shipment-tracking__step-index {
+  background: #10b981;
+  color: #ffffff;
+}
+
+.shipment-tracking__stepper li.is-current button {
+  border-color: #10b981;
+  box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.15);
+}
+
+.shipment-tracking__route-copy {
+  margin: 0.3rem 0 0.9rem;
+  color: #64748b;
+}
+
+.shipment-tracking__route-hubs {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(170px, 1fr));
+  gap: 0.6rem;
+}
+
+.shipment-tracking__route-hubs button {
+  border: 1px solid #cbd5e1;
+  border-radius: 12px;
+  background: #f8fafc;
+  padding: 0.7rem 0.8rem;
+  text-align: left;
+  cursor: pointer;
+}
+
+.shipment-tracking__route-hubs button strong {
+  display: block;
+  color: #0f172a;
+}
+
+.shipment-tracking__route-hubs button span {
+  color: #64748b;
+  font-size: 0.86rem;
+}
+
+.shipment-tracking__route-hubs button.is-active {
+  border-color: #10b981;
+  background: #ecfdf5;
+}
+
+.shipment-tracking__route-visual {
+  position: relative;
+  margin: 1rem 0;
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 0.6rem;
+}
+
+.shipment-tracking__route-line {
+  position: absolute;
+  top: 12px;
+  left: 10%;
+  right: 10%;
+  height: 2px;
+  background: #cbd5e1;
+  z-index: 0;
+}
+
+.shipment-tracking__route-stop {
+  position: relative;
+  z-index: 1;
+  text-align: center;
+}
+
+.shipment-tracking__stop-dot {
+  display: inline-block;
+  width: 0.9rem;
+  height: 0.9rem;
+  border-radius: 999px;
+  background: #94a3b8;
+  border: 3px solid #ffffff;
+}
+
+.shipment-tracking__route-stop p {
+  margin: 0.35rem 0 0;
+  color: #475569;
+  font-size: 0.9rem;
+}
+
+.shipment-tracking__route-stop.is-active .shipment-tracking__stop-dot {
+  background: #10b981;
+}
+
+.shipment-tracking__route-stop.is-active p {
+  color: #065f46;
+  font-weight: 700;
+}
+
+.shipment-tracking__hub-detail {
+  border: 1px solid #dbeafe;
+  border-radius: 12px;
+  padding: 0.8rem;
+  background: #f8fafc;
+}
+
+.shipment-tracking__hub-detail h3 {
+  margin: 0;
+}
+
+.shipment-tracking__hub-detail p {
+  margin: 0.3rem 0 0;
+  color: #475569;
+}
+
+@media (max-width: 720px) {
+  .shipment-tracking__header {
+    flex-direction: column;
+  }
+
+  .shipment-tracking__escrow-badge {
+    min-width: 0;
+    width: 100%;
+  }
+}
