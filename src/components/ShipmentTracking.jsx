@@ -15,19 +15,19 @@ const corridorHubs = [
   { id: 'kano', name: 'Kano', role: 'Northern distribution hub' },
 ];
 
-export default function ShipmentTracking({ shipment }) {
+export default function ShipmentTracking({ shipment, activeReference = '' }) {
   const [activeStage, setActiveStage] = useState(3);
   const [activeHub, setActiveHub] = useState(corridorHubs[0].id);
 
   const safeShipment = useMemo(
     () => ({
-      orderId: shipment?.orderId || 'ADEPT-PO-0000',
-      item: shipment?.item || 'Urea',
-      quantity: shipment?.quantity || 0,
-      total: shipment?.total || 0,
+      orderId: shipment?.orderId || activeReference || 'ADEPT-15692503',
+      item: shipment?.item || 'Urea 46% Granular',
+      quantity: shipment?.quantity || 100,
+      total: shipment?.total || 185000,
       supplier: shipment?.supplier || 'Primary Producer',
     }),
-    [shipment]
+    [shipment, activeReference]
   );
 
   const activeHubMeta = useMemo(
@@ -42,7 +42,7 @@ export default function ShipmentTracking({ shipment }) {
           <p className="shipment-tracking__eyebrow">Enterprise Shipment Intelligence</p>
           <h1>Order {safeShipment.orderId}</h1>
           <p>
-            {safeShipment.item} • {safeShipment.quantity} MT • ${Number(safeShipment.total).toLocaleString()} • Supplier: {safeShipment.supplier}
+            {safeShipment.item} • {safeShipment.quantity} MT • NGN {Number(safeShipment.total).toLocaleString()} • Supplier: {safeShipment.supplier}
           </p>
         </div>
 

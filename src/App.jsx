@@ -39,6 +39,10 @@ export default function App() {
     setActiveTab('orders');
   };
 
+  const handleTrackReference = (reference) => {
+    setLatestOrderReference(reference);
+  };
+
   const handleSsoSuccess = (profile) => {
     setUser(profile);
     setActiveTab('marketplace');
@@ -125,8 +129,8 @@ export default function App() {
         )}
         {activeTab === 'orders' && (
           <div className="space-y-6 py-6">
-            <ShipmentTracking shipment={shipmentPayload} />
-            <EscrowOrderTracker initialReference={latestOrderReference} />
+            <ShipmentTracking shipment={shipmentPayload} activeReference={latestOrderReference} />
+            <EscrowOrderTracker initialReference={latestOrderReference} onTrack={handleTrackReference} />
           </div>
         )}
       </main>

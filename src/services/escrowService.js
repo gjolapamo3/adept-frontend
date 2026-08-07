@@ -5,20 +5,13 @@ export const fetchOrderStatus = async (reference) => {
     throw new Error('A payment reference is required.');
   }
 
-  const safeReference = encodeURIComponent(reference);
-
   try {
-    // Primary lookup on transactions route where Monnify webhook records live.
+    const safeReference = encodeURIComponent(reference);
     const response = await api.get(`/api/v1/transactions/${safeReference}`);
     return response?.data ?? response ?? null;
   } catch (error) {
-    // Fallback to legacy escrow endpoint if transactions route is unavailable.
-    try {
-      const fallbackResponse = await api.get(`/api/v1/escrow/orders/${safeReference}`);
-      return fallbackResponse?.data ?? fallbackResponse ?? null;
-    } catch (fallbackError) {
-      throw error;
-    }
+    console.error('Transaction fetch failed:', error);
+    throw error;
   }
 };
 
