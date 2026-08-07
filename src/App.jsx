@@ -44,6 +44,15 @@ export default function App() {
     setActiveTab('marketplace');
   };
 
+  const handleSignOut = () => {
+    localStorage.removeItem('token');
+    localStorage.removeItem('user');
+    localStorage.removeItem('adept_auth_token');
+    localStorage.removeItem('adept_user_role');
+    setUser(null);
+    setActiveTab('marketplace');
+  };
+
   const isAuthenticated = useMemo(() => Boolean(user), [user]);
 
   if (!isAuthenticated) {
@@ -52,83 +61,56 @@ export default function App() {
 
   return (
     <div className="min-h-screen bg-slate-50 flex flex-col font-sans text-slate-800">
-      <header className="bg-slate-900 border-b border-slate-800 text-white sticky top-0 z-40">
-        <div className="navbar-layout max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-2 sm:h-16 flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
-          <div className="navbar-brand-group flex items-center space-x-3">
-            <div className="w-8 h-8 rounded-lg bg-emerald-500 flex items-center justify-center font-black text-slate-900 text-lg shadow-sm">
-              A
-            </div>
-            <div className="min-w-0 navbar-brand-container">
-              <span className="dashboard-title block font-bold text-base sm:text-lg tracking-tight text-white leading-tight">Adept Processing</span>
-              <span className="navbar-marketplace-badge hidden sm:inline-block ml-2 text-xs font-semibold px-2 py-0.5 bg-slate-800 text-emerald-400 rounded-full border border-slate-700">
-                B2B Marketplace
-              </span>
+      <header className="app-header">
+        <div className="header-top-row max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="header-brand">
+            <span className="brand-logo-icon">⚡</span>
+            <div className="brand-text">
+              <h1 className="brand-name">Adept Processing</h1>
+              <span className="brand-badge">B2B Marketplace</span>
             </div>
           </div>
 
-          <div className="navbar-user-controls flex items-center gap-3 text-sm text-slate-300">
-            <span className="navbar-user-email rounded-full border border-slate-700 bg-slate-800 px-3 py-1">
-              {user?.name || 'Signed in'}
+          <div className="header-user-menu">
+            <span className="user-email" title={user?.email || user?.name || 'Signed in'}>
+              {user?.email || user?.name || 'Signed in'}
             </span>
-            <button
-              type="button"
-              onClick={() => {
-                localStorage.removeItem('token');
-                localStorage.removeItem('user');
-                localStorage.removeItem('adept_auth_token');
-                localStorage.removeItem('adept_user_role');
-                setUser(null);
-                setActiveTab('marketplace');
-              }}
-              className="rounded-md border border-slate-700 px-3 py-2 text-slate-200 transition hover:bg-slate-800"
-            >
+            <button onClick={handleSignOut} className="btn-signout" type="button">
               Sign out
             </button>
           </div>
+        </div>
 
-          <nav className="filter-bar navbar-links w-full sm:w-auto flex items-center justify-center sm:justify-end gap-1 sm:gap-2 text-sm font-medium">
+        <nav className="header-nav-bar max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <button
               onClick={() => setActiveTab('marketplace')}
-              className={`px-3 py-2 rounded-md transition ${
-                activeTab === 'marketplace'
-                  ? 'bg-emerald-600 text-white font-semibold'
-                  : 'text-slate-300 hover:text-white hover:bg-slate-800'
-              }`}
+              className={`nav-tab ${activeTab === 'marketplace' ? 'active' : ''}`}
+              type="button"
             >
               Marketplace
             </button>
             <button
               onClick={() => setActiveTab('supplier')}
-              className={`px-3 py-2 rounded-md transition ${
-                activeTab === 'supplier'
-                  ? 'bg-emerald-600 text-white font-semibold'
-                  : 'text-slate-300 hover:text-white hover:bg-slate-800'
-              }`}
+              className={`nav-tab ${activeTab === 'supplier' ? 'active' : ''}`}
+              type="button"
             >
               Supplier Portal
             </button>
             <button
               onClick={() => setActiveTab('pricing')}
-              className={`px-3 py-2 rounded-md transition ${
-                activeTab === 'pricing'
-                  ? 'bg-emerald-600 text-white font-semibold'
-                  : 'text-slate-300 hover:text-white hover:bg-slate-800'
-              }`}
+              className={`nav-tab ${activeTab === 'pricing' ? 'active' : ''}`}
+              type="button"
             >
               Pricing Dashboard
             </button>
             <button
               onClick={() => setActiveTab('orders')}
-              className={`px-3 py-2 rounded-md transition ${
-                activeTab === 'orders'
-                  ? 'bg-emerald-600 text-white font-semibold'
-                  : 'text-slate-300 hover:text-white hover:bg-slate-800'
-              }`}
+              className={`nav-tab ${activeTab === 'orders' ? 'active' : ''}`}
+              type="button"
             >
               My Escrow Orders
             </button>
           </nav>
-        </div>
       </header>
 
       <main className="flex-1">
