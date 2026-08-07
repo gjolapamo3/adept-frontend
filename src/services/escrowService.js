@@ -11,6 +11,11 @@ export const checkEscrowStatus = async (reference) => {
   }
 
   const safeReference = encodeURIComponent(reference);
-  const response = await api.get(`/api/v1/escrow/orders/${safeReference}`);
-  return response?.data ?? response ?? null;
+  try {
+    const response = await api.get(`/api/v1/escrow/orders/${safeReference}`);
+    return response?.data ?? response ?? null;
+  } catch (primaryRouteError) {
+    const response = await api.get(`/api/v1/transactions/${safeReference}`);
+    return response?.data ?? response ?? null;
+  }
 };

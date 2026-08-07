@@ -1,6 +1,97 @@
 import { useState, useEffect, useRef, useCallback } from 'react';
 import { checkEscrowStatus } from '../services/escrowService';
 
+const TERMINAL_STATUSES = new Set([
+  'FUNDS_LOCKED',
+  'IN_TRANSIT',
+  'DELIVERY_VERIFIED',
+  'FUNDS_RELEASED',
+]);
+
+const normalizeStatus = (rawStatus) => {
+  const value = typeof rawStatus === 'string' ? rawStatus.trim().toUpperCase() : '';
+  if (!value) {
+    return 'PAYMENT_PENDING';
+  }
+
+  if (value === 'SUCCESS' || value === 'PAID') {
+    return 'FUNDS_LOCKED';
+  }
+
+  if (value === 'PENDING' || value === 'PROCESSING' || value === 'AWAITING_PAYMENT') {
+    return 'PAYMENT_PENDING';
+  }
+
+  return value;
+};
+
+const getPayloadCandidate = (payload) => {
+  if (!payload) {
+    return null;
+  }
+
+  if (Array.isArray(payload)) {
+    return payload[0] ?? null;
+  }
+
+  if (Array.isArray(payload.transactions)) {
+    return payload.transactions[0] ?? null;
+  }
+
+  if (Array.isArray(payload.rows)) {
+    return payload.rows[0] ?? null;
+  }
+
+  if (payload.data) {
+    return getPayloadCandidate(payload.data);
+  }
+
+  if (payload.transaction) {
+    return getPayloadCandidate(payload.transaction);
+  }
+
+  return payload;
+};
+
+const normalizeOrder = (payload, fallbackReference) => {
+  const candidate = getPayloadCandidate(payload);
+  if (!candidate || typeof candidate !== 'object') {
+    return null;
+  }
+
+  const rawStatus = candidate.status || candidate.paymentStatus || candidate.transactionStatus;
+  const status = normalizeStatus(rawStatus);
+
+  return {
+    ...candidate,
+    reference:
+      candidate.reference ||
+      candidate.paymentReference ||
+      candidate.orderReference ||
+      candidate.transactionReference ||
+      fallbackReference,
+    amount:
+      candidate.amount ??
+      candidate.amountPaid ??
+      candidate.totalPayable ??
+      candidate.settlementAmount ??
+      null,
+    customerEmail:
+      candidate.customerEmail ||
+      candidate.email ||
+      candidate.customer?.email ||
+      candidate.rawWebhookPayload?.eventData?.customer?.email ||
+      null,
+    status,
+    paymentStatus: typeof rawStatus === 'string' ? rawStatus.toUpperCase() : rawStatus,
+    updatedAt:
+      candidate.updatedAt ||
+      candidate.rawWebhookPayload?.eventData?.paidOn ||
+      candidate.createdAt ||
+      null,
+  };
+};
+
 /**
  * Custom hook to poll escrow payment status until a terminal state is reached.
  * @param {string} reference - The ADEPT-REF-xxxx payment reference code
@@ -14,6 +105,7 @@ export function useEscrowPoller(
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
   const [attempts, setAttempts] = useState(0);
+  const [lastCheckedAt, setLastCheckedAt] = useState(null);
 
   const timerRef = useRef(null);
   const attemptsRef = useRef(0);
@@ -37,10 +129,14 @@ export function useEscrowPoller(
     setLoading((currentLoading) => (currentLoading ? currentLoading : true));
 
     try {
-      const data = await checkEscrowStatus(normalizedReference);
+      const payload = await checkEscrowStatus(normalizedReference);
       if (requestId !== activeRequestRef.current) {
         return;
       }
+
+      setLastCheckedAt(new Date().toISOString());
+
+      const data = normalizeOrder(payload, normalizedReference);
 
       if (data) {
         setOrder((currentOrder) => {
@@ -57,12 +153,7 @@ export function useEscrowPoller(
         });
         setError(null);
 
-        const isTerminalState = [
-          'FUNDS_LOCKED',
-          'IN_TRANSIT',
-          'DELIVERY_VERIFIED',
-          'FUNDS_RELEASED',
-        ].includes(data.status);
+        const isTerminalState = TERMINAL_STATUSES.has(data.status);
 
         if (isTerminalState) {
           stopPolling();
@@ -97,6 +188,7 @@ export function useEscrowPoller(
     if (!normalizedReference || !enabled) {
       setOrder(null);
       setError(null);
+      setLastCheckedAt(null);
       setLoading(false);
       return undefined;
     }
@@ -126,6 +218,7 @@ export function useEscrowPoller(
     error,
     isPolling: !!timerRef.current,
     attempts,
+    lastCheckedAt,
     refetch: fetchStatus,
   };
 }
