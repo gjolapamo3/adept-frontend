@@ -54,7 +54,7 @@ export default function App() {
     <div className="min-h-screen bg-slate-50 flex flex-col font-sans text-slate-800">
       <header className="bg-slate-900 border-b border-slate-800 text-white sticky top-0 z-40">
         <div className="navbar-layout max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-2 sm:h-16 flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
-          <div className="flex items-center space-x-3">
+          <div className="navbar-brand-group flex items-center space-x-3">
             <div className="w-8 h-8 rounded-lg bg-emerald-500 flex items-center justify-center font-black text-slate-900 text-lg shadow-sm">
               A
             </div>

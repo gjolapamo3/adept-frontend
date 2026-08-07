@@ -73,6 +73,12 @@
   align-items: flex-start;
   justify-content: space-between;
   gap: 1rem;
+  flex-wrap: wrap;
+}
+
+.shipment-tracking__header > div:first-child {
+  flex: 1 1 0;
+  min-width: 0;
 }
 
 .shipment-tracking__eyebrow {
@@ -99,7 +105,12 @@
   background: #f0fdf4;
   border-radius: 12px;
   padding: 0.8rem 1rem;
-  min-width: 250px;
+  width: min(100%, 250px);
+  max-width: 100%;
+  min-width: 0;
+  box-sizing: border-box;
+  margin-left: auto;
+  position: relative;
 }
 
 .shipment-tracking__escrow-badge p {
