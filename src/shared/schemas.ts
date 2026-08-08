@@ -6,7 +6,6 @@ const VALID_PHONE_E164 = /^\+?[1-9]\d{1,14}$/;
 const VALID_ALNUM_HYPHEN = /^[a-zA-Z0-9-]+$/;
 const VALID_REFERENCE = /^[A-Z0-9-]{6,40}$/i;
 const VALID_CURRENCY = /^[A-Z]{3}$/;
-const VALID_OBJECT_ID = /^[a-f\d]{24}$/i;
 
 const toTrimmed = (value: string) => value.trim();
 
@@ -147,12 +146,7 @@ export const b2bOrderSchema = z
     productId: z
       .string()
       .transform(toTrimmed)
-      .pipe(
-        z.string().refine(
-          (value) => z.uuid().safeParse(value).success || VALID_OBJECT_ID.test(value),
-          'Invalid product ID format'
-        )
-      ),
+      .pipe(z.string().min(1, 'Product ID is required').max(120, 'Product ID is too long')),
     productName: sanitizedString(2, 120).optional(),
     quantity: z.coerce
       .number()
