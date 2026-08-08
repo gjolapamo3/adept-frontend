@@ -80,56 +80,81 @@ export default function App() {
 
   return (
     <div className="min-h-screen bg-slate-50 flex flex-col font-sans text-slate-800">
-      <header className="app-header">
-        <div className="header-top-row max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="header-brand">
-            <span className="brand-logo-icon">⚡</span>
-            <div className="brand-text">
-              <h1 className="brand-name">Adept Processing</h1>
-              <span className="brand-badge">B2B Marketplace</span>
+      <header className="sticky top-0 z-40 w-full bg-slate-900/85 backdrop-blur-md border-b border-slate-800">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
+          <div className="flex items-center gap-3">
+            <div className="flex items-center justify-center w-9 h-9 rounded-lg bg-indigo-600/20 border border-indigo-500/30 text-indigo-400 font-bold text-lg">
+              A
+            </div>
+            <div>
+              <div className="flex items-center gap-2">
+                <span className="font-bold text-white tracking-wide text-sm sm:text-base">
+                  ADEPT PROCESSING
+                </span>
+                <span className="inline-flex items-center px-1.5 py-0.5 rounded text-[10px] font-medium bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">
+                  <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 mr-1 animate-pulse" />
+                  LIVE MARKET
+                </span>
+              </div>
+              <p className="text-[10px] text-slate-400 hidden sm:block">
+                Industrial Chemical & Fertilizer Supply Chain
+              </p>
             </div>
           </div>
 
-          <div className="header-user-menu">
-            <span className="user-email" title={user?.email || user?.name || 'Signed in'}>
-              {user?.email || user?.name || 'Signed in'}
-            </span>
-            <button onClick={handleSignOut} className="btn-signout" type="button">
-              Sign out
+          <nav className="flex items-center gap-1 bg-slate-800/60 p-1 rounded-xl border border-slate-700/50">
+            <button
+              type="button"
+              onClick={() => setActiveTab('marketplace')}
+              className={`px-3 py-1.5 text-xs font-medium rounded-lg transition-all ${
+                activeTab === 'marketplace'
+                  ? 'bg-indigo-600 text-white shadow-sm shadow-indigo-500/20'
+                  : 'text-slate-400 hover:text-white hover:bg-slate-700/50'
+              }`}
+            >
+              Spot Market
+            </button>
+
+            <button
+              type="button"
+              onClick={() => setActiveTab('orders')}
+              className={`px-3 py-1.5 text-xs font-medium rounded-lg transition-all ${
+                activeTab === 'orders'
+                  ? 'bg-indigo-600 text-white shadow-sm shadow-indigo-500/20'
+                  : 'text-slate-400 hover:text-white hover:bg-slate-700/50'
+              }`}
+            >
+              Escrow & Settlements
+            </button>
+
+            <button
+              type="button"
+              onClick={() => setActiveTab('supplier')}
+              className={`px-3 py-1.5 text-xs font-medium rounded-lg transition-all ${
+                activeTab === 'supplier'
+                  ? 'bg-indigo-600 text-white shadow-sm shadow-indigo-500/20'
+                  : 'text-slate-400 hover:text-white hover:bg-slate-700/50'
+              }`}
+            >
+              Hub Logistics
+            </button>
+          </nav>
+
+          <div className="flex items-center gap-3">
+            <div className="hidden md:flex flex-col text-right">
+              <span className="text-xs font-medium text-slate-200">G. Jolapamo</span>
+              <span className="text-[10px] text-indigo-400 font-mono">TRADING DESK</span>
+            </div>
+
+            <button
+              type="button"
+              onClick={handleSignOut}
+              className="px-3 py-1.5 text-xs font-medium text-slate-300 hover:text-white bg-slate-800 hover:bg-slate-700 border border-slate-700 rounded-lg transition-colors flex items-center gap-1.5"
+            >
+              <span>Exit Desk</span>
             </button>
           </div>
         </div>
-
-        <nav className="header-nav-bar max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <button
-              onClick={() => setActiveTab('marketplace')}
-              className={`nav-tab ${activeTab === 'marketplace' ? 'active' : ''}`}
-              type="button"
-            >
-              Marketplace
-            </button>
-            <button
-              onClick={() => setActiveTab('supplier')}
-              className={`nav-tab ${activeTab === 'supplier' ? 'active' : ''}`}
-              type="button"
-            >
-              Supplier Portal
-            </button>
-            <button
-              onClick={() => setActiveTab('pricing')}
-              className={`nav-tab ${activeTab === 'pricing' ? 'active' : ''}`}
-              type="button"
-            >
-              Pricing Dashboard
-            </button>
-            <button
-              onClick={() => setActiveTab('orders')}
-              className={`nav-tab ${activeTab === 'orders' ? 'active' : ''}`}
-              type="button"
-            >
-              My Escrow Orders
-            </button>
-          </nav>
       </header>
 
       <main className="flex-1">
