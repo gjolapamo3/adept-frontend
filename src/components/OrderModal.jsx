@@ -27,6 +27,7 @@ const OrderModal = ({ product, onClose, onOrderCreated }) => {
     mode: 'onBlur',
     reValidateMode: 'onBlur',
     defaultValues: {
+      productId: String(safeProduct.id ?? safeProduct.productId ?? ''),
       quantityMt: '',
       contactName: '',
       contactEmail: '',
@@ -125,6 +126,7 @@ const OrderModal = ({ product, onClose, onOrderCreated }) => {
       }
 
       reset({
+        productId: String(safeProduct.id ?? safeProduct.productId ?? ''),
         quantityMt: '',
         contactName: '',
         contactEmail: '',

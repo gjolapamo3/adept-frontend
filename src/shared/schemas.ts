@@ -213,6 +213,11 @@ export const b2bOrderSchema = z
 
 export const orderRequestFormSchema = z
   .object({
+    productId: z
+      .string()
+      .transform(toTrimmed)
+      .pipe(z.string().min(1, 'Product ID is required').max(120, 'Product ID is too long'))
+      .optional(),
     quantityMt: z.coerce
       .number()
       .int('Quantity must be a whole number')

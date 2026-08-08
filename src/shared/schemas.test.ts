@@ -104,6 +104,16 @@ describe('shared schemas', () => {
     expect(result.success).toBe(true);
   });
 
+  it('accepts a non-empty product ID in order form data', () => {
+    const result = orderRequestFormSchema.safeParse({
+      productId: 'product-12345',
+      quantityMt: '20',
+      contactPhone: '+2348030000000',
+    });
+
+    expect(result.success).toBe(true);
+  });
+
   it('validates escrow payment reference format', () => {
     const result = escrowReferenceSchema.safeParse({
       reference: 'ADEPT-REF-9082',
