@@ -234,8 +234,7 @@ export const orderRequestFormSchema = z
       .pipe(z.string().min(1, 'Product ID is required').max(120, 'Product ID is too long'))
       .optional(),
     quantityMt: z.coerce
-      .number()
-      .int('Quantity must be a whole number')
+      .number({ invalid_type_error: 'Quantity must be a valid number' })
       .positive('Quantity must be greater than 0'),
     contactName: z
       .string()
