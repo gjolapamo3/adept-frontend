@@ -5,10 +5,12 @@ import EscrowOrderTracker from './components/escrow/EscrowOrderTracker';
 import SSOGateway from './components/SSOGateway';
 import PricingDashboard from './components/PricingDashboard';
 import ShipmentTracking from './components/ShipmentTracking';
+import { resolveOrderReference } from './utils/orderReference';
 
 export default function App() {
   const [activeTab, setActiveTab] = useState('marketplace');
   const [latestOrderReference, setLatestOrderReference] = useState('');
+  const [selectedEscrowRef, setSelectedEscrowRef] = useState('');
   const [shipmentPayload, setShipmentPayload] = useState(null);
   const [user, setUser] = useState(null);
 
@@ -35,12 +37,25 @@ export default function App() {
   }, []);
 
   const handleOrderCreated = (reference) => {
-    setLatestOrderReference(reference);
+    const nextReference = resolveOrderReference(reference);
+    setLatestOrderReference(nextReference);
+    setSelectedEscrowRef(nextReference);
+    setActiveTab('orders');
+  };
+
+  const handleOrderSuccess = (orderResponse) => {
+    const nextReference = resolveOrderReference(orderResponse?.escrowReference || orderResponse);
+    if (nextReference) {
+      setLatestOrderReference(nextReference);
+      setSelectedEscrowRef(nextReference);
+    }
     setActiveTab('orders');
   };
 
   const handleTrackReference = (reference) => {
-    setLatestOrderReference(reference);
+    const nextReference = resolveOrderReference(reference);
+    setLatestOrderReference(nextReference);
+    setSelectedEscrowRef(nextReference);
   };
 
   const handleSsoSuccess = (profile) => {
@@ -129,8 +144,8 @@ export default function App() {
         )}
         {activeTab === 'orders' && (
           <div className="space-y-6 py-6">
-            <ShipmentTracking shipment={shipmentPayload} activeReference={latestOrderReference} />
-            <EscrowOrderTracker initialReference={latestOrderReference} onTrack={handleTrackReference} />
+            <ShipmentTracking shipment={shipmentPayload} activeReference={selectedEscrowRef || latestOrderReference} />
+            <EscrowOrderTracker initialReference={selectedEscrowRef || latestOrderReference} onTrack={handleTrackReference} />
           </div>
         )}
       </main>
