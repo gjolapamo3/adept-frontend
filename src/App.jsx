@@ -80,78 +80,78 @@ export default function App() {
 
   return (
     <div className="min-h-screen bg-slate-50 flex flex-col font-sans text-slate-800">
-      <header className="sticky top-0 z-40 w-full border-b border-slate-800 bg-slate-900/95 px-3 py-2.5 backdrop-blur-md sm:px-6">
-        <div className="mx-auto flex max-w-7xl flex-col items-center justify-between gap-2.5 sm:flex-row">
-          <div className="flex w-full items-center justify-between gap-2 sm:w-auto">
-            <div className="flex items-center gap-2">
-              <div className="flex h-8 w-8 items-center justify-center rounded-lg border border-indigo-500/30 bg-indigo-600/20 text-sm font-bold text-indigo-400">
-                A
-              </div>
+        <header className="sticky top-0 z-40 w-full bg-slate-900 border-b border-slate-800 px-3 py-2.5 sm:px-6">
+          <div className="max-w-7xl mx-auto flex flex-col md:flex-row items-center justify-between gap-3">
+            <div className="w-full md:w-auto flex items-center justify-between gap-3">
               <div className="flex items-center gap-2">
-                <span className="whitespace-nowrap text-xs font-bold tracking-wide text-white sm:text-sm">
-                  ADEPT PROCESSING
-                </span>
-                <span className="inline-flex items-center rounded border border-emerald-500/20 bg-emerald-500/10 px-1.5 py-0.5 text-[9px] font-medium whitespace-nowrap text-emerald-400">
-                  <span className="mr-1 h-1.5 w-1.5 animate-pulse rounded-full bg-emerald-400" />
-                  LIVE
-                </span>
+                <div className="flex items-center justify-center w-8 h-8 rounded-lg bg-indigo-600/20 border border-indigo-500/30 text-indigo-400 font-bold text-sm">
+                  A
+                </div>
+                <div className="flex items-center gap-2">
+                  <span className="font-bold text-white tracking-wide text-xs sm:text-sm whitespace-nowrap">
+                    ADEPT PROCESSING
+                  </span>
+                  <span className="inline-flex items-center px-1.5 py-0.5 rounded text-[10px] font-medium bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 whitespace-nowrap">
+                    <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 mr-1 animate-pulse" />
+                    LIVE
+                  </span>
+                </div>
+              </div>
+
+              <div className="flex items-center gap-2">
+                <div className="hidden sm:flex flex-col text-right mr-1">
+                  <span className="text-xs font-medium text-slate-200">G. Jolapamo</span>
+                  <span className="text-[9px] text-indigo-400 font-mono">TRADING DESK</span>
+                </div>
+                <button
+                  type="button"
+                  onClick={handleSignOut}
+                  className="px-2.5 py-1 text-xs font-medium text-slate-300 hover:text-white bg-slate-800 hover:bg-slate-700 border border-slate-700 rounded-md transition-colors whitespace-nowrap"
+                >
+                  Exit
+                </button>
               </div>
             </div>
 
-            <div className="flex items-center gap-2">
-              <div className="mr-1 hidden flex-col text-right lg:flex">
-                <span className="text-xs font-medium text-slate-200">G. Jolapamo</span>
-                <span className="text-[9px] font-mono text-indigo-400">TRADING DESK</span>
-              </div>
+            <nav className="w-full md:w-auto flex items-center justify-between md:justify-start gap-1 bg-slate-800/80 p-1 rounded-xl border border-slate-700/50">
               <button
                 type="button"
-                onClick={handleSignOut}
-                className="rounded-md border border-slate-700 bg-slate-800 px-2.5 py-1 text-xs font-medium whitespace-nowrap text-slate-300 transition-colors hover:bg-slate-700 hover:text-white"
+                onClick={() => setActiveTab('marketplace')}
+                className={`flex-1 md:flex-none px-3 py-1.5 text-xs font-medium rounded-lg transition-all text-center whitespace-nowrap ${
+                  activeTab === 'marketplace'
+                    ? 'bg-indigo-600 text-white shadow-sm'
+                    : 'text-slate-400 hover:text-white'
+                }`}
               >
-                Exit
+                Spot Market
               </button>
-            </div>
+
+              <button
+                type="button"
+                onClick={() => setActiveTab('orders')}
+                className={`flex-1 md:flex-none px-3 py-1.5 text-xs font-medium rounded-lg transition-all text-center whitespace-nowrap ${
+                  activeTab === 'orders'
+                    ? 'bg-indigo-600 text-white shadow-sm'
+                    : 'text-slate-400 hover:text-white'
+                }`}
+              >
+                Escrow & Settlements
+              </button>
+
+              <button
+                type="button"
+                onClick={() => setActiveTab('supplier')}
+                className={`flex-1 md:flex-none px-3 py-1.5 text-xs font-medium rounded-lg transition-all text-center whitespace-nowrap ${
+                  activeTab === 'supplier'
+                    ? 'bg-indigo-600 text-white shadow-sm'
+                    : 'text-slate-400 hover:text-white'
+                }`}
+              >
+                Hub Logistics
+              </button>
+            </nav>
           </div>
-
-          <nav className="flex w-full items-center justify-center gap-1 overflow-x-auto rounded-xl border border-slate-700/50 bg-slate-800/80 p-1 no-scrollbar sm:w-auto">
-            <button
-              type="button"
-              onClick={() => setActiveTab('catalog')}
-              className={`rounded-lg px-3 py-1.5 text-xs font-medium whitespace-nowrap transition-all ${
-                activeTab === 'catalog'
-                  ? 'bg-indigo-600 text-white shadow-sm'
-                  : 'text-slate-400 hover:text-white'
-              }`}
-            >
-              Spot Market
-            </button>
-
-            <button
-              type="button"
-              onClick={() => setActiveTab('escrow')}
-              className={`rounded-lg px-3 py-1.5 text-xs font-medium whitespace-nowrap transition-all ${
-                activeTab === 'escrow'
-                  ? 'bg-indigo-600 text-white shadow-sm'
-                  : 'text-slate-400 hover:text-white'
-              }`}
-            >
-              Escrow & Settlements
-            </button>
-
-            <button
-              type="button"
-              onClick={() => setActiveTab('supplier')}
-              className={`rounded-lg px-3 py-1.5 text-xs font-medium whitespace-nowrap transition-all ${
-                activeTab === 'supplier'
-                  ? 'bg-indigo-600 text-white shadow-sm'
-                  : 'text-slate-400 hover:text-white'
-              }`}
-            >
-              Hub Logistics
-            </button>
-          </nav>
-        </div>
-      </header>
+        </header>
 
       <main className="flex-1">
         {activeTab === 'marketplace' && <Marketplace onOrderCreated={handleOrderCreated} />}
