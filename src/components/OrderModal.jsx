@@ -2,6 +2,7 @@ import React, { useEffect, useRef, useState } from 'react';
 import ReactDOM from 'react-dom';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
+import { z } from 'zod';
 import { placeOrder } from '../services/api';
 import { b2bOrderSchema, orderRequestFormSchema } from '../shared/schemas';
 
@@ -14,6 +15,7 @@ const OrderModal = ({ product, onClose, onOrderCreated }) => {
   const price = Number(safeProduct.pricePerTon ?? safeProduct.price ?? safeProduct.unitPrice ?? 0);
 
   const [errorMessage, setErrorMessage] = useState('');
+  const [fieldErrors, setFieldErrors] = useState({});
   const [successMessage, setSuccessMessage] = useState('');
   const [submitting, setSubmitting] = useState(false);
   const closeTimerRef = useRef(null);
@@ -55,12 +57,48 @@ const OrderModal = ({ product, onClose, onOrderCreated }) => {
     width: '100%',
     boxSizing: 'border-box',
     borderRadius: '0.5rem',
-    border: '1px solid rgb(51, 65, 85)',
     backgroundColor: 'rgb(30, 41, 59)',
     color: '#ffffff',
     padding: '0.5rem 0.75rem',
     fontSize: '0.875rem',
     lineHeight: 1.35,
+  };
+
+  const fieldNameMap = {
+    quantity: 'quantityMt',
+  };
+
+  const getFieldErrorMessage = (fieldName) => {
+    const formErrorMessage = errors[fieldName]?.message;
+    if (formErrorMessage) {
+      return formErrorMessage;
+    }
+    return fieldErrors[fieldName] || '';
+  };
+
+  const getControlStyle = (overrides = {}) => ({
+    ...controlStyle,
+    ...overrides,
+  });
+
+  const getControlClassName = (fieldName) => {
+    const hasError = Boolean(getFieldErrorMessage(fieldName));
+    const stateClass = hasError
+      ? 'border-red-500 focus:border-red-500 focus:ring-1 focus:ring-red-500'
+      : 'border-slate-700 focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500';
+    return `w-full rounded-lg border bg-slate-800 px-3 py-2 text-sm text-white outline-none transition-colors ${stateClass}`;
+  };
+
+  const mapIssuesToFieldErrors = (issues = []) => {
+    const nextFieldErrors = {};
+    issues.forEach((issue) => {
+      const rawFieldName = issue?.path?.[0];
+      const mappedFieldName = fieldNameMap[rawFieldName] || rawFieldName;
+      if (mappedFieldName && !nextFieldErrors[mappedFieldName]) {
+        nextFieldErrors[mappedFieldName] = issue.message;
+      }
+    });
+    return nextFieldErrors;
   };
 
   useEffect(() => {
@@ -86,6 +124,7 @@ const OrderModal = ({ product, onClose, onOrderCreated }) => {
 
   const onSubmit = async (formValues) => {
     setErrorMessage('');
+    setFieldErrors({});
     setSuccessMessage('');
 
     const payload = {
@@ -100,15 +139,26 @@ const OrderModal = ({ product, onClose, onOrderCreated }) => {
       deliveryNotes: formValues.deliveryNotes || '',
     };
 
-    const parsed = b2bOrderSchema.safeParse(payload);
-    if (!parsed.success) {
-      setErrorMessage(parsed.error.issues[0]?.message || 'Invalid order request payload.');
+    let parsedPayload;
+    try {
+      parsedPayload = b2bOrderSchema.parse(payload);
+      setFieldErrors({});
+    } catch (err) {
+      if (err instanceof z.ZodError) {
+        const nextFieldErrors = mapIssuesToFieldErrors(err.issues);
+        setFieldErrors(nextFieldErrors);
+        if (Object.keys(nextFieldErrors).length === 0) {
+          setErrorMessage(err.issues[0]?.message || 'Invalid order request payload.');
+        }
+      } else {
+        setErrorMessage('Invalid order request payload.');
+      }
       return;
     }
 
     try {
       setSubmitting(true);
-      const response = await placeOrder(parsed.data);
+      const response = await placeOrder(parsedPayload);
 
       if (response?.success === false || response?.error) {
         throw new Error(response?.message || response?.error || 'Unable to submit request right now.');
@@ -226,11 +276,12 @@ const OrderModal = ({ product, onClose, onOrderCreated }) => {
                 type="number"
                 min="1"
                 {...register('quantityMt')}
-                className="w-full rounded-lg border border-slate-700 bg-slate-800 px-3 py-2 text-sm text-white outline-none focus:border-emerald-500"
-                style={controlStyle}
+                className={getControlClassName('quantityMt')}
+                style={getControlStyle()}
+                aria-invalid={Boolean(getFieldErrorMessage('quantityMt'))}
                 placeholder="e.g. 50"
               />
-              {errors.quantityMt ? <p className="mt-1 text-xs text-red-300">{errors.quantityMt.message}</p> : null}
+              {getFieldErrorMessage('quantityMt') ? <p className="mt-1 text-xs text-red-400">{getFieldErrorMessage('quantityMt')}</p> : null}
             </div>
 
             <div style={fieldGroupStyle}>
@@ -241,11 +292,12 @@ const OrderModal = ({ product, onClose, onOrderCreated }) => {
                 id="contactName"
                 type="text"
                 {...register('contactName')}
-                className="w-full rounded-lg border border-slate-700 bg-slate-800 px-3 py-2 text-sm text-white outline-none focus:border-emerald-500"
-                style={controlStyle}
+                className={getControlClassName('contactName')}
+                style={getControlStyle()}
+                aria-invalid={Boolean(getFieldErrorMessage('contactName'))}
                 placeholder="Your name"
               />
-              {errors.contactName ? <p className="mt-1 text-xs text-red-300">{errors.contactName.message}</p> : null}
+              {getFieldErrorMessage('contactName') ? <p className="mt-1 text-xs text-red-400">{getFieldErrorMessage('contactName')}</p> : null}
             </div>
 
             <div
@@ -264,11 +316,12 @@ const OrderModal = ({ product, onClose, onOrderCreated }) => {
                   id="contactEmail"
                   type="email"
                   {...register('contactEmail')}
-                  className="w-full rounded-lg border border-slate-700 bg-slate-800 px-3 py-2 text-sm text-white outline-none focus:border-emerald-500"
-                  style={controlStyle}
+                  className={getControlClassName('contactEmail')}
+                  style={getControlStyle()}
+                  aria-invalid={Boolean(getFieldErrorMessage('contactEmail'))}
                   placeholder="you@company.com"
                 />
-                {errors.contactEmail ? <p className="mt-1 text-xs text-red-300">{errors.contactEmail.message}</p> : null}
+                {getFieldErrorMessage('contactEmail') ? <p className="mt-1 text-xs text-red-400">{getFieldErrorMessage('contactEmail')}</p> : null}
               </div>
               <div style={fieldGroupStyle}>
                 <label htmlFor="contactPhone" className="mb-1 block text-xs font-semibold text-slate-300" style={labelStyle}>
@@ -278,11 +331,12 @@ const OrderModal = ({ product, onClose, onOrderCreated }) => {
                   id="contactPhone"
                   type="tel"
                   {...register('contactPhone')}
-                  className="w-full rounded-lg border border-slate-700 bg-slate-800 px-3 py-2 text-sm text-white outline-none focus:border-emerald-500"
-                  style={controlStyle}
+                  className={getControlClassName('contactPhone')}
+                  style={getControlStyle()}
+                  aria-invalid={Boolean(getFieldErrorMessage('contactPhone'))}
                   placeholder="+234..."
                 />
-                {errors.contactPhone ? <p className="mt-1 text-xs text-red-300">{errors.contactPhone.message}</p> : null}
+                {getFieldErrorMessage('contactPhone') ? <p className="mt-1 text-xs text-red-400">{getFieldErrorMessage('contactPhone')}</p> : null}
               </div>
             </div>
 
@@ -294,15 +348,15 @@ const OrderModal = ({ product, onClose, onOrderCreated }) => {
                 id="deliveryNotes"
                 rows="3"
                 {...register('deliveryNotes')}
-                className="w-full rounded-lg border border-slate-700 bg-slate-800 px-3 py-2 text-sm text-white outline-none focus:border-emerald-500"
-                style={{
-                  ...controlStyle,
+                className={getControlClassName('deliveryNotes')}
+                style={getControlStyle({
                   resize: 'vertical',
                   minHeight: '5rem',
-                }}
+                })}
+                aria-invalid={Boolean(getFieldErrorMessage('deliveryNotes'))}
                 placeholder="Preferred location, timeline, packaging requirements..."
               />
-              {errors.deliveryNotes ? <p className="mt-1 text-xs text-red-300">{errors.deliveryNotes.message}</p> : null}
+              {getFieldErrorMessage('deliveryNotes') ? <p className="mt-1 text-xs text-red-400">{getFieldErrorMessage('deliveryNotes')}</p> : null}
             </div>
 
             {errorMessage && (

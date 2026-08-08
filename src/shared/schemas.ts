@@ -3,6 +3,7 @@ import { z } from 'zod';
 const VALID_TEXT = /^[a-zA-Z0-9\s&.,'-]+$/;
 const VALID_NAME = /^[a-zA-Z\s'-]+$/;
 const VALID_PHONE_E164 = /^\+?[1-9]\d{1,14}$/;
+const VALID_PHONE_CONTACT = /^\+?[0-9]{10,15}$/;
 const VALID_ALNUM_HYPHEN = /^[a-zA-Z0-9-]+$/;
 const VALID_REFERENCE = /^[A-Z0-9-]{6,40}$/i;
 const VALID_CURRENCY = /^[A-Z]{3}$/;
@@ -168,7 +169,12 @@ export const b2bOrderSchema = z
     contactName: z
       .string()
       .transform(toTrimmed)
-      .pipe(z.string().max(100, 'Contact name cannot exceed 100 characters'))
+      .pipe(
+        z
+          .string()
+          .max(100, 'Contact name cannot exceed 100 characters')
+          .regex(VALID_NAME, 'Contact Name can only contain letters, spaces, and hyphens')
+      )
       .optional(),
     contactEmail: z
       .string()
@@ -180,13 +186,22 @@ export const b2bOrderSchema = z
     contactPhone: z
       .string()
       .transform(toTrimmed)
-      .pipe(z.string().regex(VALID_PHONE_E164, 'Invalid phone format (E.164)'))
+      .pipe(
+        z
+          .string()
+          .regex(VALID_PHONE_CONTACT, 'Please enter a valid phone number (e.g. +234... or 10+ digits)')
+      )
       .optional()
       .or(z.literal('')),
     deliveryNotes: z
       .string()
       .transform(toTrimmed)
-      .pipe(z.string().max(500, 'Notes cannot exceed 500 characters'))
+      .pipe(
+        z
+          .string()
+          .max(500, 'Notes cannot exceed 500 characters')
+          .regex(VALID_TEXT, 'Delivery notes contains invalid special characters')
+      )
       .optional(),
   })
   .strict()
@@ -225,7 +240,12 @@ export const orderRequestFormSchema = z
     contactName: z
       .string()
       .transform(toTrimmed)
-      .pipe(z.string().max(100, 'Contact name cannot exceed 100 characters'))
+      .pipe(
+        z
+          .string()
+          .max(100, 'Contact name cannot exceed 100 characters')
+          .regex(VALID_NAME, 'Contact Name can only contain letters, spaces, and hyphens')
+      )
       .optional(),
     contactEmail: z
       .string()
@@ -237,13 +257,22 @@ export const orderRequestFormSchema = z
     contactPhone: z
       .string()
       .transform(toTrimmed)
-      .pipe(z.string().regex(VALID_PHONE_E164, 'Invalid phone format (E.164)'))
+      .pipe(
+        z
+          .string()
+          .regex(VALID_PHONE_CONTACT, 'Please enter a valid phone number (e.g. +234... or 10+ digits)')
+      )
       .optional()
       .or(z.literal('')),
     deliveryNotes: z
       .string()
       .transform(toTrimmed)
-      .pipe(z.string().max(500, 'Notes cannot exceed 500 characters'))
+      .pipe(
+        z
+          .string()
+          .max(500, 'Notes cannot exceed 500 characters')
+          .regex(VALID_TEXT, 'Delivery notes contains invalid special characters')
+      )
       .optional(),
   })
   .strict()
