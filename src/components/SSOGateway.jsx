@@ -182,6 +182,7 @@ const styles = {
 
 export default function SSOGateway({ onSuccess }) {
   const [authMethod, setAuthMethod] = useState('enterprise');
+  const [authMode, setAuthMode] = useState('signin');
   const [loading, setLoading] = useState(false);
   const {
     register,
@@ -235,11 +236,38 @@ export default function SSOGateway({ onSuccess }) {
     }, 800);
   };
 
-  const handleRegister = async (payload) => {
+  const handleRegister = async (_payload) => {
+    setLoading(true);
+    await new Promise((resolve) => {
+      window.setTimeout(resolve, 800);
+    });
+    setLoading(false);
+  };
+
+  const handleRegisterSuccess = () => {
+    setAuthMode('signin');
+  };
+
+  const switchAuthMethod = (method) => {
+    setAuthMethod(method);
+    if (method === 'direct') {
+      setAuthMode('signin');
+    }
+  };
+
+  const switchAuthMode = (mode) => {
+    if (loading) {
+      return;
+    }
+
+    setAuthMode(mode);
+  };
+
+  const handleEnterpriseAuth = (provider) => {
     setLoading(true);
     window.setTimeout(() => {
       setLoading(false);
-      persistSession('buyer', 'Self Registration', payload?.email || '');
+      persistSession('buyer', provider);
     }, 800);
   };
 
@@ -262,14 +290,14 @@ export default function SSOGateway({ onSuccess }) {
           <button
             type="button"
             style={{ ...styles.tabButton, ...(authMethod === 'enterprise' ? styles.activeTab : {}) }}
-            onClick={() => setAuthMethod('enterprise')}
+            onClick={() => switchAuthMethod('enterprise')}
           >
             Enterprise SSO
           </button>
           <button
             type="button"
             style={{ ...styles.tabButton, ...(authMethod === 'direct' ? styles.activeTab : {}) }}
-            onClick={() => setAuthMethod('direct')}
+            onClick={() => switchAuthMethod('direct')}
           >
             Direct Login
           </button>
@@ -281,7 +309,7 @@ export default function SSOGateway({ onSuccess }) {
               Authenticate using your corporate Identity Provider (Azure AD / Okta / SAML 2.0).
             </p>
 
-            <button style={styles.ssoButton} onClick={() => handleEnterpriseSSO('AzureAD')} disabled={loading}>
+            <button style={styles.ssoButton} onClick={() => handleEnterpriseAuth('AzureAD')} disabled={loading}>
               <span>Continue with Corporate ID (Azure AD / Entra)</span>
               <span>→</span>
             </button>
@@ -289,7 +317,7 @@ export default function SSOGateway({ onSuccess }) {
             <button
               type="button"
               style={{ ...styles.ssoButton, marginTop: '12px', backgroundColor: '#1e293b' }}
-              onClick={() => handleEnterpriseSSO('Okta')}
+              onClick={() => handleEnterpriseAuth('Okta')}
               disabled={loading}
             >
               <span>Authenticate via Okta / Single Sign-On</span>
@@ -298,38 +326,68 @@ export default function SSOGateway({ onSuccess }) {
           </div>
         ) : (
           <div style={styles.form}>
-            <form onSubmit={handleSubmit(handleDirectLogin)} style={styles.form} noValidate>
-              <div style={styles.inputGroup}>
-                <label style={styles.label}>Corporate Email</label>
-                <input
-                  type="email"
-                  placeholder="name@company.com"
-                  {...register('email')}
-                  style={styles.input}
-                />
-                {errors.email ? <p style={{ color: '#fca5a5', fontSize: '11px', margin: 0 }}>{errors.email.message}</p> : null}
-              </div>
-
-              <div style={styles.inputGroup}>
-                <label style={styles.label}>Password</label>
-                <input
-                  type="password"
-                  placeholder="••••••••••••"
-                  {...register('password')}
-                  style={styles.input}
-                />
-                {errors.password ? <p style={{ color: '#fca5a5', fontSize: '11px', margin: 0 }}>{errors.password.message}</p> : null}
-              </div>
-
-              <button type="submit" style={styles.submitButton} disabled={loading}>
-                {loading ? 'Authenticating...' : 'Sign In to Secure Portal'}
+            <div style={styles.tabContainer}>
+              <button
+                type="button"
+                style={{
+                  ...styles.tabButton,
+                  ...(authMode === 'signin' ? styles.activeTab : {}),
+                }}
+                onClick={() => switchAuthMode('signin')}
+                disabled={loading}
+              >
+                Sign In
               </button>
-            </form>
-
-            <div style={{ borderTop: '1px solid #1f2d24', paddingTop: '14px', marginTop: '2px' }}>
-              <p style={{ ...styles.label, marginBottom: '8px' }}>New company user? Create portal access:</p>
-              <RegisterForm onRegister={handleRegister} />
+              <button
+                type="button"
+                style={{
+                  ...styles.tabButton,
+                  ...(authMode === 'register' ? styles.activeTab : {}),
+                }}
+                onClick={() => switchAuthMode('register')}
+                disabled={loading}
+              >
+                Register
+              </button>
             </div>
+
+            {authMode === 'signin' ? (
+              <form onSubmit={handleSubmit(handleDirectLogin)} style={styles.form} noValidate>
+                <div style={styles.inputGroup}>
+                  <label style={styles.label}>Corporate Email</label>
+                  <input
+                    type="email"
+                    placeholder="name@company.com"
+                    {...register('email')}
+                    style={styles.input}
+                  />
+                  {errors.email ? <p style={{ color: '#fca5a5', fontSize: '11px', margin: 0 }}>{errors.email.message}</p> : null}
+                </div>
+
+                <div style={styles.inputGroup}>
+                  <label style={styles.label}>Password</label>
+                  <input
+                    type="password"
+                    placeholder="••••••••••••"
+                    {...register('password')}
+                    style={styles.input}
+                  />
+                  {errors.password ? <p style={{ color: '#fca5a5', fontSize: '11px', margin: 0 }}>{errors.password.message}</p> : null}
+                </div>
+
+                <button type="submit" style={styles.submitButton} disabled={loading}>
+                  {loading ? 'Authenticating...' : 'Sign In to Secure Portal'}
+                </button>
+              </form>
+            ) : (
+              <div>
+                <p style={{ ...styles.label, marginBottom: '8px' }}>Create secure portal access:</p>
+                <RegisterForm
+                  onRegister={handleRegister}
+                  onSuccess={handleRegisterSuccess}
+                />
+              </div>
+            )}
           </div>
         )}
 

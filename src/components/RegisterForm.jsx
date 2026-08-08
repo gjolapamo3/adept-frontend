@@ -2,7 +2,7 @@ import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { registerUserSchema } from '../shared/schemas';
 
-export const RegisterForm = ({ onRegister }) => {
+export const RegisterForm = ({ onRegister, onSuccess }) => {
   const {
     register,
     handleSubmit,
@@ -15,6 +15,7 @@ export const RegisterForm = ({ onRegister }) => {
   const onSubmit = async (data) => {
     // Submit clean payload to API.
     await onRegister?.(data);
+    onSuccess?.(data);
   };
 
   return (
