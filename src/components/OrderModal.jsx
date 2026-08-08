@@ -254,28 +254,28 @@ const OrderModal = ({ product, onClose, onOrderCreated, onSuccess }) => {
           aria-modal="true"
           aria-labelledby="order-modal-title"
         >
-          <div className="flex items-center justify-between border-b border-slate-800 pb-3">
-            <h3 id="order-modal-title" className="text-base font-bold text-emerald-400">Request Quote / Order</h3>
-            <button
-              onClick={onClose}
-              type="button"
-              className="px-2 py-1 text-lg font-bold text-slate-400 hover:text-white"
-              aria-label="Close modal"
-            >
-              ✕
-            </button>
-          </div>
-
-          <div className="space-y-3 py-4 text-left">
-            <div className="rounded-lg border border-slate-700 bg-slate-800/80 p-3">
-              <p className="text-sm font-semibold text-slate-100">{name}</p>
-              <p className="mt-1 text-lg font-bold text-emerald-400">
-                {currency}{price.toLocaleString()} <span className="text-xs font-normal text-slate-400">/ MT</span>
-              </p>
-            </div>
-          </div>
-
           <form onSubmit={handleSubmit(onSubmit)} className="space-y-3" noValidate>
+            <div className="flex items-center justify-between border-b border-slate-800 pb-3">
+              <h3 id="order-modal-title" className="text-base font-bold text-emerald-400">Request Quote / Order</h3>
+              <button
+                onClick={onClose}
+                type="button"
+                className="px-2 py-1 text-lg font-bold text-slate-400 hover:text-white"
+                aria-label="Close modal"
+              >
+                ✕
+              </button>
+            </div>
+
+            <div className="space-y-3 py-4 text-left">
+              <div className="rounded-lg border border-slate-700 bg-slate-800/80 p-3">
+                <p className="text-sm font-semibold text-slate-100">{name}</p>
+                <p className="mt-1 text-lg font-bold text-emerald-400">
+                  {currency}{price.toLocaleString()} <span className="text-xs font-normal text-slate-400">/ MT</span>
+                </p>
+              </div>
+            </div>
+
             <div style={fieldGroupStyle}>
               <label htmlFor="quantityMt" className="mb-1 block text-xs font-semibold text-slate-300" style={labelStyle}>
                 Quantity (MT)
@@ -391,6 +391,7 @@ const OrderModal = ({ product, onClose, onOrderCreated, onSuccess }) => {
               </button>
               <button
                 type="submit"
+                onClick={handleSubmit(onSubmit)}
                 disabled={submitting}
                 className="rounded-lg bg-emerald-500 px-4 py-2 text-sm font-bold text-slate-950 transition-colors hover:bg-emerald-600 disabled:cursor-not-allowed disabled:opacity-70"
               >

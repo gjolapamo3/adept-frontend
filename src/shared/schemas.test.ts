@@ -84,6 +84,19 @@ describe('shared schemas', () => {
     }
   });
 
+  it('coerces quantity strings to numbers in the order form schema', () => {
+    const result = orderRequestFormSchema.safeParse({
+      quantityMt: '20',
+      contactPhone: '+2348030000000',
+    });
+
+    expect(result.success).toBe(true);
+    if (result.success) {
+      expect(result.data.quantityMt).toBe(20);
+      expect(typeof result.data.quantityMt).toBe('number');
+    }
+  });
+
   it('rejects order form data without contact channel', () => {
     const result = orderRequestFormSchema.safeParse({
       quantityMt: '20',
