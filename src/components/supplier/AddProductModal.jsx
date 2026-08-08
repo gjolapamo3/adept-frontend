@@ -1,7 +1,12 @@
 import React, { useState } from 'react';
+import { useForm } from 'react-hook-form';
+import { zodResolver } from '@hookform/resolvers/zod';
+import { productListingSchema } from '../../shared/schemas';
 
 export default function AddProductModal({ isOpen, onClose, onProductCreated }) {
-  const [formData, setFormData] = useState({
+  const [submitting, setSubmitting] = useState(false);
+  const [errorMessage, setErrorMessage] = useState('');
+  const defaultValues = {
     title: '',
     category: 'Fertilizer',
     grade: 'Agro Grade',
@@ -10,30 +15,35 @@ export default function AddProductModal({ isOpen, onClose, onProductCreated }) {
     availableTonnage: '',
     packaging: '50kg Bags',
     originLocation: 'Kano, Nigeria',
-    description: '',
+    description: 'Chemical product listing',
+  };
+  const {
+    register,
+    handleSubmit,
+    reset,
+    formState: { errors },
+  } = useForm({
+    resolver: zodResolver(productListingSchema),
+    mode: 'onBlur',
+    reValidateMode: 'onBlur',
+    defaultValues,
   });
-  const [submitting, setSubmitting] = useState(false);
 
   if (!isOpen) return null;
 
-  const handleChange = (field) => (event) => {
-    setFormData((current) => ({
-      ...current,
-      [field]: event.target.value,
-    }));
-  };
-
-  const handleSubmit = async (event) => {
-    event.preventDefault();
+  const onSubmit = async (formValues) => {
     setSubmitting(true);
+    setErrorMessage('');
 
     try {
       if (onProductCreated) {
-        await onProductCreated(formData);
+        await onProductCreated(formValues);
       }
+      reset(defaultValues);
       onClose();
     } catch (error) {
       console.error('Failed to create product:', error);
+      setErrorMessage(error?.message || 'Failed to create product listing.');
     } finally {
       setSubmitting(false);
     }
@@ -54,19 +64,18 @@ export default function AddProductModal({ isOpen, onClose, onProductCreated }) {
           </button>
         </div>
 
-        <form onSubmit={handleSubmit} className="space-y-4">
+        <form onSubmit={handleSubmit(onSubmit)} className="space-y-4" noValidate>
           <div>
             <label className="mb-1 block text-xs font-semibold uppercase text-slate-700">
               Product Name / Title
             </label>
             <input
               type="text"
-              required
               placeholder="e.g. Granular Urea (46% N)"
-              value={formData.title}
-              onChange={handleChange('title')}
+              {...register('title')}
               className="w-full rounded-lg border px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-slate-800"
             />
+            {errors.title ? <p className="mt-1 text-xs text-red-600">{errors.title.message}</p> : null}
           </div>
 
           <div className="grid grid-cols-2 gap-3">
@@ -75,8 +84,7 @@ export default function AddProductModal({ isOpen, onClose, onProductCreated }) {
                 Category
               </label>
               <select
-                value={formData.category}
-                onChange={handleChange('category')}
+                {...register('category')}
                 className="w-full rounded-lg border px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-slate-800"
               >
                 <option value="Fertilizer">Fertilizer</option>
@@ -90,8 +98,7 @@ export default function AddProductModal({ isOpen, onClose, onProductCreated }) {
                 Grade
               </label>
               <select
-                value={formData.grade}
-                onChange={handleChange('grade')}
+                {...register('grade')}
                 className="w-full rounded-lg border px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-slate-800"
               >
                 <option value="Agro Grade">Agro Grade</option>
@@ -108,12 +115,11 @@ export default function AddProductModal({ isOpen, onClose, onProductCreated }) {
               </label>
               <input
                 type="text"
-                required
                 placeholder="e.g. 99.5%"
-                value={formData.purity}
-                onChange={handleChange('purity')}
+                {...register('purity')}
                 className="w-full rounded-lg border px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-slate-800"
               />
+              {errors.purity ? <p className="mt-1 text-xs text-red-600">{errors.purity.message}</p> : null}
             </div>
             <div>
               <label className="mb-1 block text-xs font-semibold uppercase text-slate-700">
@@ -121,12 +127,11 @@ export default function AddProductModal({ isOpen, onClose, onProductCreated }) {
               </label>
               <input
                 type="number"
-                required
                 placeholder="e.g. 450000"
-                value={formData.pricePerTon}
-                onChange={handleChange('pricePerTon')}
+                {...register('pricePerTon')}
                 className="w-full rounded-lg border px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-slate-800"
               />
+              {errors.pricePerTon ? <p className="mt-1 text-xs text-red-600">{errors.pricePerTon.message}</p> : null}
             </div>
           </div>
 
@@ -137,12 +142,11 @@ export default function AddProductModal({ isOpen, onClose, onProductCreated }) {
               </label>
               <input
                 type="number"
-                required
                 placeholder="e.g. 500"
-                value={formData.availableTonnage}
-                onChange={handleChange('availableTonnage')}
+                {...register('availableTonnage')}
                 className="w-full rounded-lg border px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-slate-800"
               />
+              {errors.availableTonnage ? <p className="mt-1 text-xs text-red-600">{errors.availableTonnage.message}</p> : null}
             </div>
             <div>
               <label className="mb-1 block text-xs font-semibold uppercase text-slate-700">
@@ -151,8 +155,7 @@ export default function AddProductModal({ isOpen, onClose, onProductCreated }) {
               <input
                 type="text"
                 placeholder="e.g. 50kg Bags / Bulk"
-                value={formData.packaging}
-                onChange={handleChange('packaging')}
+                {...register('packaging')}
                 className="w-full rounded-lg border px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-slate-800"
               />
             </div>
@@ -165,10 +168,10 @@ export default function AddProductModal({ isOpen, onClose, onProductCreated }) {
             <input
               type="text"
               placeholder="e.g. Port Harcourt, Nigeria"
-              value={formData.originLocation}
-              onChange={handleChange('originLocation')}
+              {...register('originLocation')}
               className="w-full rounded-lg border px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-slate-800"
             />
+            {errors.originLocation ? <p className="mt-1 text-xs text-red-600">{errors.originLocation.message}</p> : null}
           </div>
 
           <div>
@@ -178,10 +181,10 @@ export default function AddProductModal({ isOpen, onClose, onProductCreated }) {
             <textarea
               rows={4}
               placeholder="Add any product details, certifications, or delivery notes"
-              value={formData.description}
-              onChange={handleChange('description')}
+              {...register('description')}
               className="w-full rounded-lg border px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-slate-800"
             />
+            {errors.description ? <p className="mt-1 text-xs text-red-600">{errors.description.message}</p> : null}
           </div>
 
           <button
@@ -191,6 +194,7 @@ export default function AddProductModal({ isOpen, onClose, onProductCreated }) {
           >
             {submitting ? 'Publishing Listing...' : 'Publish Chemical Listing'}
           </button>
+          {errorMessage ? <p className="text-sm text-red-600">{errorMessage}</p> : null}
         </form>
       </div>
     </div>

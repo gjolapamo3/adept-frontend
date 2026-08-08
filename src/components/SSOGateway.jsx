@@ -1,4 +1,8 @@
 import { useState } from 'react';
+import { useForm } from 'react-hook-form';
+import { zodResolver } from '@hookform/resolvers/zod';
+import { loginUserSchema } from '../shared/schemas';
+import RegisterForm from './RegisterForm';
 import './SSOGateway.css';
 
 const styles = {
@@ -178,16 +182,28 @@ const styles = {
 
 export default function SSOGateway({ onSuccess }) {
   const [authMethod, setAuthMethod] = useState('enterprise');
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
   const [loading, setLoading] = useState(false);
+  const {
+    register,
+    handleSubmit,
+    watch,
+    formState: { errors },
+  } = useForm({
+    resolver: zodResolver(loginUserSchema),
+    mode: 'onBlur',
+    reValidateMode: 'onBlur',
+    defaultValues: {
+      email: '',
+      password: '',
+    },
+  });
 
-  const persistSession = (role = 'buyer', provider = 'Enterprise') => {
+  const persistSession = (role = 'buyer', provider = 'Enterprise', formEmail = '') => {
     if (typeof window === 'undefined') {
       return;
     }
 
-    const normalizedEmail = email.trim().toLowerCase();
+    const normalizedEmail = String(formEmail || watch('email') || '').trim().toLowerCase();
     const profile = {
       name: normalizedEmail ? normalizedEmail.split('@')[0] : 'Buyer',
       email: normalizedEmail || 'buyer@adept.local',
@@ -211,11 +227,19 @@ export default function SSOGateway({ onSuccess }) {
   };
 
   const handleDirectLogin = (event) => {
-    event.preventDefault();
+    const formEmail = event.email;
     setLoading(true);
     window.setTimeout(() => {
       setLoading(false);
-      persistSession('buyer', 'Direct Login');
+      persistSession('buyer', 'Direct Login', formEmail);
+    }, 800);
+  };
+
+  const handleRegister = async (payload) => {
+    setLoading(true);
+    window.setTimeout(() => {
+      setLoading(false);
+      persistSession('buyer', 'Self Registration', payload?.email || '');
     }, 800);
   };
 
@@ -273,35 +297,40 @@ export default function SSOGateway({ onSuccess }) {
             </button>
           </div>
         ) : (
-          <form onSubmit={handleDirectLogin} style={styles.form}>
-            <div style={styles.inputGroup}>
-              <label style={styles.label}>Corporate Email</label>
-              <input
-                type="email"
-                required
-                placeholder="name@company.com"
-                value={email}
-                onChange={(event) => setEmail(event.target.value)}
-                style={styles.input}
-              />
-            </div>
+          <div style={styles.form}>
+            <form onSubmit={handleSubmit(handleDirectLogin)} style={styles.form} noValidate>
+              <div style={styles.inputGroup}>
+                <label style={styles.label}>Corporate Email</label>
+                <input
+                  type="email"
+                  placeholder="name@company.com"
+                  {...register('email')}
+                  style={styles.input}
+                />
+                {errors.email ? <p style={{ color: '#fca5a5', fontSize: '11px', margin: 0 }}>{errors.email.message}</p> : null}
+              </div>
 
-            <div style={styles.inputGroup}>
-              <label style={styles.label}>Password</label>
-              <input
-                type="password"
-                required
-                placeholder="••••••••••••"
-                value={password}
-                onChange={(event) => setPassword(event.target.value)}
-                style={styles.input}
-              />
-            </div>
+              <div style={styles.inputGroup}>
+                <label style={styles.label}>Password</label>
+                <input
+                  type="password"
+                  placeholder="••••••••••••"
+                  {...register('password')}
+                  style={styles.input}
+                />
+                {errors.password ? <p style={{ color: '#fca5a5', fontSize: '11px', margin: 0 }}>{errors.password.message}</p> : null}
+              </div>
 
-            <button type="submit" style={styles.submitButton} disabled={loading}>
-              {loading ? 'Authenticating...' : 'Sign In to Secure Portal'}
-            </button>
-          </form>
+              <button type="submit" style={styles.submitButton} disabled={loading}>
+                {loading ? 'Authenticating...' : 'Sign In to Secure Portal'}
+              </button>
+            </form>
+
+            <div style={{ borderTop: '1px solid #1f2d24', paddingTop: '14px', marginTop: '2px' }}>
+              <p style={{ ...styles.label, marginBottom: '8px' }}>New company user? Create portal access:</p>
+              <RegisterForm onRegister={handleRegister} />
+            </div>
+          </div>
         )}
 
         <div style={styles.footer}>

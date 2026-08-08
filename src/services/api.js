@@ -1,5 +1,10 @@
 // src/services/api.js
 import axios from 'axios';
+import {
+  b2bOrderSchema,
+  loginUserSchema,
+  productListingSchema,
+} from '../shared/schemas';
 
 const API_BASE_URL =
   import.meta.env.VITE_API_BASE_URL ||
@@ -33,10 +38,26 @@ const request = async (path, options = {}) => {
   return response.data;
 };
 
-export const loginUser = async (credentials) => request('/auth/login', {
-  method: 'POST',
-  data: credentials,
-});
+const firstIssueMessage = (error) => {
+  const issueMessage = error?.issues?.[0]?.message;
+  if (issueMessage) {
+    return issueMessage;
+  }
+
+  return error?.message || 'Validation failed';
+};
+
+export const loginUser = async (credentials) => {
+  const parsed = loginUserSchema.safeParse(credentials);
+  if (!parsed.success) {
+    throw new Error(firstIssueMessage(parsed.error));
+  }
+
+  return request('/auth/login', {
+    method: 'POST',
+    data: parsed.data,
+  });
+};
 
 export const fetchProducts = async (filters = {}) => {
   const query = new URLSearchParams(filters).toString();
@@ -45,14 +66,28 @@ export const fetchProducts = async (filters = {}) => {
   });
 };
 
-export const createProduct = async (productData) => request('/products', {
-  method: 'POST',
-  data: productData,
-});
+export const createProduct = async (productData) => {
+  const parsed = productListingSchema.safeParse(productData);
+  if (!parsed.success) {
+    throw new Error(firstIssueMessage(parsed.error));
+  }
 
-export const placeOrder = async (orderData) => request('/orders', {
-  method: 'POST',
-  data: orderData,
-});
+  return request('/products', {
+    method: 'POST',
+    data: parsed.data,
+  });
+};
+
+export const placeOrder = async (orderData) => {
+  const parsed = b2bOrderSchema.safeParse(orderData);
+  if (!parsed.success) {
+    throw new Error(firstIssueMessage(parsed.error));
+  }
+
+  return request('/orders', {
+    method: 'POST',
+    data: parsed.data,
+  });
+};
 
 export default api;

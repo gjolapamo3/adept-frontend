@@ -1,9 +1,15 @@
 import React, { useEffect, useState } from 'react';
+import { useForm } from 'react-hook-form';
+import { zodResolver } from '@hookform/resolvers/zod';
 import {
   fetchSupplierListings,
   createProductListing,
   updateProductStock,
 } from '../services/supplierService';
+import {
+  productListingSchema,
+  updateProductStockSchema,
+} from '../shared/schemas';
 import './SupplierDashboard.css';
 
 const INITIAL_FORM = {
@@ -21,8 +27,18 @@ export default function SupplierDashboard() {
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState('');
   const [successMessage, setSuccessMessage] = useState('');
-  const [formState, setFormState] = useState(INITIAL_FORM);
   const [draftUpdates, setDraftUpdates] = useState({});
+  const {
+    register,
+    handleSubmit,
+    reset,
+    formState: { errors },
+  } = useForm({
+    resolver: zodResolver(productListingSchema),
+    mode: 'onBlur',
+    reValidateMode: 'onBlur',
+    defaultValues: INITIAL_FORM,
+  });
 
   const loadListings = async () => {
     try {
@@ -41,27 +57,14 @@ export default function SupplierDashboard() {
     loadListings();
   }, []);
 
-  const handleFormChange = (event) => {
-    const { name, value } = event.target;
-    setFormState((current) => ({
-      ...current,
-      [name]: value,
-    }));
-  };
-
-  const handleCreateListing = async (event) => {
-    event.preventDefault();
+  const handleCreateListing = async (formValues) => {
     setSubmitting(true);
     setError('');
     setSuccessMessage('');
 
     try {
-      await createProductListing({
-        ...formState,
-        pricePerTon: Number(formState.pricePerTon || 0),
-        stock: Number(formState.stock || 0),
-      });
-      setFormState(INITIAL_FORM);
+      await createProductListing(formValues);
+      reset(INITIAL_FORM);
       setSuccessMessage('Product listing created successfully.');
       await loadListings();
     } catch (requestError) {
@@ -100,9 +103,14 @@ export default function SupplierDashboard() {
     }
 
     try {
+      const parsed = updateProductStockSchema.safeParse(payload);
+      if (!parsed.success) {
+        throw new Error(parsed.error.issues[0]?.message || 'Invalid update payload.');
+      }
+
       setError('');
       setSuccessMessage('');
-      await updateProductStock(productId, payload);
+      await updateProductStock(productId, parsed.data);
       setSuccessMessage('Listing updated successfully.');
       setDraftUpdates((current) => {
         const next = { ...current };
@@ -154,68 +162,56 @@ export default function SupplierDashboard() {
       )}
 
       <section className="grid gap-8 lg:grid-cols-[1.1fr_1.4fr]">
-        <form onSubmit={handleCreateListing} className="supplier-card space-y-4">
+        <form onSubmit={handleSubmit(handleCreateListing)} className="supplier-card space-y-4" noValidate>
           <div>
             <h2 className="text-xl font-bold text-slate-900">Create Product Listing</h2>
             <p className="mt-1 text-sm text-slate-500">Add a fresh offer for buyers searching the marketplace.</p>
           </div>
 
           <input
-            name="name"
-            value={formState.name}
-            onChange={handleFormChange}
+            {...register('name')}
             placeholder="Product name"
             className="supplier-input"
-            required
           />
+          {errors.name ? <p className="text-xs text-red-600">{errors.name.message}</p> : null}
           <input
-            name="category"
-            value={formState.category}
-            onChange={handleFormChange}
+            {...register('category')}
             placeholder="Category"
             className="supplier-input"
-            required
           />
+          {errors.category ? <p className="text-xs text-red-600">{errors.category.message}</p> : null}
           <textarea
-            name="description"
-            value={formState.description}
-            onChange={handleFormChange}
+            {...register('description')}
             placeholder="Product description"
             rows="4"
             className="supplier-input supplier-textarea"
-            required
           />
+          {errors.description ? <p className="text-xs text-red-600">{errors.description.message}</p> : null}
 
           <div className="grid gap-4 sm:grid-cols-3">
             <input
-              name="currency"
-              value={formState.currency}
-              onChange={handleFormChange}
+              {...register('currency')}
               placeholder="Currency"
               className="supplier-input"
-              required
             />
             <input
-              name="pricePerTon"
+              {...register('pricePerTon')}
               type="number"
               min="0"
-              value={formState.pricePerTon}
-              onChange={handleFormChange}
               placeholder="Price per ton"
               className="supplier-input"
-              required
             />
             <input
-              name="stock"
+              {...register('stock')}
               type="number"
               min="0"
-              value={formState.stock}
-              onChange={handleFormChange}
               placeholder="Stock tons"
               className="supplier-input"
-              required
             />
           </div>
+          {errors.currency ? <p className="text-xs text-red-600">{errors.currency.message}</p> : null}
+          {errors.pricePerTon ? <p className="text-xs text-red-600">{errors.pricePerTon.message}</p> : null}
+          {errors.stock ? <p className="text-xs text-red-600">{errors.stock.message}</p> : null}
 
           <button
             type="submit"

@@ -1,5 +1,8 @@
 import React, { useEffect, useMemo, useState } from 'react';
+import { useForm } from 'react-hook-form';
+import { zodResolver } from '@hookform/resolvers/zod';
 import { useEscrowPoller } from '../../hooks/useEscrowPoller';
+import { escrowReferenceSchema } from '../../shared/schemas';
 
 export const normalizeStatus = (value) => {
   const status = typeof value === 'string' ? value.trim().toUpperCase() : '';
@@ -101,10 +104,22 @@ export default function EscrowOrderTracker({
   description = 'Enter your payment reference to track virtual account funding and delivery status.',
   placeholder = 'e.g. ADEPT-REF-9082',
 }) {
-  const [reference, setReference] = useState(initialReference);
   const [activeReference, setActiveReference] = useState(initialReference);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
+  const {
+    register,
+    handleSubmit,
+    reset,
+    formState: { errors },
+  } = useForm({
+    resolver: zodResolver(escrowReferenceSchema),
+    mode: 'onBlur',
+    reValidateMode: 'onBlur',
+    defaultValues: {
+      reference: initialReference,
+    },
+  });
 
   const {
     order,
@@ -159,25 +174,18 @@ export default function EscrowOrderTracker({
       return;
     }
 
-    setReference(initialReference);
+    reset({ reference: initialReference });
     setActiveReference(initialReference);
     setError('');
-  }, [initialReference]);
+  }, [initialReference, reset]);
 
-  const handleSubmit = async (event) => {
-    event.preventDefault();
-
-    const trimmedRef = reference.trim();
-    if (!trimmedRef) {
-      setError('Payment reference is required.');
-      return;
-    }
-
+  const onSubmit = async ({ reference }) => {
     setError('');
     const normalizedActiveReference = activeReference.trim();
-    const isRepeatLookup = trimmedRef === normalizedActiveReference;
+    const safeReference = reference;
+    const isRepeatLookup = safeReference === normalizedActiveReference;
 
-    setActiveReference(trimmedRef);
+    setActiveReference(safeReference);
 
     if (isRepeatLookup) {
       await refetch();
@@ -189,7 +197,7 @@ export default function EscrowOrderTracker({
 
     try {
       setLoading(true);
-      await onTrack(trimmedRef);
+      await onTrack(safeReference);
     } catch (requestError) {
       setError(requestError?.message || 'Unable to track order right now.');
     } finally {
@@ -203,11 +211,10 @@ export default function EscrowOrderTracker({
         <h2 className="text-xl font-bold text-slate-900 mb-2">{title}</h2>
         <p className="text-sm text-slate-500 mb-6">{description}</p>
 
-        <form className="flex gap-2" onSubmit={handleSubmit}>
+        <form className="flex gap-2" onSubmit={handleSubmit(onSubmit)} noValidate>
           <input
             type="text"
-            value={reference}
-            onChange={(event) => setReference(event.target.value)}
+            {...register('reference')}
             placeholder={placeholder}
             className="flex-1 border rounded-md px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-slate-800"
           />
@@ -219,6 +226,7 @@ export default function EscrowOrderTracker({
             {isSubmitting ? 'Tracking...' : 'Track'}
           </button>
         </form>
+        {errors.reference ? <p className="mt-2 text-left text-xs text-red-600">{errors.reference.message}</p> : null}
 
         <div className="table-wrapper mt-6">
           <table>

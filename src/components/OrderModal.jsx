@@ -1,6 +1,9 @@
 import React, { useEffect, useRef, useState } from 'react';
 import ReactDOM from 'react-dom';
+import { useForm } from 'react-hook-form';
+import { zodResolver } from '@hookform/resolvers/zod';
 import { placeOrder } from '../services/api';
+import { b2bOrderSchema, orderRequestFormSchema } from '../shared/schemas';
 
 const OrderModal = ({ product, onClose, onOrderCreated }) => {
   const safeProduct = product && typeof product === 'object' ? product : {};
@@ -10,17 +13,27 @@ const OrderModal = ({ product, onClose, onOrderCreated }) => {
   const currency = rawCurrency ? `${rawCurrency} ` : 'NGN ';
   const price = Number(safeProduct.pricePerTon ?? safeProduct.price ?? safeProduct.unitPrice ?? 0);
 
-  const [formData, setFormData] = useState({
-    quantityMt: '',
-    contactName: '',
-    contactEmail: '',
-    contactPhone: '',
-    deliveryNotes: '',
-  });
   const [errorMessage, setErrorMessage] = useState('');
   const [successMessage, setSuccessMessage] = useState('');
   const [submitting, setSubmitting] = useState(false);
   const closeTimerRef = useRef(null);
+  const {
+    register,
+    handleSubmit,
+    reset,
+    formState: { errors },
+  } = useForm({
+    resolver: zodResolver(orderRequestFormSchema),
+    mode: 'onBlur',
+    reValidateMode: 'onBlur',
+    defaultValues: {
+      quantityMt: '',
+      contactName: '',
+      contactEmail: '',
+      contactPhone: '',
+      deliveryNotes: '',
+    },
+  });
 
   const fieldGroupStyle = {
     display: 'flex',
@@ -70,45 +83,31 @@ const OrderModal = ({ product, onClose, onOrderCreated }) => {
     };
   }, [onClose]);
 
-  const handleChange = (event) => {
-    const { name: fieldName, value } = event.target;
-    setFormData((current) => ({
-      ...current,
-      [fieldName]: value,
-    }));
-  };
-
-  const handleSubmit = async (event) => {
-    event.preventDefault();
+  const onSubmit = async (formValues) => {
     setErrorMessage('');
     setSuccessMessage('');
 
-    const quantityValue = Number(formData.quantityMt);
-    if (!Number.isFinite(quantityValue) || quantityValue <= 0) {
-      setErrorMessage('Enter a valid quantity in metric tons.');
-      return;
-    }
-
-    if (!formData.contactEmail.trim() && !formData.contactPhone.trim()) {
-      setErrorMessage('Provide either a contact email or phone number.');
-      return;
-    }
-
     const payload = {
-      productId: safeProduct.id ?? safeProduct.productId,
+      productId: String(safeProduct.id ?? safeProduct.productId ?? ''),
       productName: name,
-      quantityMt: quantityValue,
+      quantityMt: formValues.quantityMt,
       unitPrice: price,
       currency: rawCurrency || 'NGN',
-      contactName: formData.contactName.trim(),
-      contactEmail: formData.contactEmail.trim(),
-      contactPhone: formData.contactPhone.trim(),
-      deliveryNotes: formData.deliveryNotes.trim(),
+      contactName: formValues.contactName || '',
+      contactEmail: formValues.contactEmail || '',
+      contactPhone: formValues.contactPhone || '',
+      deliveryNotes: formValues.deliveryNotes || '',
     };
+
+    const parsed = b2bOrderSchema.safeParse(payload);
+    if (!parsed.success) {
+      setErrorMessage(parsed.error.issues[0]?.message || 'Invalid order request payload.');
+      return;
+    }
 
     try {
       setSubmitting(true);
-      const response = await placeOrder(payload);
+      const response = await placeOrder(parsed.data);
 
       if (response?.success === false || response?.error) {
         throw new Error(response?.message || response?.error || 'Unable to submit request right now.');
@@ -125,7 +124,7 @@ const OrderModal = ({ product, onClose, onOrderCreated }) => {
         onOrderCreated(orderRef);
       }
 
-      setFormData({
+      reset({
         quantityMt: '',
         contactName: '',
         contactEmail: '',
@@ -215,23 +214,21 @@ const OrderModal = ({ product, onClose, onOrderCreated }) => {
             </div>
           </div>
 
-          <form onSubmit={handleSubmit} className="space-y-3">
+          <form onSubmit={handleSubmit(onSubmit)} className="space-y-3" noValidate>
             <div style={fieldGroupStyle}>
               <label htmlFor="quantityMt" className="mb-1 block text-xs font-semibold text-slate-300" style={labelStyle}>
                 Quantity (MT)
               </label>
               <input
                 id="quantityMt"
-                name="quantityMt"
                 type="number"
                 min="1"
-                value={formData.quantityMt}
-                onChange={handleChange}
+                {...register('quantityMt')}
                 className="w-full rounded-lg border border-slate-700 bg-slate-800 px-3 py-2 text-sm text-white outline-none focus:border-emerald-500"
                 style={controlStyle}
                 placeholder="e.g. 50"
-                required
               />
+              {errors.quantityMt ? <p className="mt-1 text-xs text-red-300">{errors.quantityMt.message}</p> : null}
             </div>
 
             <div style={fieldGroupStyle}>
@@ -240,14 +237,13 @@ const OrderModal = ({ product, onClose, onOrderCreated }) => {
               </label>
               <input
                 id="contactName"
-                name="contactName"
                 type="text"
-                value={formData.contactName}
-                onChange={handleChange}
+                {...register('contactName')}
                 className="w-full rounded-lg border border-slate-700 bg-slate-800 px-3 py-2 text-sm text-white outline-none focus:border-emerald-500"
                 style={controlStyle}
                 placeholder="Your name"
               />
+              {errors.contactName ? <p className="mt-1 text-xs text-red-300">{errors.contactName.message}</p> : null}
             </div>
 
             <div
@@ -264,14 +260,13 @@ const OrderModal = ({ product, onClose, onOrderCreated }) => {
                 </label>
                 <input
                   id="contactEmail"
-                  name="contactEmail"
                   type="email"
-                  value={formData.contactEmail}
-                  onChange={handleChange}
+                  {...register('contactEmail')}
                   className="w-full rounded-lg border border-slate-700 bg-slate-800 px-3 py-2 text-sm text-white outline-none focus:border-emerald-500"
                   style={controlStyle}
                   placeholder="you@company.com"
                 />
+                {errors.contactEmail ? <p className="mt-1 text-xs text-red-300">{errors.contactEmail.message}</p> : null}
               </div>
               <div style={fieldGroupStyle}>
                 <label htmlFor="contactPhone" className="mb-1 block text-xs font-semibold text-slate-300" style={labelStyle}>
@@ -279,14 +274,13 @@ const OrderModal = ({ product, onClose, onOrderCreated }) => {
                 </label>
                 <input
                   id="contactPhone"
-                  name="contactPhone"
                   type="tel"
-                  value={formData.contactPhone}
-                  onChange={handleChange}
+                  {...register('contactPhone')}
                   className="w-full rounded-lg border border-slate-700 bg-slate-800 px-3 py-2 text-sm text-white outline-none focus:border-emerald-500"
                   style={controlStyle}
                   placeholder="+234..."
                 />
+                {errors.contactPhone ? <p className="mt-1 text-xs text-red-300">{errors.contactPhone.message}</p> : null}
               </div>
             </div>
 
@@ -296,10 +290,8 @@ const OrderModal = ({ product, onClose, onOrderCreated }) => {
               </label>
               <textarea
                 id="deliveryNotes"
-                name="deliveryNotes"
                 rows="3"
-                value={formData.deliveryNotes}
-                onChange={handleChange}
+                {...register('deliveryNotes')}
                 className="w-full rounded-lg border border-slate-700 bg-slate-800 px-3 py-2 text-sm text-white outline-none focus:border-emerald-500"
                 style={{
                   ...controlStyle,
@@ -308,6 +300,7 @@ const OrderModal = ({ product, onClose, onOrderCreated }) => {
                 }}
                 placeholder="Preferred location, timeline, packaging requirements..."
               />
+              {errors.deliveryNotes ? <p className="mt-1 text-xs text-red-300">{errors.deliveryNotes.message}</p> : null}
             </div>
 
             {errorMessage && (
