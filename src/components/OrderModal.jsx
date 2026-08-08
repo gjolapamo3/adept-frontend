@@ -6,7 +6,7 @@ import { z } from 'zod';
 import { placeOrder } from '../services/api';
 import { b2bOrderSchema, orderRequestFormSchema } from '../shared/schemas';
 
-const OrderModal = ({ product, onClose, onOrderCreated }) => {
+const OrderModal = ({ product, onClose, onOrderCreated, onSuccess }) => {
   const safeProduct = product && typeof product === 'object' ? product : {};
 
   const name = safeProduct.name || 'Product';
@@ -164,12 +164,21 @@ const OrderModal = ({ product, onClose, onOrderCreated }) => {
         throw new Error(response?.message || response?.error || 'Unable to submit request right now.');
       }
 
-      const responseReference = response?.data?.reference || response?.reference || response?.orderId;
+      const responseReference =
+        response?.escrowReference ||
+        response?.data?.escrowReference ||
+        response?.data?.reference ||
+        response?.reference ||
+        response?.orderId;
       const fallbackReference = `ADEPT-${Date.now().toString().slice(-8)}`;
       const orderRef = String(responseReference || fallbackReference);
       setSuccessMessage(
         `Request submitted successfully. Reference: ${orderRef}`
       );
+
+      if (onSuccess) {
+        onSuccess(response);
+      }
 
       if (onOrderCreated) {
         onOrderCreated(orderRef);

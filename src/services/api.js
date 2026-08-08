@@ -8,10 +8,12 @@ import {
 
 const API_BASE_URL =
   import.meta.env.VITE_API_BASE_URL ||
+  import.meta.env.VITE_API_URL ||
   'https://adept-backend-fojr.onrender.com';
 
 const api = axios.create({
   baseURL: API_BASE_URL,
+  timeout: 12000,
   headers: {
     'Content-Type': 'application/json',
   },
@@ -45,6 +47,42 @@ const firstIssueMessage = (error) => {
   }
 
   return error?.message || 'Validation failed';
+};
+
+const resolveEscrowReference = (payload) => {
+  if (!payload || typeof payload !== 'object') {
+    return '';
+  }
+
+  return (
+    payload.escrowReference ||
+    payload.reference ||
+    payload.orderReference ||
+    payload.orderId ||
+    payload.data?.escrowReference ||
+    payload.data?.reference ||
+    payload.data?.orderReference ||
+    payload.data?.orderId ||
+    payload.data?.order?.reference ||
+    ''
+  );
+};
+
+const normalizeOrderResponse = (payload) => {
+  const reference = String(resolveEscrowReference(payload) || '').trim();
+  const safePayload = payload && typeof payload === 'object' ? payload : {};
+  const safeData = safePayload.data && typeof safePayload.data === 'object' ? safePayload.data : {};
+
+  return {
+    ...safePayload,
+    reference: safePayload.reference || reference,
+    escrowReference: safePayload.escrowReference || reference,
+    data: {
+      ...safeData,
+      reference: safeData.reference || reference,
+      escrowReference: safeData.escrowReference || reference,
+    },
+  };
 };
 
 export const loginUser = async (credentials) => {
@@ -84,10 +122,18 @@ export const placeOrder = async (orderData) => {
     throw new Error(firstIssueMessage(parsed.error));
   }
 
-  return request('/orders', {
-    method: 'POST',
-    data: parsed.data,
-  });
+  try {
+    const payload = await request('/orders', {
+      method: 'POST',
+      data: parsed.data,
+    });
+    return normalizeOrderResponse(payload);
+  } catch (error) {
+    if (!error?.response) {
+      throw new Error('Order service is unreachable. Check VITE_API_BASE_URL or VITE_API_URL and backend availability.');
+    }
+    throw error;
+  }
 };
 
 export default api;
