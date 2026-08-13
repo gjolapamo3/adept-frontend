@@ -38,6 +38,19 @@ const OrderModal = ({ product, onClose, onOrderCreated, onSuccess }) => {
     },
   });
 
+  const onInvalid = (validationErrors) => {
+    const nextFieldErrors = {};
+    Object.entries(validationErrors).forEach(([fieldName, error]) => {
+      if (error?.message) {
+        nextFieldErrors[fieldName] = error.message;
+      }
+    });
+    setFieldErrors(nextFieldErrors);
+    if (Object.keys(nextFieldErrors).length === 0) {
+      setErrorMessage('Please correct the highlighted fields and try again.');
+    }
+  };
+
   const fieldGroupStyle = {
     display: 'flex',
     flexDirection: 'column',
@@ -254,7 +267,7 @@ const OrderModal = ({ product, onClose, onOrderCreated, onSuccess }) => {
           aria-modal="true"
           aria-labelledby="order-modal-title"
         >
-          <form onSubmit={handleSubmit(onSubmit)} className="space-y-3" noValidate>
+          <form onSubmit={handleSubmit(onSubmit, onInvalid)} className="space-y-3" noValidate>
             <div className="flex items-center justify-between border-b border-slate-800 pb-3">
               <h3 id="order-modal-title" className="text-base font-bold text-emerald-400">Request Quote / Order</h3>
               <button
@@ -391,7 +404,6 @@ const OrderModal = ({ product, onClose, onOrderCreated, onSuccess }) => {
               </button>
               <button
                 type="submit"
-                onClick={handleSubmit(onSubmit)}
                 disabled={submitting}
                 className="rounded-lg bg-emerald-500 px-4 py-2 text-sm font-bold text-slate-950 transition-colors hover:bg-emerald-600 disabled:cursor-not-allowed disabled:opacity-70"
               >
