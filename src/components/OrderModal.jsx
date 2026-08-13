@@ -382,9 +382,9 @@ const OrderModal = ({ product, onClose, onOrderCreated, onSuccess }) => {
             </div>
 
             {errorMessage && (
-              <p className="rounded-md border border-red-800 bg-red-950/40 px-3 py-2 text-xs text-red-200">
+              <div className="my-2 rounded-md border border-red-500/50 bg-red-900/50 p-3 text-xs text-red-200">
                 {errorMessage}
-              </p>
+              </div>
             )}
 
             {successMessage && (
@@ -393,19 +393,18 @@ const OrderModal = ({ product, onClose, onOrderCreated, onSuccess }) => {
               </p>
             )}
 
-            <div className="flex justify-end gap-2 border-t border-slate-800 pt-3">
+            <div className="mt-4 flex items-center justify-end gap-x-3 pt-2">
               <button
-                onClick={onClose}
                 type="button"
-                disabled={submitting}
-                className="rounded-lg border border-slate-600 px-4 py-2 text-sm font-semibold text-slate-200 transition-colors hover:bg-slate-800"
+                onClick={onClose}
+                className="rounded-lg bg-slate-700 px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-slate-600"
               >
                 Close
               </button>
               <button
                 type="submit"
                 disabled={submitting}
-                className="rounded-lg bg-emerald-500 px-4 py-2 text-sm font-bold text-slate-950 transition-colors hover:bg-emerald-600 disabled:cursor-not-allowed disabled:opacity-70"
+                className="rounded-lg bg-emerald-600 px-5 py-2 text-sm font-semibold text-white transition-colors hover:bg-emerald-500 disabled:cursor-not-allowed disabled:opacity-50"
               >
                 {submitting ? 'Submitting...' : 'Submit Request'}
               </button>
