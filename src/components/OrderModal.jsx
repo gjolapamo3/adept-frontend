@@ -44,8 +44,6 @@ export default function OrderModal({ isOpen, onClose, product }) {
         productId: product?.id || product?.slug || data.productId || "urea-46",
       };
 
-      console.log("Submitting order payload:", payload);
-
       const response = await fetch("/api/orders", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -61,28 +59,27 @@ export default function OrderModal({ isOpen, onClose, product }) {
         onClose();
       }, 2000);
     } catch (err) {
-      console.error("Submission failed:", err);
       setErrorMessage(err.message || "Failed to submit request.");
     }
   };
 
   const handleInvalidSubmit = (errors) => {
-    console.error("Validation errors:", errors);
     const firstErr = Object.values(errors)[0]?.message;
     setErrorMessage(firstErr || "Please fix input errors.");
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-4 backdrop-blur-sm">
-      <div className="w-full max-w-lg rounded-2xl bg-slate-900 p-6 text-slate-100 shadow-xl border border-slate-800">
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-950/80 p-4 backdrop-blur-md">
+      <div className="w-full max-w-lg rounded-2xl bg-slate-900 p-6 text-slate-100 shadow-2xl border border-slate-700">
         <div className="flex items-center justify-between pb-4 border-b border-slate-800">
           <div>
-            <h3 className="text-lg font-bold">Request Quote / Order</h3>
-            <p className="text-sm text-slate-400">{product?.title || "Urea 46% Granular"}</p>
+            <h3 className="text-lg font-bold text-white">Request Quote / Order</h3>
+            <p className="text-xs font-medium text-emerald-400">{product?.name || product?.title || "Urea 46% Granular"}</p>
           </div>
           <button
+            type="button"
             onClick={onClose}
-            className="rounded-lg bg-slate-800 p-2 text-slate-400 hover:bg-slate-700 hover:text-white"
+            className="rounded-lg bg-slate-800 p-2 text-slate-400 hover:bg-slate-700 hover:text-white transition-colors"
           >
             ✕
           </button>
@@ -91,7 +88,7 @@ export default function OrderModal({ isOpen, onClose, product }) {
         <form
           id="order-form"
           onSubmit={handleSubmit(onSubmit, handleInvalidSubmit)}
-          className="mt-4 space-y-4"
+          className="mt-4 space-y-3 text-left"
         >
           <div>
             <label className="block text-xs font-semibold text-slate-300">Quantity (MT)</label>
@@ -137,7 +134,7 @@ export default function OrderModal({ isOpen, onClose, product }) {
             <label className="block text-xs font-semibold text-slate-300">Delivery Notes</label>
             <textarea
               {...register("deliveryNotes")}
-              rows={3}
+              rows={2}
               placeholder="Preferred location, timeline..."
               className="mt-1 w-full rounded-lg bg-slate-800 border border-slate-700 p-2.5 text-sm text-white focus:border-emerald-500 focus:outline-none"
             />
@@ -156,7 +153,7 @@ export default function OrderModal({ isOpen, onClose, product }) {
           </div>
         )}
 
-        <div className="mt-6 flex items-center justify-end gap-x-3 border-t border-slate-800 pt-4">
+        <div className="mt-5 flex items-center justify-end gap-x-3 border-t border-slate-800 pt-4">
           <button
             type="button"
             onClick={onClose}
