@@ -27,7 +27,7 @@ class ModalErrorBoundary extends React.Component {
   }
 }
 
-export default function ProductCard({ product, onOrderCreated }) {
+export default function ProductCard({ product, onOrderCreated, onOrderSuccess }) {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [modalRenderError, setModalRenderError] = useState('');
 
@@ -52,6 +52,16 @@ export default function ProductCard({ product, onOrderCreated }) {
   const handleModalError = (error) => {
     const message = error?.message || 'Unknown modal render error';
     setModalRenderError(message);
+  };
+
+  const handleModalSuccess = (response) => {
+    setIsModalOpen(false);
+    if (onOrderSuccess) {
+      onOrderSuccess(response);
+    }
+    if (onOrderCreated) {
+      onOrderCreated(response);
+    }
   };
 
   const modalFallback = (error) => (
@@ -127,6 +137,7 @@ export default function ProductCard({ product, onOrderCreated }) {
             product={product}
             onClose={() => setIsModalOpen(false)}
             onOrderCreated={onOrderCreated}
+            onSuccess={handleModalSuccess}
           />
         </ModalErrorBoundary>
       )}

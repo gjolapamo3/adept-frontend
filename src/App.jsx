@@ -154,7 +154,7 @@ export default function App() {
         </header>
 
       <main className="flex-1">
-        {activeTab === 'marketplace' && <Marketplace onOrderCreated={handleOrderCreated} />}
+        {activeTab === 'marketplace' && <Marketplace onOrderCreated={handleOrderCreated} onOrderSuccess={handleOrderSuccess} />}
         {activeTab === 'supplier' && <SupplierDashboard />}
         {activeTab === 'pricing' && (
           <PricingDashboard onOpenShipmentTracking={(payload) => {

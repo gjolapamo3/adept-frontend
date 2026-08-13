@@ -13,7 +13,7 @@ const API_BASE_URL =
 
 const api = axios.create({
   baseURL: API_BASE_URL,
-  timeout: 12000,
+  timeout: 45000, // Render free tier can take ~30-40s to wake from a cold start
   headers: {
     'Content-Type': 'application/json',
   },
@@ -28,16 +28,28 @@ const getAuthHeaders = () => {
 };
 
 const request = async (path, options = {}) => {
-  const response = await api.request({
-    url: path,
-    ...options,
-    headers: {
-      ...getAuthHeaders(),
-      ...(options.headers || {}),
-    },
-  });
+  try {
+    const response = await api.request({
+      url: path,
+      ...options,
+      headers: {
+        ...getAuthHeaders(),
+        ...(options.headers || {}),
+      },
+    });
 
-  return response.data;
+    return response.data;
+  } catch (error) {
+    if (error?.code === 'ECONNABORTED') {
+      throw new Error('The server is taking longer than expected to respond (it may be waking up). Please try again in a moment.');
+    }
+
+    if (!error?.response) {
+      throw new Error('Unable to reach the server. Please check your connection and try again.');
+    }
+
+    throw error;
+  }
 };
 
 const firstIssueMessage = (error) => {
@@ -81,24 +93,6 @@ const normalizeOrderResponse = (payload) => {
       ...safeData,
       reference: safeData.reference || reference,
       escrowReference: safeData.escrowReference || reference,
-    },
-  };
-};
-
-const createFallbackOrderResponse = (orderPayload, error) => {
-  const fallbackReference = `ADEPT-DEMO-${Date.now().toString().slice(-8)}`;
-
-  return {
-    success: true,
-    message: 'Order submitted in demo mode while backend is temporarily unreachable.',
-    reference: fallbackReference,
-    escrowReference: fallbackReference,
-    isFallback: true,
-    fallbackReason: error?.code || error?.message || 'NETWORK_UNREACHABLE',
-    data: {
-      ...orderPayload,
-      reference: fallbackReference,
-      escrowReference: fallbackReference,
     },
   };
 };
@@ -148,8 +142,7 @@ export const placeOrder = async (orderData) => {
     return normalizeOrderResponse(payload);
   } catch (error) {
     if (!error?.response) {
-      console.warn('Order service unreachable. Returning fallback demo response.', error);
-      return createFallbackOrderResponse(parsed.data, error);
+      throw new Error('Order service is unreachable. Check VITE_API_BASE_URL or VITE_API_URL and backend availability.');
     }
     throw error;
   }

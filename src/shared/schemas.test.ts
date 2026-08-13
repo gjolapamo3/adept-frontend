@@ -84,7 +84,7 @@ describe('shared schemas', () => {
     }
   });
 
-  it('coerces quantity strings to numbers in the order form schema', () => {
+it('coerces quantity strings to numbers in the order form schema', () => {
     const result = orderRequestFormSchema.safeParse({
       quantityMt: '20',
       contactPhone: '+2348030000000',
@@ -95,6 +95,18 @@ describe('shared schemas', () => {
       expect(result.data.quantityMt).toBe(20);
       expect(typeof result.data.quantityMt).toBe('number');
     }
+  });
+
+  it('accepts valid order payload with slug product id', () => {
+    const result = b2bOrderSchema.safeParse({
+      productId: 'npk-201010',
+      quantityMt: '25',
+      unitPrice: '1000',
+      currency: 'ngn',
+      contactEmail: 'buyer@example.com',
+    });
+
+    expect(result.success).toBe(true);
   });
 
   it('rejects order form data without contact channel', () => {
@@ -112,16 +124,6 @@ describe('shared schemas', () => {
       quantityMt: '20',
       contactPhone: '+2348030000000',
       deliveryNotes: 'Deliver to Lagos port',
-    });
-
-    expect(result.success).toBe(true);
-  });
-
-  it('accepts a non-empty product ID in order form data', () => {
-    const result = orderRequestFormSchema.safeParse({
-      productId: 'product-12345',
-      quantityMt: '20',
-      contactPhone: '+2348030000000',
     });
 
     expect(result.success).toBe(true);
