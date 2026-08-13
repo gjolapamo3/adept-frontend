@@ -1,4 +1,5 @@
 import React, { useState } from "react";
+import ReactDOM from "react-dom";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
@@ -97,7 +98,7 @@ export default function OrderModal({ isOpen, onClose, product }) {
     setErrorMessage(firstErr || "Please fix input errors.");
   };
 
-  return (
+  const modalContent = (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-950/80 p-4 backdrop-blur-md">
       <div className="w-full max-w-lg rounded-2xl bg-slate-900 p-6 text-slate-100 shadow-2xl border border-slate-700">
         <div className="flex items-center justify-between pb-4 border-b border-slate-800">
@@ -212,4 +213,6 @@ export default function OrderModal({ isOpen, onClose, product }) {
       </div>
     </div>
   );
+
+  return ReactDOM.createPortal(modalContent, document.body);
 }
