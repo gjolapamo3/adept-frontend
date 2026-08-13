@@ -134,6 +134,7 @@ export default function ProductCard({ product, onOrderCreated, onOrderSuccess })
       {isModalOpen && (
         <ModalErrorBoundary onError={handleModalError} fallback={modalFallback}>
           <OrderModal
+            isOpen={isModalOpen}
             product={product}
             onClose={() => setIsModalOpen(false)}
             onOrderCreated={onOrderCreated}
