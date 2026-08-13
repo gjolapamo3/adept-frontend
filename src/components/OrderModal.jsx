@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import ReactDOM from "react-dom";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -9,44 +9,64 @@ const API_BASE_URL =
   "https://adept-backend-fojr.onrender.com";
 
 export const orderRequestFormSchema = z.object({
-  productId: z.string().min(1, "Product ID is required"),
   quantityMt: z.coerce
     .number({ invalid_type_error: "Quantity must be a valid number" })
     .positive("Quantity must be greater than 0"),
   contactName: z.string().min(2, "Contact name is required"),
-  email: z.string().email("Invalid email address"),
   phone: z.string().min(7, "Phone number is required"),
   shippingAddress: z.string().min(5, "Shipping address is required"),
-  deliveryNotes: z.string().optional(),
 });
 
-export default function OrderModal({ isOpen, onClose, product }) {
+export default function OrderModal({ isOpen, onClose, onOrderCreated, product }) {
   const [errorMessage, setErrorMessage] = useState(null);
-  const [successMessage, setSuccessMessage] = useState(null);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [isSuccess, setIsSuccess] = useState(false);
+  const [submittedQuantity, setSubmittedQuantity] = useState(null);
 
   const {
     register,
     handleSubmit,
-    formState,
+    reset,
   } = useForm({
     resolver: zodResolver(orderRequestFormSchema),
     defaultValues: {
-      productId: product?.id || product?.slug || "urea-46",
       quantityMt: "",
       contactName: "",
-      email: "",
       phone: "",
       shippingAddress: "",
-      deliveryNotes: "",
     },
   });
+
+  useEffect(() => {
+    if (!isOpen) return undefined;
+
+    document.body.style.overflow = "hidden";
+    return () => {
+      document.body.style.overflow = "unset";
+    };
+  }, [isOpen]);
+
+  const resetModal = () => {
+    reset();
+    setErrorMessage(null);
+    setIsSubmitting(false);
+    setIsSuccess(false);
+    setSubmittedQuantity(null);
+  };
+
+  const handleClose = () => {
+    resetModal();
+    onClose();
+  };
 
   if (!isOpen) return null;
 
   const onSubmit = async (data) => {
+    setIsSubmitting(true);
+    setErrorMessage(null);
+
     try {
-      setErrorMessage(null);
-      const productId = product?.id || product?.slug || data.productId || "urea-46";
+      const productId = product?.id || product?.slug || "urea-46";
       const storedUser = JSON.parse(localStorage.getItem("user") || "null");
       const buyerId =
         storedUser?.user_id ||
@@ -84,12 +104,14 @@ export default function OrderModal({ isOpen, onClose, product }) {
         throw new Error(`Server status: ${response.status}`);
       }
 
-      setSuccessMessage("Request submitted successfully!");
-      setTimeout(() => {
-        onClose();
-      }, 2000);
+      const responseData = await response.json().catch(() => ({}));
+      setSubmittedQuantity(data.quantityMt);
+      setIsSuccess(true);
+      onOrderCreated?.(responseData);
     } catch (err) {
       setErrorMessage(err.message || "Failed to submit request.");
+    } finally {
+      setIsSubmitting(false);
     }
   };
 
@@ -99,117 +121,114 @@ export default function OrderModal({ isOpen, onClose, product }) {
   };
 
   const modalContent = (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-950/80 p-4 backdrop-blur-md">
-      <div className="w-full max-w-lg rounded-2xl bg-slate-900 p-6 text-slate-100 shadow-2xl border border-slate-700">
-        <div className="flex items-center justify-between pb-4 border-b border-slate-800">
-          <div>
-            <h3 className="text-lg font-bold text-white">Request Quote / Order</h3>
-            <p className="text-xs font-medium text-emerald-400">{product?.name || product?.title || "Urea 46% Granular"}</p>
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-4 backdrop-blur-sm">
+      <div className="max-h-[90vh] w-full max-w-lg overflow-y-auto rounded-2xl bg-white p-6 text-gray-900 shadow-xl">
+        {isSuccess ? (
+          <div className="py-6 text-center">
+            <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-full bg-green-100 text-3xl text-green-700">✓</div>
+            <h3 className="mt-4 text-xl font-bold">Request Submitted!</h3>
+            <p className="mt-2 text-sm text-gray-600">
+              Your request for {submittedQuantity} metric tons of {product?.name || product?.title || "this product"} has been submitted.
+            </p>
+            <button
+              type="button"
+              onClick={handleClose}
+              className="mt-6 rounded-lg bg-gray-900 px-5 py-2.5 text-sm font-semibold text-white hover:bg-gray-800"
+            >
+              Close
+            </button>
           </div>
-          <button
-            type="button"
-            onClick={onClose}
-            className="rounded-lg bg-slate-800 p-2 text-slate-400 hover:bg-slate-700 hover:text-white transition-colors"
-          >
-            ✕
-          </button>
-        </div>
+        ) : (
+          <>
+            <div className="flex items-center justify-between border-b border-gray-200 pb-4">
+              <div>
+                <h3 className="text-lg font-bold">Request Quote / Order</h3>
+                <p className="text-xs font-medium text-green-700">{product?.name || product?.title || "Urea 46% Granular"}</p>
+              </div>
+              <button
+                type="button"
+                onClick={handleClose}
+                aria-label="Close order modal"
+                className="rounded-lg p-2 text-gray-500 transition-colors hover:bg-gray-100 hover:text-gray-900"
+              >
+                ✕
+              </button>
+            </div>
 
-        <form
-          id="order-form"
-          onSubmit={handleSubmit(onSubmit, handleInvalidSubmit)}
-          className="mt-4 space-y-3 text-left"
-        >
+            <form
+              id="order-form"
+              onSubmit={handleSubmit(onSubmit, handleInvalidSubmit)}
+              className="mt-4 space-y-3 text-left"
+            >
           <div>
-            <label className="block text-xs font-semibold text-slate-300">Quantity (MT)</label>
+            <label className="block text-xs font-semibold text-gray-700">Quantity (Metric Tons)</label>
             <input
               {...register("quantityMt")}
               type="number"
+              min="0.01"
+              step="any"
               placeholder="e.g. 50"
-              className="mt-1 w-full rounded-lg bg-slate-800 border border-slate-700 p-2.5 text-sm text-white focus:border-emerald-500 focus:outline-none"
+              className="mt-1 w-full rounded-lg border border-gray-300 bg-white p-3 text-gray-900 focus:border-green-600 focus:outline-none"
             />
           </div>
 
           <div>
-            <label className="block text-xs font-semibold text-slate-300">Contact Name</label>
+            <label className="block text-xs font-semibold text-gray-700">Contact Name</label>
             <input
               {...register("contactName")}
               type="text"
               placeholder="Your name"
-              className="mt-1 w-full rounded-lg bg-slate-800 border border-slate-700 p-2.5 text-sm text-white focus:border-emerald-500 focus:outline-none"
+              className="mt-1 w-full rounded-lg border border-gray-300 bg-white p-3 text-gray-900 focus:border-green-600 focus:outline-none"
             />
           </div>
 
           <div>
-            <label className="block text-xs font-semibold text-slate-300">Email</label>
-            <input
-              {...register("email")}
-              type="email"
-              placeholder="you@company.com"
-              className="mt-1 w-full rounded-lg bg-slate-800 border border-slate-700 p-2.5 text-sm text-white focus:border-emerald-500 focus:outline-none"
-            />
-          </div>
-
-          <div>
-            <label className="block text-xs font-semibold text-slate-300">Phone</label>
+            <label className="block text-xs font-semibold text-gray-700">Phone Number</label>
             <input
               {...register("phone")}
               type="tel"
               placeholder="+234..."
-              className="mt-1 w-full rounded-lg bg-slate-800 border border-slate-700 p-2.5 text-sm text-white focus:border-emerald-500 focus:outline-none"
+              className="mt-1 w-full rounded-lg border border-gray-300 bg-white p-3 text-gray-900 focus:border-green-600 focus:outline-none"
             />
           </div>
 
           <div>
-            <label className="block text-xs font-semibold text-slate-300">Shipping Address</label>
+            <label className="block text-xs font-semibold text-gray-700">Shipping Address</label>
             <textarea
               {...register("shippingAddress")}
               rows={2}
               placeholder="Delivery address"
-              className="mt-1 w-full rounded-lg bg-slate-800 border border-slate-700 p-2.5 text-sm text-white focus:border-emerald-500 focus:outline-none"
+              className="mt-1 w-full rounded-lg border border-gray-300 bg-white p-3 text-gray-900 focus:border-green-600 focus:outline-none"
             />
           </div>
 
-          <div>
-            <label className="block text-xs font-semibold text-slate-300">Delivery Notes</label>
-            <textarea
-              {...register("deliveryNotes")}
-              rows={2}
-              placeholder="Preferred location, timeline..."
-              className="mt-1 w-full rounded-lg bg-slate-800 border border-slate-700 p-2.5 text-sm text-white focus:border-emerald-500 focus:outline-none"
-            />
-          </div>
-        </form>
+            </form>
 
-        {errorMessage && (
-          <div className="mt-3 rounded-lg bg-red-950/80 p-3 text-xs font-medium text-red-300 border border-red-800">
-            {errorMessage}
-          </div>
+            {errorMessage && (
+              <div className="mt-3 rounded-lg border border-red-200 bg-red-50 p-3 text-xs font-medium text-red-700">
+                {errorMessage}
+              </div>
+            )}
+
+            <div className="mt-5 flex items-center justify-end gap-x-3 border-t border-gray-200 pt-4">
+              <button
+                type="button"
+                onClick={handleClose}
+                className="rounded-lg px-4 py-2.5 text-sm font-semibold text-gray-700 hover:bg-gray-100"
+              >
+                Close
+              </button>
+              <button
+                type="submit"
+                form="order-form"
+                disabled={isSubmitting}
+                className="rounded-lg bg-green-700 px-5 py-2.5 text-sm font-semibold text-white shadow-md hover:bg-green-800 disabled:cursor-not-allowed disabled:opacity-50"
+              >
+                {isSubmitting ? "Submitting..." : "Submit Request"}
+              </button>
+            </div>
+          </>
         )}
-
-        {successMessage && (
-          <div className="mt-3 rounded-lg bg-emerald-950/80 p-3 text-xs font-medium text-emerald-300 border border-emerald-800">
-            {successMessage}
-          </div>
-        )}
-
-        <div className="mt-5 flex items-center justify-end gap-x-3 border-t border-slate-800 pt-4">
-          <button
-            type="button"
-            onClick={onClose}
-            className="rounded-lg bg-slate-800 px-4 py-2.5 text-sm font-semibold text-slate-300 hover:bg-slate-700 hover:text-white"
-          >
-            Close
-          </button>
-          <button
-            type="submit"
-            form="order-form"
-            disabled={formState.isSubmitting}
-            className="rounded-lg bg-emerald-600 px-5 py-2.5 text-sm font-semibold text-white shadow-md hover:bg-emerald-500 disabled:opacity-50"
-          >
-            {formState.isSubmitting ? "Submitting..." : "Submit Request"}
-          </button>
-        </div>
       </div>
     </div>
   );
