@@ -3,6 +3,10 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 
+const API_BASE_URL =
+  import.meta.env.VITE_API_BASE_URL ||
+  "https://adept-backend-fojr.onrender.com";
+
 export const orderRequestFormSchema = z.object({
   productId: z.string().min(1, "Product ID is required"),
   quantityMt: z.coerce
@@ -11,6 +15,7 @@ export const orderRequestFormSchema = z.object({
   contactName: z.string().min(2, "Contact name is required"),
   email: z.string().email("Invalid email address"),
   phone: z.string().min(7, "Phone number is required"),
+  shippingAddress: z.string().min(5, "Shipping address is required"),
   deliveryNotes: z.string().optional(),
 });
 
@@ -30,6 +35,7 @@ export default function OrderModal({ isOpen, onClose, product }) {
       contactName: "",
       email: "",
       phone: "",
+      shippingAddress: "",
       deliveryNotes: "",
     },
   });
@@ -39,14 +45,37 @@ export default function OrderModal({ isOpen, onClose, product }) {
   const onSubmit = async (data) => {
     try {
       setErrorMessage(null);
+      const productId = product?.id || product?.slug || data.productId || "urea-46";
+      const storedUser = JSON.parse(localStorage.getItem("user") || "null");
+      const buyerId =
+        storedUser?.user_id ||
+        storedUser?.buyer_id ||
+        storedUser?.id ||
+        localStorage.getItem("user_id") ||
+        localStorage.getItem("buyer_id") ||
+        "";
+      const token =
+        localStorage.getItem("adept_auth_token") || localStorage.getItem("token");
       const payload = {
-        ...data,
-        productId: product?.id || product?.slug || data.productId || "urea-46",
+        buyer_id: buyerId,
+        items: [
+          {
+            product_id: productId,
+            quantity: data.quantityMt,
+          },
+        ],
+        delivery_details: {
+          shipping_address: data.shippingAddress,
+          contact_phone: data.phone,
+        },
       };
 
-      const response = await fetch("/api/orders", {
+      const response = await fetch(`${API_BASE_URL}/orders`, {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
+        headers: {
+          "Content-Type": "application/json",
+          ...(token ? { Authorization: `Bearer ${token}` } : {}),
+        },
         body: JSON.stringify(payload),
       });
 
@@ -126,6 +155,16 @@ export default function OrderModal({ isOpen, onClose, product }) {
               {...register("phone")}
               type="tel"
               placeholder="+234..."
+              className="mt-1 w-full rounded-lg bg-slate-800 border border-slate-700 p-2.5 text-sm text-white focus:border-emerald-500 focus:outline-none"
+            />
+          </div>
+
+          <div>
+            <label className="block text-xs font-semibold text-slate-300">Shipping Address</label>
+            <textarea
+              {...register("shippingAddress")}
+              rows={2}
+              placeholder="Delivery address"
               className="mt-1 w-full rounded-lg bg-slate-800 border border-slate-700 p-2.5 text-sm text-white focus:border-emerald-500 focus:outline-none"
             />
           </div>
