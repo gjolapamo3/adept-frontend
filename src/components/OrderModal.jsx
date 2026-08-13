@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import ReactDOM from 'react-dom';
 import { placeOrder } from '../services/api';
 
@@ -20,7 +20,6 @@ const OrderModal = ({ product, onClose, onOrderCreated }) => {
   const [errorMessage, setErrorMessage] = useState('');
   const [successMessage, setSuccessMessage] = useState('');
   const [submitting, setSubmitting] = useState(false);
-  const closeTimerRef = useRef(null);
 
   const fieldGroupStyle = {
     display: 'flex',
@@ -62,13 +61,10 @@ const OrderModal = ({ product, onClose, onOrderCreated }) => {
     document.body.style.overflow = 'hidden';
     window.addEventListener('keydown', handleKeyDown);
     return () => {
-      if (closeTimerRef.current) {
-        window.clearTimeout(closeTimerRef.current);
-      }
       document.body.style.overflow = previousOverflow;
       window.removeEventListener('keydown', handleKeyDown);
     };
-  }, [onClose]);
+  }, [product, onClose]);
 
   const handleChange = (event) => {
     const { name: fieldName, value } = event.target;
@@ -132,10 +128,7 @@ const OrderModal = ({ product, onClose, onOrderCreated }) => {
         contactPhone: '',
         deliveryNotes: '',
       });
-
-      closeTimerRef.current = window.setTimeout(() => {
-        onClose();
-      }, 1200);
+      // Modal stays open so the user can read the reference; they close it manually.
     } catch (requestError) {
       setErrorMessage(requestError?.message || 'Unable to submit request right now.');
     } finally {
@@ -159,20 +152,24 @@ const OrderModal = ({ product, onClose, onOrderCreated }) => {
         backdropFilter: 'blur(6px)',
         WebkitBackdropFilter: 'blur(6px)',
         zIndex: 99999,
+        overscrollBehavior: 'contain',
+        overflowY: 'auto',
       }}
       onClick={onClose}
       role="presentation"
     >
       <div
-        className="mx-auto flex min-h-full w-full max-w-sm items-center justify-center"
+        className="mx-auto flex min-h-full w-full max-w-sm items-start justify-center py-8"
         style={{
           margin: '0 auto',
           minHeight: '100%',
           width: '100%',
           maxWidth: '24rem',
           display: 'flex',
-          alignItems: 'center',
+          alignItems: 'flex-start',
           justifyContent: 'center',
+          paddingTop: '2rem',
+          paddingBottom: '2rem',
         }}
       >
         <div
