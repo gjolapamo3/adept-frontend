@@ -156,36 +156,36 @@ const OrderModal = ({ product, onClose, onOrderCreated, onSuccess }) => {
     setFieldErrors({});
     setSuccessMessage('');
 
-    const payload = {
-      productId: String(safeProduct.id ?? safeProduct.productId ?? ''),
-      productName: name,
-      quantityMt: formValues.quantityMt,
-      unitPrice: price,
-      currency: rawCurrency || 'NGN',
-      contactName: formValues.contactName || '',
-      contactEmail: formValues.contactEmail || '',
-      contactPhone: formValues.contactPhone || '',
-      deliveryNotes: formValues.deliveryNotes || '',
-    };
-
-    let parsedPayload;
     try {
-      parsedPayload = b2bOrderSchema.parse(payload);
-      setFieldErrors({});
-    } catch (err) {
-      if (err instanceof z.ZodError) {
-        const nextFieldErrors = mapIssuesToFieldErrors(err.issues);
-        setFieldErrors(nextFieldErrors);
-        if (Object.keys(nextFieldErrors).length === 0) {
-          setErrorMessage(err.issues[0]?.message || 'Invalid order request payload.');
+      const payload = {
+        productId: String(safeProduct.id ?? safeProduct.productId ?? ''),
+        productName: name,
+        quantityMt: formValues.quantityMt,
+        unitPrice: price,
+        currency: rawCurrency || 'NGN',
+        contactName: formValues.contactName || '',
+        contactEmail: formValues.contactEmail || '',
+        contactPhone: formValues.contactPhone || '',
+        deliveryNotes: formValues.deliveryNotes || '',
+      };
+
+      let parsedPayload;
+      try {
+        parsedPayload = b2bOrderSchema.parse(payload);
+        setFieldErrors({});
+      } catch (err) {
+        if (err instanceof z.ZodError) {
+          const nextFieldErrors = mapIssuesToFieldErrors(err.issues);
+          setFieldErrors(nextFieldErrors);
+          if (Object.keys(nextFieldErrors).length === 0) {
+            setErrorMessage(err.issues[0]?.message || 'Invalid order request payload.');
+          }
+          return;
         }
-      } else {
-        setErrorMessage('Invalid order request payload.');
-      }
-      return;
-    }
 
-    try {
+        throw err;
+      }
+
       setSubmitting(true);
       const response = await placeOrder(parsedPayload);
 
@@ -226,7 +226,8 @@ const OrderModal = ({ product, onClose, onOrderCreated, onSuccess }) => {
         onClose();
       }, 1200);
     } catch (requestError) {
-      setErrorMessage(requestError?.message || 'Unable to submit request right now.');
+      console.error('Order submit error:', requestError);
+      setErrorMessage(requestError?.message || 'Unexpected error while submitting the order request.');
     } finally {
       setSubmitting(false);
     }
@@ -283,7 +284,7 @@ const OrderModal = ({ product, onClose, onOrderCreated, onSuccess }) => {
           aria-modal="true"
           aria-labelledby="order-modal-title"
         >
-          <form onSubmit={handleSubmit(onSubmit, onInvalid)} className="space-y-3" noValidate>
+          <form id="order-form" onSubmit={handleSubmit(onSubmit, onInvalid)} className="space-y-3" noValidate>
             <div className="flex items-center justify-between border-b border-slate-800 pb-3">
               <h3 id="order-modal-title" className="text-base font-bold text-emerald-400">Request Quote / Order</h3>
               <button
@@ -436,6 +437,7 @@ const OrderModal = ({ product, onClose, onOrderCreated, onSuccess }) => {
               </button>
               <button
                 type="submit"
+                form="order-form"
                 disabled={submitting}
                 className="rounded-lg bg-emerald-600 px-5 py-2 text-sm font-semibold text-white transition-colors hover:bg-emerald-500 disabled:cursor-not-allowed disabled:opacity-50"
               >
