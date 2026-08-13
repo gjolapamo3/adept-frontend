@@ -133,7 +133,7 @@ const OrderModal = ({ product, onClose, onOrderCreated, onSuccess }) => {
       quantityMt: formValues.quantityMt,
       unitPrice: price,
       currency: rawCurrency || 'NGN',
-      contactName: formValues.contactName?.trim() || undefined,
+      contactName: formValues.contactName || '',
       contactEmail: formValues.contactEmail || '',
       contactPhone: formValues.contactPhone || '',
       deliveryNotes: formValues.deliveryNotes || '',
@@ -176,6 +176,14 @@ const OrderModal = ({ product, onClose, onOrderCreated, onSuccess }) => {
         `Request submitted successfully. Reference: ${orderRef}`
       );
 
+      if (onSuccess) {
+        onSuccess(response);
+      }
+
+      if (onOrderCreated) {
+        onOrderCreated(orderRef);
+      }
+
       reset({
         productId: String(safeProduct.id ?? safeProduct.productId ?? ''),
         quantityMt: '',
@@ -186,14 +194,6 @@ const OrderModal = ({ product, onClose, onOrderCreated, onSuccess }) => {
       });
 
       closeTimerRef.current = window.setTimeout(() => {
-        if (onSuccess) {
-          onSuccess(response);
-        }
-
-        if (onOrderCreated) {
-          onOrderCreated(orderRef);
-        }
-
         onClose();
       }, 1200);
     } catch (requestError) {
@@ -201,17 +201,6 @@ const OrderModal = ({ product, onClose, onOrderCreated, onSuccess }) => {
     } finally {
       setSubmitting(false);
     }
-  };
-
-  const handleInvalidSubmit = (formErrors) => {
-    const nextFieldErrors = mapIssuesToFieldErrors(
-      Object.entries(formErrors).map(([fieldName, fieldError]) => ({
-        path: [fieldName],
-        message: fieldError?.message || 'Please check this field.',
-      }))
-    );
-    setFieldErrors(nextFieldErrors);
-    setErrorMessage('Please correct the highlighted fields before submitting.');
   };
 
   if (!product) return null;
@@ -265,7 +254,7 @@ const OrderModal = ({ product, onClose, onOrderCreated, onSuccess }) => {
           aria-modal="true"
           aria-labelledby="order-modal-title"
         >
-          <form onSubmit={handleSubmit(onSubmit, handleInvalidSubmit)} className="space-y-3" noValidate>
+          <form onSubmit={handleSubmit(onSubmit)} className="space-y-3" noValidate>
             <div className="flex items-center justify-between border-b border-slate-800 pb-3">
               <h3 id="order-modal-title" className="text-base font-bold text-emerald-400">Request Quote / Order</h3>
               <button
@@ -391,19 +380,20 @@ const OrderModal = ({ product, onClose, onOrderCreated, onSuccess }) => {
               </p>
             )}
 
-            <div className="relative z-10 flex flex-col sm:flex-row justify-end gap-3 w-full border-t border-slate-800 pt-3">
+            <div className="flex justify-end gap-2 border-t border-slate-800 pt-3">
               <button
                 onClick={onClose}
                 type="button"
                 disabled={submitting}
-                className="w-full sm:w-auto rounded-lg border border-slate-600 py-2 px-4 text-sm font-semibold text-slate-200 transition-colors hover:bg-slate-800"
+                className="rounded-lg border border-slate-600 px-4 py-2 text-sm font-semibold text-slate-200 transition-colors hover:bg-slate-800"
               >
                 Close
               </button>
               <button
                 type="submit"
+                onClick={handleSubmit(onSubmit)}
                 disabled={submitting}
-                className="w-full sm:w-auto rounded-lg bg-emerald-500 py-2 px-4 text-sm font-bold text-slate-950 transition-colors hover:bg-emerald-600 disabled:cursor-not-allowed disabled:opacity-70"
+                className="rounded-lg bg-emerald-500 px-4 py-2 text-sm font-bold text-slate-950 transition-colors hover:bg-emerald-600 disabled:cursor-not-allowed disabled:opacity-70"
               >
                 {submitting ? 'Submitting...' : 'Submit Request'}
               </button>
