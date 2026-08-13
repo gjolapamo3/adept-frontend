@@ -23,7 +23,8 @@ const OrderModal = ({ product, onClose, onOrderCreated, onSuccess }) => {
     register,
     handleSubmit,
     reset,
-    formState: { errors },
+    watch,
+    formState: { errors, isDirty, isValid, submitCount, isSubmitting },
   } = useForm({
     resolver: zodResolver(orderRequestFormSchema),
     mode: 'onBlur',
@@ -79,6 +80,21 @@ const OrderModal = ({ product, onClose, onOrderCreated, onSuccess }) => {
 
   const fieldNameMap = {
     quantity: 'quantityMt',
+  };
+
+  const watchedValues = watch();
+  const debugPayload = {
+    values: watchedValues,
+    errors: Object.fromEntries(
+      Object.entries(errors || {}).map(([key, value]) => [key, value?.message || 'Invalid'])
+    ),
+    isDirty,
+    isValid,
+    submitCount,
+    isSubmitting,
+    submitting,
+    errorMessage,
+    successMessage,
   };
 
   const getFieldErrorMessage = (fieldName) => {
@@ -392,6 +408,23 @@ const OrderModal = ({ product, onClose, onOrderCreated, onSuccess }) => {
                 {successMessage}
               </p>
             )}
+
+            <div className="my-2 max-h-32 overflow-auto rounded border border-red-800 bg-slate-900 p-2 text-left font-mono text-xs text-red-400">
+              <p className="font-bold text-slate-300">Form Diagnostic State:</p>
+              <pre className="mt-1 whitespace-pre-wrap break-words text-[10px] leading-relaxed text-red-300">
+                {JSON.stringify(
+                  {
+                    isSubmitting,
+                    isValid,
+                    errors: Object.fromEntries(
+                      Object.entries(errors || {}).map(([key, value]) => [key, value?.message || 'Invalid'])
+                    ),
+                  },
+                  null,
+                  2
+                )}
+              </pre>
+            </div>
 
             <div className="mt-4 flex items-center justify-end gap-x-3 pt-2">
               <button
