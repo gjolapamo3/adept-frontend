@@ -133,7 +133,7 @@ const OrderModal = ({ product, onClose, onOrderCreated, onSuccess }) => {
       quantityMt: formValues.quantityMt,
       unitPrice: price,
       currency: rawCurrency || 'NGN',
-      contactName: formValues.contactName || '',
+      contactName: formValues.contactName?.trim() || undefined,
       contactEmail: formValues.contactEmail || '',
       contactPhone: formValues.contactPhone || '',
       deliveryNotes: formValues.deliveryNotes || '',
@@ -203,6 +203,17 @@ const OrderModal = ({ product, onClose, onOrderCreated, onSuccess }) => {
     }
   };
 
+  const handleInvalidSubmit = (formErrors) => {
+    const nextFieldErrors = mapIssuesToFieldErrors(
+      Object.entries(formErrors).map(([fieldName, fieldError]) => ({
+        path: [fieldName],
+        message: fieldError?.message || 'Please check this field.',
+      }))
+    );
+    setFieldErrors(nextFieldErrors);
+    setErrorMessage('Please correct the highlighted fields before submitting.');
+  };
+
   if (!product) return null;
 
   const modalContent = (
@@ -254,7 +265,7 @@ const OrderModal = ({ product, onClose, onOrderCreated, onSuccess }) => {
           aria-modal="true"
           aria-labelledby="order-modal-title"
         >
-          <form onSubmit={handleSubmit(onSubmit)} className="space-y-3" noValidate>
+          <form onSubmit={handleSubmit(onSubmit, handleInvalidSubmit)} className="space-y-3" noValidate>
             <div className="flex items-center justify-between border-b border-slate-800 pb-3">
               <h3 id="order-modal-title" className="text-base font-bold text-emerald-400">Request Quote / Order</h3>
               <button
