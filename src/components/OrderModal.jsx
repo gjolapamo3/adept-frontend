@@ -176,14 +176,6 @@ const OrderModal = ({ product, onClose, onOrderCreated, onSuccess }) => {
         `Request submitted successfully. Reference: ${orderRef}`
       );
 
-      if (onSuccess) {
-        onSuccess(response);
-      }
-
-      if (onOrderCreated) {
-        onOrderCreated(orderRef);
-      }
-
       reset({
         productId: String(safeProduct.id ?? safeProduct.productId ?? ''),
         quantityMt: '',
@@ -194,6 +186,14 @@ const OrderModal = ({ product, onClose, onOrderCreated, onSuccess }) => {
       });
 
       closeTimerRef.current = window.setTimeout(() => {
+        if (onSuccess) {
+          onSuccess(response);
+        }
+
+        if (onOrderCreated) {
+          onOrderCreated(orderRef);
+        }
+
         onClose();
       }, 1200);
     } catch (requestError) {
