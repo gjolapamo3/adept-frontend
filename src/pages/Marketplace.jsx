@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import LiveStreamBadge from '../components/common/LiveStreamBadge';
 import ProductCard from '../components/ProductCard';
 import useMarketplaceEvents from '../hooks/useMarketplaceEvents';
@@ -34,7 +34,41 @@ const sampleProducts = [
   },
 ];
 
+const PRODUCT_API_BASE_URL = `${(import.meta.env.VITE_API_BASE_URL || 'https://adept-backend-fojr.onrender.com').replace(/\/$/, '')}/api/products`;
+
 export default function Marketplace({ onOrderCreated, onOrderSuccess }) {
+  const [liveProducts, setLiveProducts] = useState(sampleProducts);
+
+  useEffect(() => {
+    let isMounted = true;
+
+    const loadProducts = async () => {
+      try {
+        const response = await fetch(PRODUCT_API_BASE_URL);
+        if (!response.ok) {
+          throw new Error(`Failed to load products: ${response.status}`);
+        }
+
+        const payload = await response.json();
+        const fetchedProducts = Array.isArray(payload?.products) ? payload.products : Array.isArray(payload) ? payload : [];
+
+        if (isMounted) {
+          setLiveProducts(fetchedProducts.length > 0 ? fetchedProducts : sampleProducts);
+        }
+      } catch (error) {
+        if (isMounted) {
+          setLiveProducts(sampleProducts);
+        }
+      }
+    };
+
+    loadProducts();
+
+    return () => {
+      isMounted = false;
+    };
+  }, []);
+
   const {
     products,
     connectionStatus,
@@ -43,11 +77,11 @@ export default function Marketplace({ onOrderCreated, onOrderSuccess }) {
     reconnectAttempt,
     lastEventAt,
     reconnect,
-  } = useMarketplaceEvents(sampleProducts, {
+  } = useMarketplaceEvents(liveProducts, {
     eventSourceUrl: '/marketplace/events',
   });
 
-  const liveProducts = products.length > 0 ? products : sampleProducts;
+  const marketProducts = products.length > 0 ? products : liveProducts;
 
   return (
     <div className="marketplace-page max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
@@ -77,9 +111,9 @@ export default function Marketplace({ onOrderCreated, onOrderSuccess }) {
       </div>
 
       <div className="product-grid">
-        {liveProducts.map((product) => (
+        {marketProducts.map((product) => (
           <ProductCard
-            key={product.id || product.productId || product.name}
+            key={product._id || product.id || product.productId || product.name}
             product={product}
             onOrderCreated={onOrderCreated}
             onOrderSuccess={onOrderSuccess}

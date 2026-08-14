@@ -208,17 +208,20 @@ export default function SSOGateway({ onSuccess }) {
     },
   });
 
-  const persistSession = (role = 'buyer', provider = 'Enterprise', formEmail = '', token = '') => {
+  const persistSession = (role = 'buyer', provider = 'Enterprise', formEmail = '', token = '', authenticatedUser = {}) => {
     if (typeof window === 'undefined') {
       return;
     }
 
     const normalizedEmail = String(formEmail || watch('email') || '').trim().toLowerCase();
+    const buyerId = authenticatedUser.buyer_id || authenticatedUser.user_id || authenticatedUser.id || authenticatedUser._id || '';
     const profile = {
+      ...authenticatedUser,
       name: normalizedEmail ? normalizedEmail.split('@')[0] : 'Buyer',
       email: normalizedEmail || 'buyer@adept.local',
       provider,
       role,
+      ...(buyerId ? { buyer_id: buyerId } : {}),
     };
 
     const realToken = isUsableAuthToken(token) ? token : getStoredAuthToken();
@@ -266,7 +269,8 @@ export default function SSOGateway({ onSuccess }) {
       }
 
       const role = data.user?.role || data.data?.user?.role || 'buyer';
-      persistSession(role, 'Direct Login', data.user?.email || email, token);
+      const authenticatedUser = data.user || data.data?.user || {};
+      persistSession(role, 'Direct Login', authenticatedUser.email || email, token, authenticatedUser);
     } catch (err) {
       setAuthError(err.message || 'Unable to sign in. Please try again.');
     } finally {
@@ -302,7 +306,8 @@ export default function SSOGateway({ onSuccess }) {
       const token = data.token || data.accessToken || data.data?.token;
       if (token) {
         const role = data.user?.role || data.data?.user?.role || 'buyer';
-        persistSession(role, 'Direct Registration', data.user?.email || payload.email, token);
+        const authenticatedUser = data.user || data.data?.user || {};
+        persistSession(role, 'Direct Registration', authenticatedUser.email || payload.email, token, authenticatedUser);
       }
     } catch (err) {
       setAuthError(err.message || 'Unable to create account. Please try again.');

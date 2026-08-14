@@ -124,7 +124,7 @@ export default function OrderModal({ isOpen, onClose, onOrderCreated, product })
         },
       };
 
-      console.log("Submitting Order Payload:", payload);
+      console.log("Submitting Order Payload:", JSON.stringify(payload, null, 2));
 
       const response = await fetch(`${ORDER_API_BASE_URL}/orders`, {
         method: "POST",
