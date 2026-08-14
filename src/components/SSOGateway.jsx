@@ -292,6 +292,10 @@ export default function SSOGateway({ onSuccess }) {
       const data = await response.json().catch(() => ({}));
 
       if (!response.ok) {
+        if (response.status === 409) {
+          throw new Error('An account with this email already exists. Please sign in instead.');
+        }
+
         throw new Error(data.error || data.message || 'Unable to create account.');
       }
 
