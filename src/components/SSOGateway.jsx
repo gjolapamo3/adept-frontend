@@ -5,6 +5,13 @@ import { loginUserSchema } from '../shared/schemas';
 import RegisterForm from './RegisterForm';
 import './SSOGateway.css';
 
+const API_BASE_URL =
+  import.meta.env.VITE_API_BASE_URL ||
+  'https://adept-backend-fojr.onrender.com';
+const AUTH_API_BASE_URL = API_BASE_URL.endsWith('/api')
+  ? API_BASE_URL
+  : `${API_BASE_URL}/api`;
+
 const styles = {
   container: {
     minHeight: '100vh',
@@ -184,6 +191,7 @@ export default function SSOGateway({ onSuccess }) {
   const [authMethod, setAuthMethod] = useState('enterprise');
   const [authMode, setAuthMode] = useState('signin');
   const [loading, setLoading] = useState(false);
+  const [authError, setAuthError] = useState('');
   const {
     register,
     handleSubmit,
@@ -199,7 +207,7 @@ export default function SSOGateway({ onSuccess }) {
     },
   });
 
-  const persistSession = (role = 'buyer', provider = 'Enterprise', formEmail = '') => {
+  const persistSession = (role = 'buyer', provider = 'Enterprise', formEmail = '', token = 'mock_secure_enterprise_token_2026') => {
     if (typeof window === 'undefined') {
       return;
     }
@@ -212,10 +220,10 @@ export default function SSOGateway({ onSuccess }) {
       role,
     };
 
-    localStorage.setItem('adept_auth_token', 'mock_secure_enterprise_token_2026');
+    localStorage.setItem('adept_auth_token', token);
     localStorage.setItem('adept_user_role', role);
     localStorage.setItem('user', JSON.stringify(profile));
-    localStorage.setItem('token', 'mock_secure_enterprise_token_2026');
+    localStorage.setItem('token', token);
     onSuccess?.(profile);
   };
 
@@ -227,13 +235,35 @@ export default function SSOGateway({ onSuccess }) {
     }, 800);
   };
 
-  const handleDirectLogin = (event) => {
-    const formEmail = event.email;
+  const handleDirectLogin = async ({ email, password }) => {
+    setAuthError('');
     setLoading(true);
-    window.setTimeout(() => {
+
+    try {
+      const response = await fetch(`${AUTH_API_BASE_URL}/auth/login`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email, password }),
+      });
+
+      const data = await response.json().catch(() => ({}));
+
+      if (!response.ok) {
+        throw new Error(data.error || data.message || 'Invalid email or password.');
+      }
+
+      const token = data.token || data.accessToken || data.data?.token;
+      if (!token) {
+        throw new Error('Login succeeded but no token was returned by the server.');
+      }
+
+      const role = data.user?.role || data.data?.user?.role || 'buyer';
+      persistSession(role, 'Direct Login', data.user?.email || email, token);
+    } catch (err) {
+      setAuthError(err.message || 'Unable to sign in. Please try again.');
+    } finally {
       setLoading(false);
-      persistSession('buyer', 'Direct Login', formEmail);
-    }, 800);
+    }
   };
 
   const handleRegister = async (_payload) => {
@@ -374,6 +404,10 @@ export default function SSOGateway({ onSuccess }) {
                   />
                   {errors.password ? <p style={{ color: '#fca5a5', fontSize: '11px', margin: 0 }}>{errors.password.message}</p> : null}
                 </div>
+
+                {authError ? (
+                  <p style={{ color: '#fca5a5', fontSize: '11px', margin: 0 }}>{authError}</p>
+                ) : null}
 
                 <button type="submit" style={styles.submitButton} disabled={loading}>
                   {loading ? 'Authenticating...' : 'Sign In to Secure Portal'}
