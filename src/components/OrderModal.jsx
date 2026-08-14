@@ -73,7 +73,13 @@ export default function OrderModal({ isOpen, onClose, onOrderCreated, product })
     setErrorMessage(null);
 
     try {
-      const productId = product?.id || product?.slug || "urea-46";
+      const productId = product?.productId || product?.product_id || product?.id || product?._id || product?.slug;
+      const unitPrice = Number(product?.pricePerTon ?? product?.unitPrice ?? product?.price);
+
+      if (!productId || !Number.isFinite(unitPrice) || unitPrice <= 0) {
+        throw new Error("This product is missing a valid product ID or unit price. Please choose another product.");
+      }
+
       const storedUser = JSON.parse(localStorage.getItem("user") || "null");
       const buyerId =
         storedUser?.user_id ||
@@ -87,8 +93,9 @@ export default function OrderModal({ isOpen, onClose, onOrderCreated, product })
         buyer_id: buyerId,
         items: [
           {
-            product_id: productId,
+            product_id: String(productId),
             quantity: data.quantityMt,
+            unit_price: unitPrice,
           },
         ],
         delivery_details: {
