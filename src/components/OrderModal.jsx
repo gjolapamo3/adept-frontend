@@ -84,14 +84,17 @@ export default function OrderModal({ isOpen, onClose, onOrderCreated, product })
       );
 
       if (!productId || String(productId).trim().length === 0) {
+        console.error("Invalid order submission: missing product_id", { product });
         throw new Error("This product is missing a valid MongoDB product ID. Please choose another product.");
       }
 
       if (!Number.isFinite(quantity) || quantity <= 0) {
+        console.error("Invalid order submission: invalid quantity", { quantity: data.quantityMt });
         throw new Error("Quantity must be greater than 0.");
       }
 
       if (!Number.isFinite(unitPrice) || unitPrice <= 0) {
+        console.error("Invalid order submission: invalid unit_price", { product, unitPrice });
         throw new Error("This product is missing a valid unit price. Please choose another product.");
       }
 
