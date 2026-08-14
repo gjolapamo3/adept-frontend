@@ -3,6 +3,7 @@ import ReactDOM from "react-dom";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
+import "./OrderModal.css";
 
 const API_BASE_URL =
   import.meta.env.VITE_API_BASE_URL ||
@@ -121,35 +122,35 @@ export default function OrderModal({ isOpen, onClose, onOrderCreated, product })
   };
 
   const modalContent = (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-4 backdrop-blur-sm">
-      <div className="max-h-[90vh] w-full max-w-lg overflow-y-auto rounded-2xl bg-white p-6 text-gray-900 shadow-xl">
+    <div className="order-modal-overlay fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-4 backdrop-blur-sm">
+      <div className="order-modal-card max-h-[90vh] w-full max-w-lg overflow-y-auto rounded-2xl bg-white p-6 text-gray-900 shadow-xl">
         {isSuccess ? (
-          <div className="py-6 text-center">
-            <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-full bg-green-100 text-3xl text-green-700">✓</div>
-            <h3 className="mt-4 text-xl font-bold">Request Submitted!</h3>
-            <p className="mt-2 text-sm text-gray-600">
+          <div className="order-modal-success py-6 text-center">
+            <div className="order-modal-success-icon mx-auto flex h-14 w-14 items-center justify-center rounded-full bg-green-100 text-3xl text-green-700">✓</div>
+            <h3 className="order-modal-success-title mt-4 text-xl font-bold">Request Submitted!</h3>
+            <p className="order-modal-success-message mt-2 text-sm text-gray-600">
               Your request for {submittedQuantity} metric tons of {product?.name || product?.title || "this product"} has been submitted.
             </p>
             <button
               type="button"
               onClick={handleClose}
-              className="mt-6 rounded-lg bg-gray-900 px-5 py-2.5 text-sm font-semibold text-white hover:bg-gray-800"
+              className="order-modal-primary-action mt-6 rounded-lg bg-gray-900 px-5 py-2.5 text-sm font-semibold text-white hover:bg-gray-800"
             >
               Close
             </button>
           </div>
         ) : (
           <>
-            <div className="flex items-center justify-between border-b border-gray-200 pb-4">
+            <div className="order-modal-header flex items-center justify-between border-b border-gray-200 pb-4">
               <div>
-                <h3 className="text-lg font-bold">Request Quote / Order</h3>
-                <p className="text-xs font-medium text-green-700">{product?.name || product?.title || "Urea 46% Granular"}</p>
+                <h3 className="order-modal-title text-lg font-bold">Request Quote / Order</h3>
+                <p className="order-modal-product text-xs font-medium text-green-700">{product?.name || product?.title || "Urea 46% Granular"}</p>
               </div>
               <button
                 type="button"
                 onClick={handleClose}
                 aria-label="Close order modal"
-                className="rounded-lg p-2 text-gray-500 transition-colors hover:bg-gray-100 hover:text-gray-900"
+                className="order-modal-icon-button rounded-lg p-2 text-gray-500 transition-colors hover:bg-gray-100 hover:text-gray-900"
               >
                 ✕
               </button>
@@ -158,7 +159,7 @@ export default function OrderModal({ isOpen, onClose, onOrderCreated, product })
             <form
               id="order-form"
               onSubmit={handleSubmit(onSubmit, handleInvalidSubmit)}
-              className="mt-4 space-y-3 text-left"
+              className="order-modal-form mt-4 space-y-3 text-left"
             >
           <div>
             <label className="block text-xs font-semibold text-gray-700">Quantity (Metric Tons)</label>
@@ -168,7 +169,7 @@ export default function OrderModal({ isOpen, onClose, onOrderCreated, product })
               min="0.01"
               step="any"
               placeholder="e.g. 50"
-              className="mt-1 w-full rounded-lg border border-gray-300 bg-white p-3 text-gray-900 focus:border-green-600 focus:outline-none"
+              className="order-modal-input mt-1 w-full rounded-lg border border-gray-300 bg-white p-3 text-gray-900 focus:border-green-600 focus:outline-none"
             />
           </div>
 
@@ -178,7 +179,7 @@ export default function OrderModal({ isOpen, onClose, onOrderCreated, product })
               {...register("contactName")}
               type="text"
               placeholder="Your name"
-              className="mt-1 w-full rounded-lg border border-gray-300 bg-white p-3 text-gray-900 focus:border-green-600 focus:outline-none"
+              className="order-modal-input mt-1 w-full rounded-lg border border-gray-300 bg-white p-3 text-gray-900 focus:border-green-600 focus:outline-none"
             />
           </div>
 
@@ -188,7 +189,7 @@ export default function OrderModal({ isOpen, onClose, onOrderCreated, product })
               {...register("phone")}
               type="tel"
               placeholder="+234..."
-              className="mt-1 w-full rounded-lg border border-gray-300 bg-white p-3 text-gray-900 focus:border-green-600 focus:outline-none"
+              className="order-modal-input mt-1 w-full rounded-lg border border-gray-300 bg-white p-3 text-gray-900 focus:border-green-600 focus:outline-none"
             />
           </div>
 
@@ -198,23 +199,23 @@ export default function OrderModal({ isOpen, onClose, onOrderCreated, product })
               {...register("shippingAddress")}
               rows={2}
               placeholder="Delivery address"
-              className="mt-1 w-full rounded-lg border border-gray-300 bg-white p-3 text-gray-900 focus:border-green-600 focus:outline-none"
+              className="order-modal-input mt-1 w-full rounded-lg border border-gray-300 bg-white p-3 text-gray-900 focus:border-green-600 focus:outline-none"
             />
           </div>
 
             </form>
 
             {errorMessage && (
-              <div className="mt-3 rounded-lg border border-red-200 bg-red-50 p-3 text-xs font-medium text-red-700">
+              <div className="order-modal-error mt-3 rounded-lg border border-red-200 bg-red-50 p-3 text-xs font-medium text-red-700">
                 {errorMessage}
               </div>
             )}
 
-            <div className="mt-5 flex items-center justify-end gap-x-3 border-t border-gray-200 pt-4">
+            <div className="order-modal-actions mt-5 flex items-center justify-end gap-x-3 border-t border-gray-200 pt-4">
               <button
                 type="button"
                 onClick={handleClose}
-                className="rounded-lg px-4 py-2.5 text-sm font-semibold text-gray-700 hover:bg-gray-100"
+                className="order-modal-secondary-action rounded-lg px-4 py-2.5 text-sm font-semibold text-gray-700 hover:bg-gray-100"
               >
                 Close
               </button>
@@ -222,7 +223,7 @@ export default function OrderModal({ isOpen, onClose, onOrderCreated, product })
                 type="submit"
                 form="order-form"
                 disabled={isSubmitting}
-                className="rounded-lg bg-green-700 px-5 py-2.5 text-sm font-semibold text-white shadow-md hover:bg-green-800 disabled:cursor-not-allowed disabled:opacity-50"
+                className="order-modal-submit rounded-lg bg-green-700 px-5 py-2.5 text-sm font-semibold text-white shadow-md hover:bg-green-800 disabled:cursor-not-allowed disabled:opacity-50"
               >
                 {isSubmitting ? "Submitting..." : "Submit Request"}
               </button>
