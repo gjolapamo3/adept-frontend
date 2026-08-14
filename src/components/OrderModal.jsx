@@ -8,12 +8,16 @@ import "./OrderModal.css";
 const API_BASE_URL =
   import.meta.env.VITE_API_BASE_URL ||
   "https://adept-backend-fojr.onrender.com";
+const ORDER_API_BASE_URL = API_BASE_URL.endsWith("/api")
+  ? API_BASE_URL
+  : `${API_BASE_URL}/api`;
 
 export const orderRequestFormSchema = z.object({
   quantityMt: z.coerce
     .number({ invalid_type_error: "Quantity must be a valid number" })
     .positive("Quantity must be greater than 0"),
   contactName: z.string().min(2, "Contact name is required"),
+  email: z.string().email("Enter a valid email address"),
   phone: z.string().min(7, "Phone number is required"),
   shippingAddress: z.string().min(5, "Shipping address is required"),
 });
@@ -33,6 +37,7 @@ export default function OrderModal({ isOpen, onClose, onOrderCreated, product })
     defaultValues: {
       quantityMt: "",
       contactName: "",
+      email: "",
       phone: "",
       shippingAddress: "",
     },
@@ -89,10 +94,11 @@ export default function OrderModal({ isOpen, onClose, onOrderCreated, product })
         delivery_details: {
           shipping_address: data.shippingAddress,
           contact_phone: data.phone,
+          contact_email: data.email,
         },
       };
 
-      const response = await fetch(`${API_BASE_URL}/orders`, {
+      const response = await fetch(`${ORDER_API_BASE_URL}/orders`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -102,7 +108,8 @@ export default function OrderModal({ isOpen, onClose, onOrderCreated, product })
       });
 
       if (!response.ok) {
-        throw new Error(`Server status: ${response.status}`);
+        const errorData = await response.json().catch(() => ({}));
+        throw new Error(errorData.error || errorData.message || `Server status: ${response.status}`);
       }
 
       const responseData = await response.json().catch(() => ({}));
@@ -179,6 +186,17 @@ export default function OrderModal({ isOpen, onClose, onOrderCreated, product })
               {...register("contactName")}
               type="text"
               placeholder="Your name"
+              className="order-modal-input mt-1 w-full rounded-lg border border-gray-300 bg-white p-3 text-gray-900 focus:border-green-600 focus:outline-none"
+            />
+          </div>
+
+          <div>
+            <label className="block text-xs font-semibold text-gray-700">Email Address</label>
+            <input
+              {...register("email")}
+              type="email"
+              autoComplete="email"
+              placeholder="you@company.com"
               className="order-modal-input mt-1 w-full rounded-lg border border-gray-300 bg-white p-3 text-gray-900 focus:border-green-600 focus:outline-none"
             />
           </div>

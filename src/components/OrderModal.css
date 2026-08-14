@@ -18,9 +18,9 @@
   box-sizing: border-box;
   padding: 1.5rem;
   border-radius: 1rem;
-  background: #fff;
-  color: #111827;
-  box-shadow: 0 20px 25px -5px rgb(0 0 0 / 10%), 0 8px 10px -6px rgb(0 0 0 / 10%);
+  background: #0f2747;
+  color: #f8fafc;
+  box-shadow: 0 20px 25px -5px rgb(0 0 0 / 35%), 0 8px 10px -6px rgb(0 0 0 / 25%);
   text-align: left;
 }
 
@@ -33,20 +33,20 @@
 
 .order-modal-header {
   padding-bottom: 1rem;
-  border-bottom: 1px solid #e5e7eb;
+  border-bottom: 1px solid #31527c;
 }
 
 .order-modal-title,
 .order-modal-success-title {
   margin: 0;
-  color: #111827;
+  color: #fff;
   font-size: 1.125rem;
   font-weight: 700;
 }
 
 .order-modal-product {
   margin: 0.25rem 0 0;
-  color: #15803d;
+  color: #86efac;
   font-size: 0.75rem;
   font-weight: 600;
 }
@@ -64,13 +64,13 @@
 .order-modal-icon-button {
   padding: 0.5rem;
   background: transparent;
-  color: #6b7280;
+  color: #cbd5e1;
 }
 
 .order-modal-icon-button:hover,
 .order-modal-secondary-action:hover {
-  background: #f3f4f6;
-  color: #111827;
+  background: #1e3a5f;
+  color: #fff;
 }
 
 .order-modal-form {
@@ -82,7 +82,7 @@
 .order-modal-form label {
   display: block;
   margin-bottom: 0.25rem;
-  color: #374151;
+  color: #e2e8f0;
   font-size: 0.75rem;
   font-weight: 600;
 }
@@ -119,7 +119,7 @@
   gap: 0.75rem;
   margin-top: 1.25rem;
   padding-top: 1rem;
-  border-top: 1px solid #e5e7eb;
+  border-top: 1px solid #31527c;
 }
 
 .order-modal-secondary-action,
@@ -132,7 +132,7 @@
 
 .order-modal-secondary-action {
   background: transparent;
-  color: #374151;
+  color: #e2e8f0;
 }
 
 .order-modal-primary-action,
