@@ -5,6 +5,7 @@ import EscrowOrderTracker from './components/escrow/EscrowOrderTracker';
 import SSOGateway from './components/SSOGateway';
 import PricingDashboard from './components/PricingDashboard';
 import ShipmentTracking from './components/ShipmentTracking';
+import { getStoredAuthToken } from './utils/auth';
 import { resolveOrderReference } from './utils/orderReference';
 
 export default function App() {
@@ -19,7 +20,7 @@ export default function App() {
       return;
     }
 
-    const storedToken = localStorage.getItem('adept_auth_token');
+    const storedToken = getStoredAuthToken();
     const storedUser = localStorage.getItem('user');
 
     if (storedToken) {

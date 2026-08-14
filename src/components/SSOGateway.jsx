@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
+import { getStoredAuthToken, isUsableAuthToken } from '../utils/auth';
 import { loginUserSchema } from '../shared/schemas';
 import RegisterForm from './RegisterForm';
 import './SSOGateway.css';
@@ -207,7 +208,7 @@ export default function SSOGateway({ onSuccess }) {
     },
   });
 
-  const persistSession = (role = 'buyer', provider = 'Enterprise', formEmail = '', token = 'mock_secure_enterprise_token_2026') => {
+  const persistSession = (role = 'buyer', provider = 'Enterprise', formEmail = '', token = '') => {
     if (typeof window === 'undefined') {
       return;
     }
@@ -220,10 +221,17 @@ export default function SSOGateway({ onSuccess }) {
       role,
     };
 
-    localStorage.setItem('adept_auth_token', token);
+    const realToken = isUsableAuthToken(token) ? token : getStoredAuthToken();
+    if (realToken) {
+      localStorage.setItem('adept_auth_token', realToken);
+      localStorage.setItem('token', realToken);
+    } else {
+      localStorage.removeItem('adept_auth_token');
+      localStorage.removeItem('token');
+    }
+
     localStorage.setItem('adept_user_role', role);
     localStorage.setItem('user', JSON.stringify(profile));
-    localStorage.setItem('token', token);
     onSuccess?.(profile);
   };
 
@@ -266,12 +274,34 @@ export default function SSOGateway({ onSuccess }) {
     }
   };
 
-  const handleRegister = async (_payload) => {
+  const handleRegister = async (payload) => {
+    setAuthError('');
     setLoading(true);
-    await new Promise((resolve) => {
-      window.setTimeout(resolve, 800);
-    });
-    setLoading(false);
+
+    try {
+      const response = await fetch(`${AUTH_API_BASE_URL}/auth/register`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload),
+      });
+
+      const data = await response.json().catch(() => ({}));
+
+      if (!response.ok) {
+        throw new Error(data.error || data.message || 'Unable to create account.');
+      }
+
+      const token = data.token || data.accessToken || data.data?.token;
+      if (token) {
+        const role = data.user?.role || data.data?.user?.role || 'buyer';
+        persistSession(role, 'Direct Registration', data.user?.email || payload.email, token);
+      }
+    } catch (err) {
+      setAuthError(err.message || 'Unable to create account. Please try again.');
+      throw err;
+    } finally {
+      setLoading(false);
+    }
   };
 
   const handleRegisterSuccess = () => {
@@ -377,9 +407,13 @@ export default function SSOGateway({ onSuccess }) {
                 onClick={() => switchAuthMode('register')}
                 disabled={loading}
               >
-                Register
+                Sign Up
               </button>
             </div>
+
+            {authError ? (
+              <p style={{ color: '#fca5a5', fontSize: '11px', margin: '0 0 8px' }}>{authError}</p>
+            ) : null}
 
             {authMode === 'signin' ? (
               <form onSubmit={handleSubmit(handleDirectLogin)} style={styles.form} noValidate>
@@ -405,17 +439,13 @@ export default function SSOGateway({ onSuccess }) {
                   {errors.password ? <p style={{ color: '#fca5a5', fontSize: '11px', margin: 0 }}>{errors.password.message}</p> : null}
                 </div>
 
-                {authError ? (
-                  <p style={{ color: '#fca5a5', fontSize: '11px', margin: 0 }}>{authError}</p>
-                ) : null}
-
                 <button type="submit" style={styles.submitButton} disabled={loading}>
                   {loading ? 'Authenticating...' : 'Sign In to Secure Portal'}
                 </button>
               </form>
             ) : (
               <div>
-                <p style={{ ...styles.label, marginBottom: '8px' }}>Create secure portal access:</p>
+                <p style={{ ...styles.label, marginBottom: '8px' }}>Create your secure portal account:</p>
                 <RegisterForm
                   onRegister={handleRegister}
                   onSuccess={handleRegisterSuccess}

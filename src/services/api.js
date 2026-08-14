@@ -1,5 +1,6 @@
 // src/services/api.js
 import axios from 'axios';
+import { getStoredAuthToken } from '../utils/auth';
 import {
   b2bOrderSchema,
   loginUserSchema,
@@ -20,7 +21,7 @@ const api = axios.create({
 });
 
 const getAuthHeaders = () => {
-  const token = typeof localStorage !== 'undefined' ? localStorage.getItem('token') : null;
+  const token = typeof localStorage !== 'undefined' ? getStoredAuthToken() : '';
 
   return {
     ...(token ? { Authorization: `Bearer ${token}` } : {}),

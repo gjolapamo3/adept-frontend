@@ -13,9 +13,12 @@ export const RegisterForm = ({ onRegister, onSuccess }) => {
   });
 
   const onSubmit = async (data) => {
-    // Submit clean payload to API.
-    await onRegister?.(data);
-    onSuccess?.(data);
+    try {
+      await onRegister?.(data);
+      onSuccess?.(data);
+    } catch {
+      // Error message is surfaced by the parent via authError; stay on this form.
+    }
   };
 
   return (
@@ -70,7 +73,7 @@ export const RegisterForm = ({ onRegister, onSuccess }) => {
         disabled={isSubmitting}
         className="w-full rounded-md bg-slate-900 px-4 py-2 text-sm font-semibold text-white transition hover:bg-slate-800 disabled:cursor-not-allowed disabled:opacity-60"
       >
-        {isSubmitting ? 'Submitting...' : 'Submit'}
+        {isSubmitting ? 'Creating account...' : 'Create Account'}
       </button>
     </form>
   );

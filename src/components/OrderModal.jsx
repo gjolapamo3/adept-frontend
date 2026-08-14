@@ -3,6 +3,7 @@ import ReactDOM from "react-dom";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
+import { getStoredAuthToken } from "../utils/auth";
 import "./OrderModal.css";
 
 const API_BASE_URL =
@@ -81,8 +82,7 @@ export default function OrderModal({ isOpen, onClose, onOrderCreated, product })
         localStorage.getItem("user_id") ||
         localStorage.getItem("buyer_id") ||
         "";
-      const token =
-        localStorage.getItem("adept_auth_token") || localStorage.getItem("token");
+      const token = getStoredAuthToken();
       const payload = {
         buyer_id: buyerId,
         items: [
