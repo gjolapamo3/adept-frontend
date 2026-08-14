@@ -73,11 +73,10 @@ export default function OrderModal({ isOpen, onClose, onOrderCreated, product })
     setErrorMessage(null);
 
     try {
-      const productId = product?.productId || product?.product_id || product?.id || product?._id || product?.slug;
-      const unitPrice = Number(product?.pricePerTon ?? product?.unitPrice ?? product?.price);
+      const productId = product?._id || product?.productId || product?.product_id || product?.id || product?.slug;
 
-      if (!productId || !Number.isFinite(unitPrice) || unitPrice <= 0) {
-        throw new Error("This product is missing a valid product ID or unit price. Please choose another product.");
+      if (!productId) {
+        throw new Error("This product is missing a valid MongoDB product ID. Please choose another product.");
       }
 
       const storedUser = JSON.parse(localStorage.getItem("user") || "null");
@@ -89,15 +88,25 @@ export default function OrderModal({ isOpen, onClose, onOrderCreated, product })
         localStorage.getItem("buyer_id") ||
         "";
       const token = getStoredAuthToken();
+      const quantity = Number(data.quantityMt);
+      const unitPrice = Number(
+        product?.unit_price ??
+        product?.unitPrice ??
+        product?.pricePerTon ??
+        product?.price ??
+        0
+      );
+
+      if (!Number.isFinite(unitPrice) || unitPrice <= 0) {
+        throw new Error("This product is missing a valid unit price. Please choose another product.");
+      }
+
       const payload = {
         buyer_id: buyerId,
-        productId: String(productId),
-        quantity: data.quantityMt,
-        unitPrice,
         items: [
           {
             product_id: String(productId),
-            quantity: data.quantityMt,
+            quantity,
             unit_price: unitPrice,
           },
         ],

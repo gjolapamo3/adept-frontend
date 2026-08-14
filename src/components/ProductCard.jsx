@@ -40,9 +40,10 @@ export default function ProductCard({ product, onOrderCreated, onOrderSuccess })
     pricePerTon,
     price,
     unitPrice,
+    unit_price,
   } = product || {};
 
-  const displayPrice = pricePerTon ?? price ?? unitPrice ?? 0;
+  const displayPrice = pricePerTon ?? price ?? unitPrice ?? unit_price ?? 0;
 
   const handleOpenModal = () => {
     setModalRenderError('');
