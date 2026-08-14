@@ -91,6 +91,9 @@ export default function OrderModal({ isOpen, onClose, onOrderCreated, product })
       const token = getStoredAuthToken();
       const payload = {
         buyer_id: buyerId,
+        productId: String(productId),
+        quantity: data.quantityMt,
+        unitPrice,
         items: [
           {
             product_id: String(productId),
