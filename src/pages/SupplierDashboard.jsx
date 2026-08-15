@@ -293,7 +293,7 @@ export default function SupplierDashboard() {
                           onClick={() => handleUpdateListing(listingId)}
                           className="sm:col-span-2 btn-secondary"
                         >
-                          Save Stock Update
+                          Update Listing
                         </button>
                       </div>
                     </div>

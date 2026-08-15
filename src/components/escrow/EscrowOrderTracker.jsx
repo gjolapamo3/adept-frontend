@@ -136,24 +136,7 @@ export default function EscrowOrderTracker({
   );
 
   const tableRows = useMemo(() => {
-    if (transactionRows.length > 0) {
-      return transactionRows;
-    }
-
-    if (!activeReference) {
-      return [];
-    }
-
-    return [
-      {
-        reference: activeReference,
-        amount: 185000,
-        status: 'PAYMENT_PENDING',
-        displayStatus: 'PAYMENT_PENDING',
-        customerEmail: 'gbolahan@adeptprocessing.com',
-        updatedAt: new Date().toISOString(),
-      },
-    ];
+    return transactionRows;
   }, [transactionRows, activeReference]);
 
   const rows = tableRows;
@@ -216,14 +199,14 @@ export default function EscrowOrderTracker({
             type="text"
             {...register('reference')}
             placeholder={placeholder}
-            className="flex-1 border rounded-md px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-slate-800"
+            className="flex-1 border rounded-lg px-3 py-3 text-sm outline-none focus:ring-2 focus:ring-emerald-600"
           />
           <button
             type="submit"
             disabled={isSubmitting}
-            className="bg-slate-900 text-white px-4 py-2 rounded-md text-sm font-semibold hover:bg-slate-800 transition disabled:cursor-not-allowed disabled:opacity-70"
+            className="bg-[#128C7E] text-white px-4 py-3 rounded-lg text-sm font-bold hover:bg-[#075E54] transition disabled:cursor-not-allowed disabled:opacity-70"
           >
-            {isSubmitting ? 'Tracking...' : 'Track'}
+            {isSubmitting ? 'Tracking...' : 'Track Order'}
           </button>
         </form>
         {errors.reference ? <p className="mt-2 text-left text-xs text-red-600">{errors.reference.message}</p> : null}
@@ -264,7 +247,11 @@ export default function EscrowOrderTracker({
               ) : (
                 <tr>
                   <td colSpan="5" className="text-slate-500">
-                    No transaction rows yet. Track a payment reference to populate this table.
+                    {pollerLoading && activeReference
+                      ? 'Checking the payment reference...'
+                      : activeReference
+                        ? 'No transaction updates yet. We will keep checking for confirmation.'
+                        : 'Track a payment reference to view its latest status.'}
                   </td>
                 </tr>
               )}
@@ -273,9 +260,9 @@ export default function EscrowOrderTracker({
         </div>
 
         {/* Hide warning banner whenever rows exist or order is funded */}
-        {!isOrderFunded && rows.length === 0 && (
+        {!pollError && !isOrderFunded && rows.length === 0 && activeReference && (
           <div className="warning-banner">
-            🟠 Waiting for Monnify confirmation. Confirm the webhook/backend is active if this lingers.
+            Waiting for payment confirmation. This reference will update when the payment provider reports a new status.
           </div>
         )}
 

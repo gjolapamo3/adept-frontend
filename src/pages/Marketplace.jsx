@@ -93,6 +93,13 @@ export default function Marketplace({ onOrderCreated, onOrderSuccess }) {
             <p>
               Browse verified products, compare ton pricing, and place escrow-backed order requests with confidence.
             </p>
+            <div className="marketplace-trust-banner" role="status" aria-live="polite">
+              <span className="marketplace-trust-banner__icon" aria-hidden="true">✓</span>
+              <div>
+                <strong>Escrow protected</strong>
+                <span>Funds remain safe until delivery is confirmed.</span>
+              </div>
+            </div>
           </div>
           <div className="marketplace-status-card">
             <p>Secure B2B procurement</p>

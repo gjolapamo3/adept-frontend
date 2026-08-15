@@ -65,6 +65,13 @@ export default function ProductCard({ product, onOrderCreated, onOrderSuccess })
     }
   };
 
+  const handleShareViaWhatsApp = () => {
+    const productName = name || 'Product';
+    const shareText = `Hi, I want to check the price for ${productName}. Price: ${currency} ${Number(displayPrice).toLocaleString()} per ton.`;
+    const encodedText = encodeURIComponent(shareText);
+    window.open(`https://wa.me/?text=${encodedText}`, '_blank', 'noopener,noreferrer');
+  };
+
   const modalFallback = (error) => (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 p-4">
       <div className="w-full max-w-md rounded-lg border border-red-200 bg-white p-5 shadow-xl">
@@ -117,12 +124,22 @@ export default function ProductCard({ product, onOrderCreated, onOrderSuccess })
               {currency} {Number(displayPrice).toLocaleString()}
             </p>
           </div>
-          <button
-            onClick={handleOpenModal}
-            className="btn-order"
-          >
-            Order / Quote
-          </button>
+          <div className="product-card__actions">
+            <button
+              type="button"
+              onClick={handleShareViaWhatsApp}
+              className="btn-share"
+            >
+              Share
+            </button>
+            <button
+              type="button"
+              onClick={handleOpenModal}
+              className="btn-order"
+            >
+              Request Order
+            </button>
+          </div>
         </div>
       </div>
 

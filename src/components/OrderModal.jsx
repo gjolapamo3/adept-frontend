@@ -162,23 +162,37 @@ export default function OrderModal({ isOpen, onClose, onOrderCreated, product })
         {isSuccess ? (
           <div className="order-modal-success py-6 text-center">
             <div className="order-modal-success-icon mx-auto flex h-14 w-14 items-center justify-center rounded-full bg-green-100 text-3xl text-green-700">✓</div>
-            <h3 className="order-modal-success-title mt-4 text-xl font-bold">Request Submitted!</h3>
+            <h3 className="order-modal-success-title mt-4 text-xl font-bold">Order Confirmed!</h3>
             <p className="order-modal-success-message mt-2 text-sm text-gray-600">
               Your request for {submittedQuantity} metric tons of {product?.name || product?.title || "this product"} has been submitted.
             </p>
-            <button
-              type="button"
-              onClick={handleClose}
-              className="order-modal-primary-action mt-6 rounded-lg bg-gray-900 px-5 py-2.5 text-sm font-semibold text-white hover:bg-gray-800"
-            >
-              Close
-            </button>
+            <div className="order-modal-success-actions">
+              <button
+                type="button"
+                onClick={() => {
+                  const shareText = encodeURIComponent(
+                    `I just placed an order for ${submittedQuantity} metric tons of ${product?.name || product?.title || 'this product'}. Please confirm the quote and next steps.`
+                  );
+                  window.open(`https://wa.me/?text=${shareText}`, '_blank', 'noopener,noreferrer');
+                }}
+                className="order-modal-secondary-action"
+              >
+                Share on WhatsApp
+              </button>
+              <button
+                type="button"
+                onClick={handleClose}
+                className="order-modal-primary-action"
+              >
+                Close
+              </button>
+            </div>
           </div>
         ) : (
           <>
             <div className="order-modal-header flex items-center justify-between border-b border-gray-200 pb-4">
               <div>
-                <h3 className="order-modal-title text-lg font-bold">Request Quote / Order</h3>
+                <h3 className="order-modal-title text-lg font-bold">Confirm Your Order</h3>
                 <p className="order-modal-product text-xs font-medium text-green-700">{product?.name || product?.title || "Urea 46% Granular"}</p>
               </div>
               <button
@@ -263,7 +277,7 @@ export default function OrderModal({ isOpen, onClose, onOrderCreated, product })
                 onClick={handleClose}
                 className="order-modal-secondary-action rounded-lg px-4 py-2.5 text-sm font-semibold text-gray-700 hover:bg-gray-100"
               >
-                Close
+                Cancel
               </button>
               <button
                 type="submit"
@@ -271,7 +285,7 @@ export default function OrderModal({ isOpen, onClose, onOrderCreated, product })
                 disabled={isSubmitting}
                 className="order-modal-submit rounded-lg bg-green-700 px-5 py-2.5 text-sm font-semibold text-white shadow-md hover:bg-green-800 disabled:cursor-not-allowed disabled:opacity-50"
               >
-                {isSubmitting ? "Submitting..." : "Submit Request"}
+                {isSubmitting ? "Confirming..." : "Confirm Order"}
               </button>
             </div>
           </>

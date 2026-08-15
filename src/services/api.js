@@ -149,4 +149,15 @@ export const placeOrder = async (orderData) => {
   }
 };
 
+export const fetchOrderById = async (orderId) => {
+  const safeOrderId = String(orderId || '').trim();
+  if (!safeOrderId) {
+    throw new Error('An order reference is required.');
+  }
+
+  return request(`/api/orders/${encodeURIComponent(safeOrderId)}`, {
+    method: 'GET',
+  });
+};
+
 export default api;

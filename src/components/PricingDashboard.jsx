@@ -104,20 +104,50 @@ export default function PricingDashboard({ onOpenShipmentTracking }) {
     onOpenShipmentTracking?.(payload);
   };
 
+  const handleShareQuote = () => {
+    const text = encodeURIComponent(
+      `Hi, I want to request ${quantity} metric tons of ${selectedProductMeta.label}. Estimated total: $${orderSummary.total.toLocaleString()}. Please confirm availability and next steps.`
+    );
+
+    window.open(`https://wa.me/?text=${text}`, '_blank', 'noopener,noreferrer');
+  };
+
+  const marketStats = [
+    { label: 'Verified suppliers', value: '03', detail: 'Active allocation' },
+    { label: 'Avg. freight', value: '$86', detail: 'Across lanes' },
+    { label: 'Escrow protection', value: '1.5%', detail: 'Policy cover' },
+    { label: 'Lead time', value: '14d', detail: 'Avg. fulfillment' },
+  ];
+
   return (
     <section className="pricing-dashboard">
       <div className="pricing-dashboard__hero">
-        <div>
+        <div className="pricing-dashboard__hero-copy">
           <p className="pricing-dashboard__eyebrow">Enterprise Pricing Desk</p>
           <h1>Live procurement pricing for strategic fertilizer and chemical supply</h1>
           <p>
             Review verified producer offers, calculate landed order costs, and route directly into shipment tracking.
           </p>
         </div>
-        <div className="pricing-dashboard__hero-badge">
-          <span className="pricing-dashboard__dot" />
-          Live market access
+        <div className="pricing-dashboard__hero-actions">
+          <div className="pricing-dashboard__hero-badge">
+            <span className="pricing-dashboard__dot" />
+            Live market access
+          </div>
+          <button type="button" className="pricing-dashboard__spotlight-button">
+            Get Quote
+          </button>
         </div>
+      </div>
+
+      <div className="pricing-dashboard__stats">
+        {marketStats.map((stat) => (
+          <div key={stat.label} className="pricing-dashboard__stat-card">
+            <span>{stat.label}</span>
+            <strong>{stat.value}</strong>
+            <small>{stat.detail}</small>
+          </div>
+        ))}
       </div>
 
       <div className="pricing-dashboard__ticker-grid">
@@ -242,9 +272,14 @@ export default function PricingDashboard({ onOpenShipmentTracking }) {
             </div>
           </div>
 
-          <button type="button" className="pricing-dashboard__track-button" onClick={handleTrack}>
-            Open shipment tracking
-          </button>
+          <div className="pricing-dashboard__action-stack">
+            <button type="button" className="pricing-dashboard__secondary-button" onClick={handleShareQuote}>
+              Share on WhatsApp
+            </button>
+            <button type="button" className="pricing-dashboard__track-button" onClick={handleTrack}>
+              Track My Order
+            </button>
+          </div>
         </div>
       </div>
     </section>
