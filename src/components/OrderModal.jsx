@@ -28,6 +28,7 @@ export default function OrderModal({ isOpen, onClose, onOrderCreated, product })
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isSuccess, setIsSuccess] = useState(false);
   const [submittedQuantity, setSubmittedQuantity] = useState(null);
+  const [orderDetails, setOrderDetails] = useState(null);
 
   const {
     register,
@@ -59,6 +60,7 @@ export default function OrderModal({ isOpen, onClose, onOrderCreated, product })
     setIsSubmitting(false);
     setIsSuccess(false);
     setSubmittedQuantity(null);
+    setOrderDetails(null);
   };
 
   const handleClose = () => {
@@ -141,6 +143,7 @@ export default function OrderModal({ isOpen, onClose, onOrderCreated, product })
       }
 
       const responseData = await response.json().catch(() => ({}));
+      setOrderDetails(responseData);
       setSubmittedQuantity(data.quantityMt);
       setIsSuccess(true);
       onOrderCreated?.(responseData);
@@ -156,6 +159,14 @@ export default function OrderModal({ isOpen, onClose, onOrderCreated, product })
     setErrorMessage(firstErr || "Please fix input errors.");
   };
 
+  const handleShareOnWhatsApp = () => {
+    const orderReference = orderDetails?.order_id || orderDetails?.orderId || orderDetails?.id;
+    const shareText = encodeURIComponent(
+      `I just placed an order${orderReference ? ` (${orderReference})` : ""} for ${orderDetails?.quantity || orderDetails?.quantityMt || submittedQuantity} metric tons of ${orderDetails?.product_name || orderDetails?.productName || product?.name || product?.title || "this product"}. Please confirm the quote and next steps.`
+    );
+    window.open(`https://wa.me/?text=${shareText}`, "_blank", "noopener,noreferrer");
+  };
+
   const modalContent = (
     <div className="order-modal-overlay fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-4 backdrop-blur-sm">
       <div className="order-modal-card max-h-[90vh] w-full max-w-lg overflow-y-auto rounded-2xl bg-white p-6 text-gray-900 shadow-xl">
@@ -169,12 +180,7 @@ export default function OrderModal({ isOpen, onClose, onOrderCreated, product })
             <div className="order-modal-success-actions">
               <button
                 type="button"
-                onClick={() => {
-                  const shareText = encodeURIComponent(
-                    `I just placed an order for ${submittedQuantity} metric tons of ${product?.name || product?.title || 'this product'}. Please confirm the quote and next steps.`
-                  );
-                  window.open(`https://wa.me/?text=${shareText}`, '_blank', 'noopener,noreferrer');
-                }}
+                onClick={handleShareOnWhatsApp}
                 className="order-modal-secondary-action"
               >
                 Share on WhatsApp
