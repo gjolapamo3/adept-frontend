@@ -46,7 +46,7 @@ function ShipmentTrackingView({ shipment, activeReference = '' }) {
   const [activeHub, setActiveHub] = useState('');
   const [retryKey, setRetryKey] = useState(0);
 
-  const orderReference = shipment?.orderId || shipment?.reference || activeReference;
+  const orderReference = shipment?.orderId || shipment?.order_reference || shipment?.reference || shipment?.order?.order_reference || activeReference;
 
   useEffect(() => {
     let isCurrent = true;
@@ -76,10 +76,10 @@ function ShipmentTrackingView({ shipment, activeReference = '' }) {
     () => ({
       ...(shipment || {}),
       ...(liveOrder || {}),
-      orderId: liveOrder?.orderId || liveOrder?.reference || shipment?.orderId || shipment?.reference || activeReference || 'Order reference unavailable',
+      orderId: liveOrder?.orderId || liveOrder?.order_reference || liveOrder?.reference || liveOrder?.order?.order_reference || shipment?.orderId || shipment?.order_reference || shipment?.reference || shipment?.order?.order_reference || activeReference || 'Order reference unavailable',
       item: liveOrder?.item || liveOrder?.productName || shipment?.item || 'Item unavailable',
-      quantity: liveOrder?.quantity || liveOrder?.quantityMt || shipment?.quantity || shipment?.quantityMt,
-      total: liveOrder?.total || liveOrder?.totalAmount || liveOrder?.amount || shipment?.total,
+      quantity: liveOrder?.quantity ?? liveOrder?.quantityMt ?? shipment?.quantity ?? shipment?.quantityMt,
+      total: liveOrder?.total ?? liveOrder?.total_amount ?? liveOrder?.totalAmount ?? liveOrder?.amount ?? shipment?.total ?? shipment?.total_amount ?? shipment?.amount,
       supplier: liveOrder?.supplier?.name || liveOrder?.supplier || shipment?.supplier || 'Supplier unavailable',
       status: liveOrder?.status || liveOrder?.orderStatus || shipment?.status || 'pending',
     }),

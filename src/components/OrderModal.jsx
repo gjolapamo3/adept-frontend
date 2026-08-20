@@ -143,10 +143,17 @@ export default function OrderModal({ isOpen, onClose, onOrderCreated, product })
       }
 
       const responseData = await response.json().catch(() => ({}));
-      setOrderDetails(responseData);
+      const orderRef = responseData?.order_reference || responseData?.reference || responseData?.order?.order_reference;
+      const totalAmt = responseData?.total_amount ?? responseData?.amount ?? responseData?.order?.total_amount ?? responseData?.total;
+      const mappedOrderDetails = {
+        ...responseData,
+        reference: orderRef,
+        total: totalAmt,
+      };
+      setOrderDetails(mappedOrderDetails);
       setSubmittedQuantity(data.quantityMt);
       setIsSuccess(true);
-      onOrderCreated?.(responseData);
+      onOrderCreated?.(mappedOrderDetails);
     } catch (err) {
       setErrorMessage(err.message || "Failed to submit request.");
     } finally {
@@ -160,7 +167,7 @@ export default function OrderModal({ isOpen, onClose, onOrderCreated, product })
   };
 
   const handleShareOnWhatsApp = () => {
-    const orderReference = orderDetails?.order_id || orderDetails?.orderId || orderDetails?.id;
+    const orderReference = orderDetails?.order_reference || orderDetails?.reference || orderDetails?.order?.order_reference;
     const shareText = encodeURIComponent(
       `I just placed an order${orderReference ? ` (${orderReference})` : ""} for ${orderDetails?.quantity || orderDetails?.quantityMt || submittedQuantity} metric tons of ${orderDetails?.product_name || orderDetails?.productName || product?.name || product?.title || "this product"}. Please confirm the quote and next steps.`
     );
