@@ -12,9 +12,11 @@ const statusStages = [
   { key: 'disputed', label: 'Disputed' },
 ];
 
-const normalizeStatus = (value) => String(value || 'pending').trim().toLowerCase().replace(/\s+/g, '-');
+const normalizeStatus = (value) => String(value || 'pending').trim().toLowerCase().replace(/[_\s]+/g, '-');
 
 const unwrapOrder = (payload) => payload?.data?.order || payload?.order || payload?.data || payload || null;
+
+const getFirstDefined = (...values) => values.find((value) => value !== undefined && value !== null && value !== '');
 
 const formatNaira = (value) => {
   const amount = Number(value);
@@ -46,7 +48,14 @@ function ShipmentTrackingView({ shipment, activeReference = '' }) {
   const [activeHub, setActiveHub] = useState('');
   const [retryKey, setRetryKey] = useState(0);
 
-  const orderReference = shipment?.orderId || shipment?.order_reference || shipment?.reference || shipment?.order?.order_reference || activeReference;
+  const orderReference = getFirstDefined(
+    shipment?.orderId,
+    shipment?.order_id,
+    shipment?.order_reference,
+    shipment?.reference,
+    shipment?.order?.order_reference,
+    activeReference
+  );
 
   useEffect(() => {
     let isCurrent = true;
@@ -73,21 +82,73 @@ function ShipmentTrackingView({ shipment, activeReference = '' }) {
   }, [orderReference, retryKey]);
 
   const safeShipment = useMemo(
-    () => ({
-      ...(shipment || {}),
-      ...(liveOrder || {}),
-      orderId: liveOrder?.orderId || liveOrder?.order_reference || liveOrder?.reference || liveOrder?.order?.order_reference || shipment?.orderId || shipment?.order_reference || shipment?.reference || shipment?.order?.order_reference || activeReference || 'Order reference unavailable',
-      item: liveOrder?.item || liveOrder?.productName || shipment?.item || 'Item unavailable',
-      quantity: liveOrder?.quantity ?? liveOrder?.quantityMt ?? shipment?.quantity ?? shipment?.quantityMt,
-      total: liveOrder?.total ?? liveOrder?.total_amount ?? liveOrder?.totalAmount ?? liveOrder?.amount ?? shipment?.total ?? shipment?.total_amount ?? shipment?.amount,
-      supplier: liveOrder?.supplier?.name || liveOrder?.supplier || shipment?.supplier || 'Supplier unavailable',
-      status: liveOrder?.status || liveOrder?.orderStatus || shipment?.status || 'pending',
-    }),
+    () => {
+      const live = liveOrder || {};
+      const source = shipment || {};
+
+      const displayItem = getFirstDefined(
+        live.item,
+        live.item_name,
+        live.product_name,
+        live.productName,
+        live.items?.[0]?.product_name,
+        live.items?.[0]?.name,
+        live.items?.[0]?.product?.name,
+        source.item,
+        source.item_name,
+        source.product_name,
+        source.productName,
+        source.items?.[0]?.product_name,
+        source.items?.[0]?.name,
+        source.items?.[0]?.product?.name,
+        'Item unavailable'
+      );
+
+      const displaySupplier = getFirstDefined(
+        live.supplier,
+        live.supplier_name,
+        live.supplier?.company_name,
+        live.supplier?.name,
+        live.items?.[0]?.supplier,
+        live.items?.[0]?.product?.supplier,
+        source.supplier,
+        source.supplier_name,
+        source.supplier?.company_name,
+        source.supplier?.name,
+        source.items?.[0]?.supplier,
+        source.items?.[0]?.product?.supplier,
+        'Supplier unavailable'
+      );
+
+      return {
+        ...(source),
+        ...(live),
+        orderId: getFirstDefined(
+          live.orderId,
+          live.order_id,
+          live.order_reference,
+          live.reference,
+          live.order?.order_reference,
+          source.orderId,
+          source.order_id,
+          source.order_reference,
+          source.reference,
+          source.order?.order_reference,
+          activeReference,
+          'Order reference unavailable'
+        ),
+        item: displayItem,
+        quantity: getFirstDefined(live.quantity, live.quantityMt, live.quantity_mt, source.quantity, source.quantityMt, source.quantity_mt),
+        total: getFirstDefined(live.total, live.total_amount, live.totalAmount, live.amount, source.total, source.total_amount, source.totalAmount, source.amount),
+        supplier: displaySupplier,
+        status: getFirstDefined(live.status, live.orderStatus, live.order_status, live.shipment_status, source.status, source.orderStatus, source.order_status, source.shipment_status, 'pending'),
+      };
+    },
     [liveOrder, shipment, activeReference]
   );
 
   const routeHubs = useMemo(() => {
-    const route = safeShipment.route || safeShipment.hubs || safeShipment.logistics?.hubs;
+    const route = getFirstDefined(safeShipment.route, safeShipment.hubs, safeShipment.route_hubs, safeShipment.logistics?.hubs, safeShipment.logistics?.route_hubs);
     return Array.isArray(route) ? route.filter(Boolean).map((hub, index) => ({
       id: hub.id || hub.name || `hub-${index}`,
       name: hub.name || hub.location || `Transit hub ${index + 1}`,
@@ -112,7 +173,7 @@ function ShipmentTrackingView({ shipment, activeReference = '' }) {
   );
 
   const orderTimeline = useMemo(() => {
-    const events = safeShipment.events || safeShipment.history || safeShipment.statusHistory;
+    const events = getFirstDefined(safeShipment.events, safeShipment.history, safeShipment.statusHistory, safeShipment.status_history, safeShipment.timeline);
     if (!Array.isArray(events)) {
       return [];
     }
