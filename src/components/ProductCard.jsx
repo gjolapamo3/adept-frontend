@@ -156,7 +156,7 @@ export default function ProductCard({ product, onOrderCreated, onOrderSuccess })
             product={product}
             onClose={() => setIsModalOpen(false)}
             onOrderCreated={onOrderCreated}
-            onSuccess={handleModalSuccess}
+            onOrderSuccess={handleModalSuccess}
           />
         </ModalErrorBoundary>
       )}

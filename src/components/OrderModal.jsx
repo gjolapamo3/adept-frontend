@@ -23,7 +23,7 @@ export const orderRequestFormSchema = z.object({
   shippingAddress: z.string().min(5, "Shipping address is required"),
 });
 
-export default function OrderModal({ isOpen, onClose, onOrderCreated, product }) {
+export default function OrderModal({ isOpen, onClose, onOrderCreated, onOrderSuccess, product }) {
   const [errorMessage, setErrorMessage] = useState(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isSuccess, setIsSuccess] = useState(false);
@@ -143,17 +143,29 @@ export default function OrderModal({ isOpen, onClose, onOrderCreated, product })
       }
 
       const responseData = await response.json().catch(() => ({}));
-      const orderRef = responseData?.order_reference || responseData?.reference || responseData?.order?.order_reference;
-      const totalAmt = responseData?.total_amount ?? responseData?.amount ?? responseData?.order?.total_amount ?? responseData?.total;
-      const mappedOrderDetails = {
-        ...responseData,
-        reference: orderRef,
-        total: totalAmt,
+      const dataObject = responseData && typeof responseData === "object" ? responseData : {};
+      const localTotal = quantity * unitPrice;
+      const productName = product?.name || product?.title || "Product";
+      const completedOrder = {
+        ...dataObject,
+        reference: dataObject.order_reference || dataObject.reference || dataObject.order?.order_reference,
+        total: dataObject.total_amount ?? dataObject.amount ?? dataObject.order?.total_amount ?? localTotal,
+        item: dataObject.item || dataObject.items?.[0]?.product_name || productName,
+        quantity: dataObject.quantity ?? dataObject.items?.[0]?.quantity ?? quantity,
+        status: dataObject.status || "pending",
+        order_reference: dataObject.order_reference || dataObject.reference || dataObject.order?.order_reference,
+        quantityMt: dataObject.quantityMt ?? dataObject.quantity ?? dataObject.items?.[0]?.quantity ?? quantity,
+        productName: dataObject.productName || dataObject.product_name || dataObject.item || dataObject.items?.[0]?.product_name || productName,
+        product_name: dataObject.product_name || dataObject.productName || dataObject.item || dataObject.items?.[0]?.product_name || productName,
+        total_amount: dataObject.total_amount ?? dataObject.amount ?? dataObject.order?.total_amount ?? localTotal,
+        amount: dataObject.amount ?? dataObject.total_amount ?? dataObject.order?.total_amount ?? localTotal,
+        delivery_details: dataObject.delivery_details || payload.delivery_details,
       };
-      setOrderDetails(mappedOrderDetails);
+      setOrderDetails(completedOrder);
       setSubmittedQuantity(data.quantityMt);
       setIsSuccess(true);
-      onOrderCreated?.(mappedOrderDetails);
+      onOrderSuccess?.(completedOrder);
+      onOrderCreated?.(completedOrder);
     } catch (err) {
       setErrorMessage(err.message || "Failed to submit request.");
     } finally {
