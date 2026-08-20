@@ -143,7 +143,9 @@ export default function App() {
         {activeTab === 'pricing' && (
           <PricingDashboard onOpenShipmentTracking={(payload) => {
             setShipmentPayload(payload);
-            setLatestOrderReference(payload?.orderId || '');
+            const nextReference = resolveOrderReference(payload);
+            setLatestOrderReference(nextReference);
+            setSelectedEscrowRef(nextReference);
             setActiveTab('orders');
           }} />
         )}

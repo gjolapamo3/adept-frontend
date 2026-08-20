@@ -1,6 +1,7 @@
 import React, { useEffect, useMemo, useState } from 'react';
 import './ShipmentTracking.css';
 import { fetchOrderById } from '../services/api';
+import { resolveOrderReference } from '../utils/orderReference';
 
 const statusStages = [
   { key: 'pending', label: 'Order placed' },
@@ -48,13 +49,15 @@ function ShipmentTrackingView({ shipment, activeReference = '' }) {
   const [activeHub, setActiveHub] = useState('');
   const [retryKey, setRetryKey] = useState(0);
 
-  const orderReference = getFirstDefined(
-    shipment?.orderId,
-    shipment?.order_id,
-    shipment?.order_reference,
-    shipment?.reference,
-    shipment?.order?.order_reference,
-    activeReference
+  const orderReference = resolveOrderReference(
+    getFirstDefined(
+      shipment?.orderId,
+      shipment?.order_id,
+      shipment?.order_reference,
+      shipment?.reference,
+      shipment?.order?.order_reference,
+      activeReference
+    )
   );
 
   useEffect(() => {

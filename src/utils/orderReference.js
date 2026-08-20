@@ -5,7 +5,11 @@ export const resolveOrderReference = (reference) => {
 
   if (typeof reference === 'string') {
     const trimmed = reference.trim();
-    return trimmed || '';
+    if (!trimmed) {
+      return '';
+    }
+
+    return trimmed.replace(/^EPT-REF-/i, 'ADEPT-REF-');
   }
 
   if (typeof reference === 'object') {
@@ -18,7 +22,7 @@ export const resolveOrderReference = (reference) => {
       '';
 
     if (typeof candidate === 'string') {
-      return candidate.trim();
+      return candidate.trim().replace(/^EPT-REF-/i, 'ADEPT-REF-');
     }
   }
 

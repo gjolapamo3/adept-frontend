@@ -1,6 +1,7 @@
 // src/services/api.js
 import axios from 'axios';
 import { getStoredAuthToken } from '../utils/auth';
+import { resolveOrderReference } from '../utils/orderReference';
 import {
   b2bOrderSchema,
   loginUserSchema,
@@ -150,7 +151,7 @@ export const placeOrder = async (orderData) => {
 };
 
 export const fetchOrderById = async (orderId) => {
-  const safeOrderId = String(orderId || '').trim();
+  const safeOrderId = resolveOrderReference(orderId);
   if (!safeOrderId) {
     throw new Error('An order reference is required.');
   }

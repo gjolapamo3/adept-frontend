@@ -94,7 +94,7 @@ export default function PricingDashboard({ onOpenShipmentTracking }) {
     };
 
     const payload = {
-      orderId: `ADEPT-${selectedProductMeta.label.slice(0, 3).toUpperCase()}-${Date.now().toString().slice(-6)}`,
+      orderId: `ADEPT-REF-${Date.now().toString().slice(-6)}`,
       item: selectedProductMeta.label,
       quantity,
       total: orderSummary.total,

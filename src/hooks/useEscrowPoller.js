@@ -1,5 +1,6 @@
 import { useState, useEffect, useRef, useCallback } from 'react';
 import { checkEscrowStatus } from '../services/escrowService';
+import { resolveOrderReference } from '../utils/orderReference';
 
 const TERMINAL_STATUSES = new Set([
   'FUNDS_LOCKED',
@@ -120,7 +121,7 @@ export function useEscrowPoller(
   }, []);
 
   const fetchStatus = useCallback(async () => {
-    const normalizedReference = typeof reference === 'string' ? reference.trim() : '';
+    const normalizedReference = resolveOrderReference(reference);
     if (!normalizedReference || !enabled) {
       return;
     }
@@ -172,7 +173,7 @@ export function useEscrowPoller(
   }, [reference, enabled, stopPolling]);
 
   useEffect(() => {
-    const normalizedReference = typeof reference === 'string' ? reference.trim() : '';
+    const normalizedReference = resolveOrderReference(reference);
     const configSignature = `${normalizedReference || ''}|${Boolean(enabled)}|${interval}|${maxAttempts}`;
 
     if (lastConfigRef.current === configSignature) {

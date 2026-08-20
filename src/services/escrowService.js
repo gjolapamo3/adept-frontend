@@ -1,13 +1,15 @@
 import api from './api';
+import { resolveOrderReference } from '../utils/orderReference';
 
 export const fetchOrderStatus = async (reference) => {
-  if (!reference) {
+  const safeReference = resolveOrderReference(reference);
+  if (!safeReference) {
     throw new Error('A payment reference is required.');
   }
 
   try {
-    const safeReference = encodeURIComponent(reference);
-    const response = await api.get(`/api/v1/transactions/${safeReference}`);
+    const encodedReference = encodeURIComponent(safeReference);
+    const response = await api.get(`/api/v1/transactions/${encodedReference}`);
     return response?.data ?? response ?? null;
   } catch (error) {
     console.error('Transaction fetch failed:', error);
